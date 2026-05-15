@@ -1,0 +1,18 @@
+{
+  "displayName": "Ark Format: Shell",
+  "description": "VS Code formatter extension scaffold (TypeScript + esbuild + pnpm) with pnpm/vsce packaging workaround.",
+  "configuration.title": "Ark Format: Shell",
+  "config.enabled.description": "Enable Ark Format for Shell Script files",
+  "config.indentSize.description": "Number of spaces per indentation level",
+  "config.trimTrailingWhitespace.description": "Remove trailing whitespace from lines",
+  "config.maxConsecutiveBlankLines.description": "Maximum number of consecutive blank lines allowed",
+  "config.removeLeadingBlankLines.description": "Remove blank lines at the beginning of the file",
+  "config.insertFinalNewline.description": "Ensure file ends with a newline",
+  "config.lineEnding.description": "Line ending style (LF, CRLF, or Auto to preserve original)",
+  "config.collapseSpaces.description": "Collapse multiple spaces into one (outside of strings and alignment contexts)",
+  "config.spacing.spaceBeforeThenDo.description": "Ensure space before 'then' and 'do' keywords",
+  "config.spacing.spaceAfterKeywords.description": "Ensure space after keywords like 'if', 'while', 'until', 'for'",
+  "config.spacing.spaceBeforeFunctionBrace.description": "Ensure space before opening brace in function definitions",
+  "config.rangeFormatting.enabled.description": "Enable range (selection) formatting",
+  "config.rangeFormatting.reindent.description": "Re-indent selected range from level 0"
+}

@@ -1,0 +1,231 @@
+import { QuoteKind } from "./types";
+
+/**
+ * Função para detectar se uma linha é um shebang (começa com #!) ou um comentário completo (começa com #).
+ * @param lineTrimmed - A linha de código já trimada (sem espaços no início ou no final).
+ * @returns true se for um shebang ou um comentário completo, false caso contrário.
+ */
+export function isShebang (lineTrimmed: string): boolean {
+  return lineTrimmed.startsWith('#!');
+}
+
+/**
+ * Função para detectar se uma linha é um comentário completo (começa com #).
+ * @param lineTrimmed - A linha de código já trimada (sem espaços no início ou no final).
+ * @returns true se for um comentário completo, false caso contrário.
+ */
+export function isFullLineComment (lineTrimmed: string): boolean {
+  return lineTrimmed.startsWith('#');
+}
+
+/**
+ * Função para dividir uma linha de código shell em partes, preservando o tipo de
+ * cada parte (código, aspas simples, aspas duplas, ANSI-C quoting ou crases).
+ * @param input - A linha de código a ser dividida.
+ * @returns Um array de objetos, onde cada objeto tem uma propriedade `kind` indicando o
+ * tipo da parte (code, sq, dq, ansi, bt) e uma propriedade `text` com o conteúdo original dessa parte.
+ */
+export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; text: string }> {
+  const parts: Array<{ kind: QuoteKind; text: string }> = [];
+  let buf = '';
+  let mode: QuoteKind = 'code';
+
+  // Iterar por cada caractere da linha
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    // Verifica se é o modo de código normal
+    if (mode === 'code') {
+      // $'...' ANSI-C quoting
+      if (ch === '$' && input[i + 1] === "'") {
+        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo ANSI-C quoting
+        if (buf) {
+          parts.push({ kind: 'code', text: buf });
+        }
+
+        buf = ch + input[i + 1];
+        i++;
+        mode = 'ansi';
+
+        continue;
+      }
+
+      // Verificar se o caractere é uma aspa simples
+      if (ch === "'") {
+        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas simples
+        if (buf) {
+          parts.push({ kind: 'code', text: buf });
+        }
+
+        buf = ch;
+        mode = 'sq';
+
+      }
+      // Verificar se o caractere é uma aspa dupla 
+      else if (ch === '"') {
+        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas duplas
+        if (buf) {
+          parts.push({ kind: 'code', text: buf });
+        }
+
+        buf = ch;
+        mode = 'dq';
+      }
+      // Verificar se o caractere é uma crase
+      else if (ch === '`') {
+        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de crase
+        if (buf) {
+          parts.push({ kind: 'code', text: buf });
+        }
+
+        buf = ch;
+        mode = 'bt';
+      }
+      // Verificar se o caractere é um comentário inline (começa com #)
+      else if (ch === '#') {
+        // inline comment — rest of line is not code
+        buf += input.slice(i);
+        break;
+      }
+      // É outro tipo de código
+      else {
+        buf += ch;
+      }
+
+      continue;
+    }
+
+    // Verfica os modos de aspas simples
+    if (mode === 'sq') {
+      buf += ch;
+
+      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de aspas simples
+      if (ch === "'") {
+        parts.push({ kind: 'sq', text: buf });
+        buf = '';
+        mode = 'code';
+      }
+
+      continue;
+    }
+
+    // Verfica os modos de aspas duplas
+    if (mode === 'dq') {
+      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+      if (ch === '\\' && i + 1 < input.length) {
+        buf += ch + input[i + 1];
+        i++;
+
+        continue;
+      }
+
+      buf += ch;
+
+      // Verificar se o caractere é uma aspa dupla, indicando o fim do modo de aspas duplas
+      if (ch === '"') {
+        parts.push({ kind: 'dq', text: buf });
+        buf = '';
+        mode = 'code';
+      }
+
+      continue;
+    }
+
+    // Verfica os modos de ANSI-C quoting
+    if (mode === 'ansi') {
+      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+      if (ch === '\\' && i + 1 < input.length) {
+        buf += ch + input[i + 1];
+        i++;
+
+        continue;
+      }
+
+      buf += ch;
+
+      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de ANSI-C quoting
+      if (ch === "'") {
+        parts.push({ kind: 'ansi', text: buf });
+        buf = '';
+        mode = 'code';
+      }
+
+      continue;
+    }
+
+    // Verfica os modos de crase
+    if (mode === 'bt') {
+      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+      if (ch === '\\' && i + 1 < input.length) {
+        buf += ch + input[i + 1];
+        i++;
+
+        continue;
+      }
+
+      buf += ch;
+
+      // Verificar se o caractere é uma crase, indicando o fim do modo de crase
+      if (ch === '`') {
+        parts.push({ kind: 'bt', text: buf });
+        buf = '';
+        mode = 'code';
+      }
+
+      continue;
+    }
+  }
+
+  // Verificar se há um buffer acumulado ao final da linha e adicioná-lo como parte de código
+  if (buf) {
+    parts.push({ kind: mode, text: buf });
+  }
+
+  return parts;
+}
+
+/**
+ * Função para detectar se um operador `<<` de heredoc aparece na parte de código da linha
+ * (ou seja, não dentro de aspas ou comentários).
+ * Lida com os seguintes casos: `<<EOF`, `<<-EOF`, `<<'EOF'`, `<<"EOF"`, `<<-'EOF'`
+ * @param trimmed - A linha de código já trimada (sem espaços no início ou no final).
+ * @returns O identificador do heredoc se encontrado, ou null caso contrário.
+ */
+export function detectHeredocInCode (trimmed: string): string | null {
+  const parts = splitByQuotesPreserve(trimmed);
+
+  // Iterar por cada parte da linha, procurando por operadores de heredoc na parte de código
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+
+    // Verificar apenas a parte de código, ignorando aspas e comentários
+    if (p.kind !== 'code') {
+      continue;
+    }
+
+    // Caso 1: identificador diretamente no código: <<EOF ou <<-EOF ou <<"EOF" ou <<'EOF'
+    const m = p.text.match(/<<-?\s*["']?([A-Za-z0-9_]+)["']?/);
+    if (m) {
+      return m[1];
+    }
+
+    // Caso 2: << no final da parte do código, identificador na próxima parte entre aspas: <<'EOF' ou <<"EOF"
+    const trailingHeredoc = p.text.match(/<<-?\s*$/);
+    if (trailingHeredoc && i + 1 < parts.length) {
+      const next = parts[i + 1];
+
+      // Verificar se a próxima parte é uma string entre aspas simples ou duplas contendo um identificador válido
+      if (next.kind === 'sq' || next.kind === 'dq') {
+        // remover aspas ao redor
+        const inner = next.text.slice(1, -1);
+
+        // Verificar se o conteúdo interno é um identificador válido (composto por letras, números ou underscores)
+        if (/^[A-Za-z0-9_]+$/.test(inner)) {
+          return inner;
+        }
+      }
+    }
+  }
+
+  return null;
+}

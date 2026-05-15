@@ -1,0 +1,18 @@
+{
+  "displayName": "Ark Format: Shell",
+  "description": "Extensão de formatação para VS Code (TypeScript + esbuild + pnpm) com solução para empacotamento pnpm/vsce.",
+  "configuration.title": "Ark Format: Shell",
+  "config.enabled.description": "Habilitar Ark Format para arquivos Shell Script",
+  "config.indentSize.description": "Número de espaços por nível de indentação",
+  "config.trimTrailingWhitespace.description": "Remover espaços em branco no final das linhas",
+  "config.maxConsecutiveBlankLines.description": "Número máximo de linhas em branco consecutivas permitidas",
+  "config.removeLeadingBlankLines.description": "Remover linhas em branco no início do arquivo",
+  "config.insertFinalNewline.description": "Garantir que o arquivo termine com uma nova linha",
+  "config.lineEnding.description": "Estilo de fim de linha (LF, CRLF ou Auto para preservar o original)",
+  "config.collapseSpaces.description": "Colapsar múltiplos espaços em um (fora de strings e contextos de alinhamento)",
+  "config.spacing.spaceBeforeThenDo.description": "Garantir espaço antes das palavras-chave 'then' e 'do'",
+  "config.spacing.spaceAfterKeywords.description": "Garantir espaço após palavras-chave como 'if', 'while', 'until', 'for'",
+  "config.spacing.spaceBeforeFunctionBrace.description": "Garantir espaço antes da chave de abertura em definições de função",
+  "config.rangeFormatting.enabled.description": "Habilitar formatação de intervalo (seleção)",
+  "config.rangeFormatting.reindent.description": "Re-indentar intervalo selecionado a partir do nível 0"
+}

@@ -1,0 +1,10 @@
+.vscode/**
+src/**
+**/*.ts
+**/*.map
+node_modules/**
+pnpm-lock.yaml
+.eslintrc*
+eslint.config.*
+tsconfig.json
+esbuild.mjs

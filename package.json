@@ -1,0 +1,132 @@
+{
+  "name": "ark-format-shell",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "1.0.0",
+  "publisher": "Tooark",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tooark/ark-format-shell"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "formatter",
+    "shell",
+    "bash",
+    "esbuild",
+    "pnpm",
+    "tooark"
+  ],
+  "icon": "assets/icon.png",
+  "activationEvents": [
+    "onLanguage:shellscript"
+  ],
+  "l10n": "./l10n",
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "%configuration.title%",
+      "properties": {
+        "arkFormatShell.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.enabled.description%"
+        },
+        "arkFormatShell.indentSize": {
+          "type": "number",
+          "default": 2,
+          "minimum": 0,
+          "description": "%config.indentSize.description%"
+        },
+        "arkFormatShell.trimTrailingWhitespace": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.trimTrailingWhitespace.description%"
+        },
+        "arkFormatShell.maxConsecutiveBlankLines": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "description": "%config.maxConsecutiveBlankLines.description%"
+        },
+        "arkFormatShell.removeLeadingBlankLines": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.removeLeadingBlankLines.description%"
+        },
+        "arkFormatShell.insertFinalNewline": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.insertFinalNewline.description%"
+        },
+        "arkFormatShell.lineEnding": {
+          "type": "string",
+          "default": "LF",
+          "enum": [
+            "LF",
+            "CRLF",
+            "Auto"
+          ],
+          "description": "%config.lineEnding.description%"
+        },
+        "arkFormatShell.collapseSpaces": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.collapseSpaces.description%"
+        },
+        "arkFormatShell.spacing.spaceBeforeThenDo": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.spacing.spaceBeforeThenDo.description%"
+        },
+        "arkFormatShell.spacing.spaceAfterKeywords": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.spacing.spaceAfterKeywords.description%"
+        },
+        "arkFormatShell.spacing.spaceBeforeFunctionBrace": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.spacing.spaceBeforeFunctionBrace.description%"
+        },
+        "arkFormatShell.rangeFormatting.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.rangeFormatting.enabled.description%"
+        },
+        "arkFormatShell.rangeFormatting.reindent": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.rangeFormatting.reindent.description%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node ./esbuild.mjs --production",
+    "watch": "node ./esbuild.mjs --watch",
+    "compile": "node ./esbuild.mjs",
+    "vscode:prepublish": "pnpm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "pnpm exec vsce package --no-dependencies",
+    "publish": "pnpm exec vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/vsce": "^3.9.0",
+    "esbuild": "^0.21.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.6"
+  }
+}

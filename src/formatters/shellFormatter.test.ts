@@ -1,0 +1,209 @@
+import { describe, it, expect } from 'vitest';
+
+// Não pode importar o vscode nos testes, então utiliza formatText por meio de um wrapper simples
+// que não depende das APIs do vscode.
+// ShellFormatter.formatText é público e usa apenas operações de string.
+// É simulado o módulo vscode para que a importação seja bem-sucedida.
+
+import { vi } from 'vitest';
+vi.mock('vscode', () => ({
+  Range: class {
+    constructor (public start: any, public end: any) { }
+  },
+  TextEdit: {
+    replace: (range: any, text: string) => ({ range, text }),
+  },
+}));
+
+import { ShellFormatter } from './shellFormatter';
+import { ShellFormatterOptions } from './types';
+
+const defaultOpts: ShellFormatterOptions = {
+  indentSize: 2,
+  trimTrailingWhitespace: true,
+  maxConsecutiveBlankLines: 1,
+  removeLeadingBlankLines: true,
+  insertFinalNewline: true,
+  lineEnding: 'LF',
+  collapseSpaces: true,
+  spacing: {
+    spaceBeforeThenDo: true,
+    spaceAfterKeywords: true,
+    spaceBeforeFunctionBrace: true,
+  },
+};
+
+function format (input: string, opts?: Partial<ShellFormatterOptions>): string {
+  return new ShellFormatter({ ...defaultOpts, ...opts }).formatText(input);
+}
+
+describe('ShellFormatter.formatText', () => {
+  it('formats basic if/then/fi', () => {
+    const input = 'if[ "$1" = "ok" ];then\necho "ok"\nfi\n';
+    const result = format(input);
+    expect(result).toBe('if [ "$1" = "ok" ]; then\n  echo "ok"\nfi\n');
+  });
+
+  it('preserves shebang line', () => {
+    const result = format('#!/bin/bash\necho hi\n');
+    expect(result).toBe('#!/bin/bash\necho hi\n');
+  });
+
+  it('formats nested if/else', () => {
+    const input = 'if [ 1 ]; then\nif [ 2 ]; then\necho "deep"\nelse\necho "alt"\nfi\nfi\n';
+    const result = format(input);
+    const lines = result.split('\n');
+    expect(lines[0]).toBe('if [ 1 ]; then');
+    expect(lines[1]).toBe('  if [ 2 ]; then');
+    expect(lines[2]).toBe('    echo "deep"');
+    expect(lines[3]).toBe('  else');
+    expect(lines[4]).toBe('    echo "alt"');
+    expect(lines[5]).toBe('  fi');
+    expect(lines[6]).toBe('fi');
+  });
+
+  it('handles case/esac', () => {
+    const input = 'case "$1" in\nstart)\necho "start"\n;;\nstop)\necho "stop"\n;;\nesac\n';
+    const result = format(input);
+    const lines = result.split('\n');
+    expect(lines[0]).toBe('case "$1" in');
+    expect(lines[1]).toBe('  start)');
+    expect(lines[2]).toBe('    echo "start"');
+    expect(lines[3]).toBe('  ;;');
+    expect(lines[4]).toBe('  stop)');
+    expect(lines[5]).toBe('    echo "stop"');
+    expect(lines[6]).toBe('  ;;');
+    expect(lines[7]).toBe('esac');
+  });
+
+  it('handles for loop', () => {
+    const input = 'for i in 1 2 3; do\necho $i\ndone\n';
+    const result = format(input);
+    expect(result).toBe('for i in 1 2 3; do\n  echo $i\ndone\n');
+  });
+
+  it('handles while loop', () => {
+    const input = 'while [ true ]; do\necho loop\ndone\n';
+    const result = format(input);
+    expect(result).toBe('while [ true ]; do\n  echo loop\ndone\n');
+  });
+
+  it('handles function definition', () => {
+    const input = 'myfunc(){\necho "hi"\n}\n';
+    const result = format(input);
+    expect(result).toBe('myfunc() {\n  echo "hi"\n}\n');
+  });
+
+  it('handles function keyword', () => {
+    const input = 'function myfunc{\necho "hi"\n}\n';
+    const result = format(input);
+    expect(result).toBe('function myfunc {\n  echo "hi"\n}\n');
+  });
+
+  it('preserves heredoc content', () => {
+    const input = 'cat <<EOF\n  hello world\n    indented\nEOF\n';
+    const result = format(input);
+    expect(result).toBe('cat <<EOF\n  hello world\n    indented\nEOF\n');
+  });
+
+  it('does not detect heredoc inside quotes', () => {
+    const input = 'echo "cat <<EOF"\necho "normal"\n';
+    const result = format(input);
+    // Both lines should be formatted normally (no heredoc mode)
+    expect(result).toBe('echo "cat <<EOF"\necho "normal"\n');
+  });
+
+  it('handles line continuation', () => {
+    const input = 'echo hello \\\nworld\necho done\n';
+    const result = format(input);
+    const lines = result.split('\n');
+    expect(lines[0]).toBe('echo hello \\');
+    expect(lines[1]).toBe('  world');
+    expect(lines[2]).toBe('echo done');
+  });
+
+  it('removes leading blank lines', () => {
+    const result = format('\n\n#!/bin/bash\necho hi\n');
+    expect(result).toBe('#!/bin/bash\necho hi\n');
+  });
+
+  it('reduces consecutive blank lines', () => {
+    const result = format('echo a\n\n\n\necho b\n');
+    expect(result).toBe('echo a\n\necho b\n');
+  });
+
+  it('trims trailing whitespace', () => {
+    const result = format('echo hi   \necho bye  \n');
+    expect(result).toBe('echo hi\necho bye\n');
+  });
+
+  it('ensures final newline', () => {
+    const result = format('echo hi');
+    expect(result).toBe('echo hi\n');
+  });
+
+  it('handles CRLF line ending option', () => {
+    const result = format('echo hi\n', { lineEnding: 'CRLF' });
+    expect(result).toBe('echo hi\r\n');
+  });
+
+  it('does not match "final" as "fi"', () => {
+    const input = 'final_var=1\n';
+    const result = format(input);
+    expect(result).toBe('final_var=1\n');
+  });
+
+  it('preserves double-quoted escaped content', () => {
+    const input = 'echo "hello \\"world\\""\n';
+    const result = format(input);
+    expect(result).toBe('echo "hello \\"world\\""\n');
+  });
+
+  it('handles case with ;& fallthrough', () => {
+    const input = 'case "$1" in\na)\necho "a"\n;&\nb)\necho "b"\n;;\nesac\n';
+    const result = format(input);
+    const lines = result.split('\n');
+    expect(lines[3]).toBe('  ;&');
+    expect(lines[4]).toBe('  b)');
+  });
+
+  it('does not treat ) in commands as case pattern (break in case inside while)', () => {
+    const input = [
+      'while [[ $# -gt 0 ]]; do',
+      'case "${1}" in',
+      '--path)',
+      'scan_path="${2}"',
+      'shift 2',
+      ';;',
+      '--)',
+      'shift',
+      'trivy_extras=("$@")',
+      'break',
+      ';;',
+      '*)',
+      'echo "unknown"',
+      ';;',
+      'esac',
+      'done',
+      '',
+    ].join('\n');
+    const result = format(input);
+    const lines = result.split('\n');
+    expect(lines[0]).toBe('while [[ $# -gt 0 ]]; do');
+    expect(lines[1]).toBe('  case "${1}" in');
+    expect(lines[2]).toBe('    --path)');
+    expect(lines[3]).toBe('      scan_path="${2}"');
+    expect(lines[4]).toBe('      shift 2');
+    expect(lines[5]).toBe('    ;;');
+    expect(lines[6]).toBe('    --)');
+    expect(lines[7]).toBe('      shift');
+    expect(lines[8]).toBe('      trivy_extras=("$@")');
+    expect(lines[9]).toBe('      break');
+    expect(lines[10]).toBe('    ;;');
+    expect(lines[11]).toBe('    *)');
+    expect(lines[12]).toBe('      echo "unknown"');
+    expect(lines[13]).toBe('    ;;');
+    expect(lines[14]).toBe('  esac');
+    expect(lines[15]).toBe('done');
+  });
+});
