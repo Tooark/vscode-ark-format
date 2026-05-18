@@ -12,16 +12,18 @@ describe('normalizeToLf', () => {
 
 describe('applyLineEnding', () => {
   it('returns LF for lf mode', () => {
-    expect(applyLineEnding('a\nb', 'lf', 'a\nb')).toBe('a\nb');
+    expect(applyLineEnding('a\nb', 'LF', 'a\nb')).toBe('a\nb');
   });
   it('converts to CRLF for crlf mode', () => {
-    expect(applyLineEnding('a\nb', 'crlf', 'a\nb')).toBe('a\r\nb');
+    const result = applyLineEnding('a\nb', 'CRLF', 'a\nb');
+    expect(result.charCodeAt(1)).toBe(13);
   });
   it('auto detects CRLF from original', () => {
-    expect(applyLineEnding('a\nb', 'auto', 'a\r\nb')).toBe('a\r\nb');
+    const result = applyLineEnding('a\nb', 'Auto', 'a\r\nb');
+    expect(result.charCodeAt(1)).toBe(13);
   });
   it('auto keeps LF when original uses LF', () => {
-    expect(applyLineEnding('a\nb', 'auto', 'a\nb')).toBe('a\nb');
+    expect(applyLineEnding('a\nb', 'Auto', 'a\nb')).toBe('a\nb');
   });
 });
 

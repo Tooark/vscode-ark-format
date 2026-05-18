@@ -55,6 +55,22 @@ describe('applyShellSpacing', () => {
     expect(result).toBe(input);
   });
 
+  it('adds a space after full-line comment marker', () => {
+    expect(applyShellSpacing('#comment', defaultCfg)).toBe('# comment');
+  });
+
+  it('adds a space after multiple comment markers', () => {
+    expect(applyShellSpacing('##comment', defaultCfg)).toBe('## comment');
+  });
+
+  it('adds a space after inline comment marker', () => {
+    expect(applyShellSpacing('echo ok #comment', defaultCfg)).toBe('echo ok # comment');
+  });
+
+  it('preserves shebang lines', () => {
+    expect(applyShellSpacing('#!/usr/bin/env bash', defaultCfg)).toBe('#!/usr/bin/env bash');
+  });
+
   it('respects disabled options', () => {
     const cfg = {
       spaceBeforeThenDo: false,
