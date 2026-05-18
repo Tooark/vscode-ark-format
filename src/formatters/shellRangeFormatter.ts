@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ShellFormatterOptions } from './types';
+import { ShellRangeFormatterOptions } from './types';
 import { normalizeToLf, trimTrailingWhitespace, reduceBlankLines } from './textUtils';
 import { applyShellSpacing } from './shellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './shellIndent';
@@ -13,7 +13,7 @@ export class ShellRangeFormatter {
    * Construtor da classe ShellRangeFormatter.
    * @param opts - As opções de formatação para o shell, incluindo reindentação, espaçamento e outras configurações.
    */
-  constructor (private readonly opts: ShellFormatterOptions & { reindent: boolean }) { }
+  constructor (private readonly opts: ShellRangeFormatterOptions) { }
 
   /**
    * Formata um intervalo de texto em um documento do Visual Studio Code.
@@ -38,7 +38,7 @@ export class ShellRangeFormatter {
    * @param originalSelection - O texto original selecionado a ser formatado.
    * @returns O texto formatado de acordo com as opções de formatação.
    */
-  private formatSelectedText (originalSelection: string): string {
+  public formatSelectedText (originalSelection: string): string {
     const textLf = normalizeToLf(originalSelection);
     const rawLines = textLf.split('\n');
     const out: string[] = [];
@@ -77,8 +77,9 @@ export class ShellRangeFormatter {
       return lines.join('\n');
     }
 
-    // Cria um estado inicial para o processo de formatação
+    // Cria um estado inicial para o processo de formatação, incorporando o baseIndent calculado do contexto do documento
     const st = createInitialState();
+    st.indent = this.opts.baseIndent;
 
     // Itera sobre cada linha do texto selecionado
     for (const raw of rawLines) {

@@ -22,15 +22,19 @@ export function applyShellSpacing (trimmedLine: string, cfg: ShellSpacingConfig)
 function transformCode (code: string, cfg: ShellSpacingConfig): string {
   let s = code;
 
-  // Aplica as regras de espaçamento conforme as opções fornecidas
+  // Aplica espaço após ';' em 'then' e 'do'
   if (cfg.spaceBeforeThenDo) {
+    // Normaliza ';then' ou ';   then' para '; then'.
     s = s.replace(/;\s*then\b/g, '; then');
+    // Normaliza ';do' ou ';   do' para '; do'.
     s = s.replace(/;\s*do\b/g, '; do');
   }
 
   // Aplica espaço após palavras-chave como if, while, until, for
   if (cfg.spaceAfterKeywords) {
+    // Garante espaço entre if/while/until e '[' em testes no estilo POSIX.
     s = s.replace(/\b(if|while|until)\s*\[/g, '$1 [');
+    // Garante espaço entre 'for' e '(' em laços no estilo C.
     s = s.replace(/\bfor\s*\(/g, 'for (');
   }
 
@@ -46,10 +50,49 @@ function transformCode (code: string, cfg: ShellSpacingConfig): string {
 
   // Colapsa múltiplos espaços em um único espaço, mas preserva os espaços iniciais (que são tratados pela indentação)
   if (cfg.collapseSpaces) {
-    // Collapse multiple spaces but preserve leading spaces (handled by indent)
-    // and spaces in comment tails
+    // Colapsa espaços internos duplicados entre caracteres não-espaço.
+    // Isso evita mexer na indentação inicial e não remove espaço final.
     s = s.replace(/(\S) {2,}(?=\S)/g, '$1 ');
   }
 
+  // Normaliza o espaçamento em comentários
+  s = normalizeCommentSpacing(s);
+
   return s;
+}
+
+/**
+ * Função para normalizar o espaçamento em comentários, garantindo que haja um espaço
+ * entre o marcador de comentário (`#`) e o texto do comentário, exceto para shebangs
+ * e casos onde o `#` é seguido por outro `#` (comentários com múltiplos marcadores).
+ * @param code O trecho de código shell a ser normalizado.
+ * @returns O trecho de código shell com o espaçamento normalizado em comentários.
+ */
+function normalizeCommentSpacing (code: string): string {
+  const commentStart = code.indexOf('#');
+
+  // Se não houver comentário, retorna o código original
+  if (commentStart === -1) {
+    return code;
+  }
+
+  // Preserva shebang.
+  if (commentStart === 0 && code[1] === '!') {
+    return code;
+  }
+
+  let markerEnd = commentStart;
+
+  // Itera a partir do marcador de comentário para encontrar o final dos caracteres `#` consecutivos
+  while (markerEnd < code.length && code[markerEnd] === '#') {
+    markerEnd++;
+  }
+
+  // Se o marcador de comentário for seguido por um espaço ou estiver no final da linha, não adiciona espaço extra
+  if (markerEnd >= code.length || /\s/.test(code[markerEnd])) {
+    return code;
+  }
+
+  // Insere um espaço entre o marcador de comentário e o texto do comentário
+  return code.slice(0, markerEnd) + ' ' + code.slice(markerEnd);
 }

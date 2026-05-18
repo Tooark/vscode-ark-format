@@ -8,9 +8,6 @@ import { isShebang, detectHeredocInCode } from './shellLex';
 /**
  * Função principal do formatador de shell script.
  * Recebe um documento do VSCode, formata seu conteúdo e retorna as edições necessárias para aplicar o formato.
- * O método `formatText` é responsável por processar o texto original, aplicando regras de espaçamento,
- * indentação e outras formatações específicas para shell script, além de lidar com casos especiais como heredocs e shebangs.
- * O resultado final é ajustado para os finais de linha e outras opções configuráveis antes de ser retornado.
  */
 export class ShellFormatter {
   /**
@@ -25,6 +22,7 @@ export class ShellFormatter {
    * @returns Um array de edições de texto que representam as mudanças necessárias para aplicar o formato ao documento.
    */
   public formatDocument (document: vscode.TextDocument): vscode.TextEdit[] {
+    // Carrega o texto original do documento e formata-o usando o método formatText
     const original = document.getText();
     const formatted = this.formatText(original);
 
@@ -33,15 +31,15 @@ export class ShellFormatter {
       return [];
     }
 
+    // Cria um intervalo que abrange todo o documento para substituir o conteúdo inteiro pelo texto formatado
     const fullRange = new vscode.Range(document.positionAt(0), document.positionAt(original.length));
 
+    // Retorna uma edição de texto que substitui o conteúdo inteiro do documento pelo texto formatado
     return [vscode.TextEdit.replace(fullRange, formatted)];
   }
 
   /**
    * Formata um texto de shell script, aplicando regras de espaçamento, indentação e outras formatações específicas.
-   * O método processa o texto linha por linha, lidando com casos especiais como heredocs e shebangs, e aplica as opções de formatação configuradas.
-   * O resultado final é ajustado para os finais de linha e outras opções antes de ser retornado.
    * @param originalText - O texto original do shell script a ser formatado.
    * @returns O texto formatado de acordo com as regras e opções configuradas.
    */

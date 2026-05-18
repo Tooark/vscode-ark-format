@@ -35,13 +35,14 @@ export function isLineContinuation (trimmed: string): boolean {
     backslashes++;
   }
 
-  // Se o número de barras invertidas for ímpar, então a última barra é uma continuação de linhaq
+  // Se o número de barras invertidas for ímpar, então a última barra é uma continuação de linha
   return backslashes % 2 === 1;
 }
 
 /**
  * Função para ajustar a indentação antes de processar uma linha de código.
- * Esta função verifica se a linha atual é um terminador de bloco (como `fi`, `done`, `esac`, etc.) e, se for, reduz a indentação para a próxima linha.
+ * Esta função verifica se a linha atual é um terminador de bloco (como `fi`, `done`, `esac`, etc.)
+ * e, se for, reduz a indentação para a próxima linha.
  * @param trimmed A linha de código já trimada (sem espaços em branco no início e no fim).
  * @param st O estado atual de indentação.
  */
@@ -142,7 +143,7 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
     st.continuation = false;
   }
 
-  // Blocos de controle
+  // Blocos de controle - bloco case
   if (/^case\b.*\bin\s*$/.test(trimmed)) {
     st.indent += 1;
     st.inCase = true;
@@ -172,6 +173,7 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
     return;
   }
 
+  // Padrões de case
   if (st.inCase && !st.inCasePatternBody && /\)\s*$/.test(trimmed) && !/^(;;?&?|;;&)/.test(trimmed)) {
     st.indent += 1;
     st.inCasePatternBody = true;

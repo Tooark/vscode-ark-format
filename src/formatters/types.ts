@@ -4,11 +4,34 @@
 export type LineEnding = 'LF' | 'CRLF' | 'Auto';
 
 /**
+ * Tipagem para o motor de formatação utilizado.
+ * - `internal`: Usa o formatador interno puro em TypeScript.
+ * - `shfmt`: Usa o binário externo `shfmt` para formatação.
+ */
+export type FormatterEngine = 'internal' | 'shfmt';
+
+/**
  * Tipagem para os tipos de partes de uma linha de código shell, usada na função `splitByQuotesPreserve`
  * para identificar se um trecho é código normal (code), entre aspas simples (sq), entre aspas duplas (dq), ANSI-C quoting (ansi) ou entre crases (bt).
  * Isso é útil para preservar o conteúdo original durante a formatação, especialmente para evitar colapsar espaços dentro de strings ou comandos.
  */
 export type QuoteKind = 'code' | 'sq' | 'dq' | 'ansi' | 'bt';
+
+/**
+ * Interface para as propriedades relevantes lidas de um `.editorconfig`.
+ * - `indent_style`: Define o estilo de indentação (espaços ou tabs).
+ * - `indent_size`: Define o número de espaços para cada nível de indentação (aplicável se `indent_style` for 'space').
+ * - `end_of_line`: Define o tipo de quebra de linha a ser usada (LF, CRLF ou CR).
+ * - `insert_final_newline`: Se deve garantir que o arquivo termine com uma nova linha.
+ * - `trim_trailing_whitespace`: Se deve remover espaços em branco no final das linhas.
+ */
+export interface EditorConfigProperties {
+  indent_style?: 'space' | 'tab';
+  indent_size?: number;
+  end_of_line?: 'lf' | 'crlf' | 'cr';
+  insert_final_newline?: boolean;
+  trim_trailing_whitespace?: boolean;
+}
 
 /**
  * Interface para representar o estado de indentação durante a formatação de shell. Permite rastrear:
@@ -51,6 +74,17 @@ export interface ShellFormatterOptions {
 }
 
 /**
+ * Interface para opções específicas do formatador de intervalo de shell.
+ * Estende as opções gerais de formatação de shell (`ShellFormatterOptions`) e adiciona:
+ * - `reindent`: Se deve reindentar o intervalo selecionado.
+ * - `baseIndent`: Nível de indentação base calculado a partir do contexto do documento (linhas anteriores à seleção).
+ */
+export interface ShellRangeFormatterOptions extends ShellFormatterOptions {
+  reindent: boolean;
+  baseIndent: number;
+}
+
+/**
  * Interface para configurações de espaçamento para o formatador de shell. Permite configurar:
  * - `spaceBeforeThenDo`: Se deve adicionar um espaço antes de `then` e `do` em comandos como `if` e `while`.
  * - `spaceAfterKeywords`: Se deve adicionar um espaço após palavras-chave como `if`, `while`, `until` antes de colchetes ou parênteses.
@@ -62,6 +96,22 @@ export interface ShellSpacingConfig {
   spaceAfterKeywords: boolean;
   spaceBeforeFunctionBrace: boolean;
   collapseSpaces: boolean;
+}
+
+/**
+ * Interface para o resultado da execução do binário `shfmt` para formatação de shell. Permite representar:
+ * - `success`: Se a formatação foi bem-sucedida.
+ * - `formatted`: O texto formatado, presente apenas se `success` for true.
+ * - `errorLine`: A linha onde ocorreu um erro de sintaxe, presente apenas se `success` for false.
+ * - `errorColumn`: A coluna onde ocorreu um erro de sintaxe, presente apenas se `success` for false.
+ * - `errorMessage`: A mensagem de erro detalhada, presente apenas se `success` for false.
+ */
+export interface ShfmtResult {
+  success: boolean;
+  formatted?: string;
+  errorLine?: number;
+  errorColumn?: number;
+  errorMessage?: string;
 }
 
 /**

@@ -19,8 +19,8 @@ export function isFullLineComment (lineTrimmed: string): boolean {
 }
 
 /**
- * Função para dividir uma linha de código shell em partes, preservando o tipo de
- * cada parte (código, aspas simples, aspas duplas, ANSI-C quoting ou crases).
+ * Função para dividir uma linha de código shell em partes, preservando o tipo de cada parte
+ * (código, aspas simples, aspas duplas, ANSI-C quoting ou crases).
  * @param input - A linha de código a ser dividida.
  * @returns Um array de objetos, onde cada objeto tem uma propriedade `kind` indicando o
  * tipo da parte (code, sq, dq, ansi, bt) e uma propriedade `text` com o conteúdo original dessa parte.
@@ -50,52 +50,53 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
         continue;
       }
 
-      // Verificar se o caractere é uma aspa simples
-      if (ch === "'") {
-        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas simples
-        if (buf) {
-          parts.push({ kind: 'code', text: buf });
-        }
+      // Verificar os caracteres que iniciam modos de aspas ou comentários
+      switch (ch) {
+        case "'": // Verificar se o caractere é uma aspa simples
+          // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas simples
+          if (buf) {
+            parts.push({ kind: 'code', text: buf });
+          }
 
-        buf = ch;
-        mode = 'sq';
+          buf = ch;
+          mode = 'sq';
+          break;
+        case '"': // Verificar se o caractere é uma aspa dupla
+          // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas duplas
+          if (buf) {
+            parts.push({ kind: 'code', text: buf });
+          }
 
+          buf = ch;
+          mode = 'dq';
+          break;
+        case '`': // Verificar se o caractere é uma crase
+          // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de crase
+          if (buf) {
+            parts.push({ kind: 'code', text: buf });
+          }
+
+          buf = ch;
+          mode = 'bt';
+          break;
+        case '#': // Verificar se o caractere é um comentário inline (começa com #)
+          // inline comment — rest of line is not code
+          buf += input.slice(i);
+          break;
+        default:  // É outro tipo de código
+          buf += ch;
+          break;
       }
-      // Verificar se o caractere é uma aspa dupla 
-      else if (ch === '"') {
-        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas duplas
-        if (buf) {
-          parts.push({ kind: 'code', text: buf });
-        }
 
-        buf = ch;
-        mode = 'dq';
-      }
-      // Verificar se o caractere é uma crase
-      else if (ch === '`') {
-        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de crase
-        if (buf) {
-          parts.push({ kind: 'code', text: buf });
-        }
-
-        buf = ch;
-        mode = 'bt';
-      }
-      // Verificar se o caractere é um comentário inline (começa com #)
-      else if (ch === '#') {
-        // inline comment — rest of line is not code
-        buf += input.slice(i);
+      // Se o caractere for um comentário inline, não processar mais caracteres como código
+      if (ch === '#') {
         break;
-      }
-      // É outro tipo de código
-      else {
-        buf += ch;
       }
 
       continue;
     }
 
-    // Verfica os modos de aspas simples
+    // Verifica os modos de aspas simples
     if (mode === 'sq') {
       buf += ch;
 
@@ -109,7 +110,7 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
       continue;
     }
 
-    // Verfica os modos de aspas duplas
+    // Verifica os modos de aspas duplas
     if (mode === 'dq') {
       // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
       if (ch === '\\' && i + 1 < input.length) {
@@ -131,7 +132,7 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
       continue;
     }
 
-    // Verfica os modos de ANSI-C quoting
+    // Verifica os modos de ANSI-C quoting
     if (mode === 'ansi') {
       // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
       if (ch === '\\' && i + 1 < input.length) {
@@ -153,7 +154,7 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
       continue;
     }
 
-    // Verfica os modos de crase
+    // Verifica os modos de crase
     if (mode === 'bt') {
       // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
       if (ch === '\\' && i + 1 < input.length) {

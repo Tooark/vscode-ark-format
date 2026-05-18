@@ -25,7 +25,9 @@
   ],
   "icon": "assets/icon.png",
   "activationEvents": [
-    "onLanguage:shellscript"
+    "onLanguage:shellscript",
+    "onLanguage:bats",
+    "onLanguage:azcli"
   ],
   "l10n": "./l10n",
   "main": "./dist/extension.js",
@@ -33,6 +35,50 @@
     "configuration": {
       "title": "%configuration.title%",
       "properties": {
+        "arkFormatShell.engine": {
+          "type": "string",
+          "default": "internal",
+          "enum": [
+            "internal",
+            "shfmt"
+          ],
+          "enumDescriptions": [
+            "%config.engine.enum.internal%",
+            "%config.engine.enum.shfmt%"
+          ],
+          "description": "%config.engine.description%"
+        },
+        "arkFormatShell.shfmt.path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "%config.shfmt.path.description%"
+        },
+        "arkFormatShell.shfmt.flags": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "%config.shfmt.flags.description%"
+        },
+        "arkFormatShell.useEditorConfig": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.useEditorConfig.description%"
+        },
+        "arkFormatShell.effectLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "shellscript"
+          ],
+          "description": "%config.effectLanguages.description%"
+        },
         "arkFormatShell.enabled": {
           "type": "boolean",
           "default": true,
@@ -104,6 +150,11 @@
           "type": "boolean",
           "default": false,
           "description": "%config.rangeFormatting.reindent.description%"
+        },
+        "arkFormatShell.rangeFormatting.useDocumentContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.rangeFormatting.useDocumentContext.description%"
         }
       }
     }

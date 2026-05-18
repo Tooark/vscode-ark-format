@@ -1,45 +1,46 @@
 import { LineEnding } from './types';
 
-// Regular expression para detectar quebras de linha CRLF
+// Regular expression para detectar quebras de linha CRLF, LF e CR
 const CRLF_RE = /\r\n/g;
+const LF_RE = /\n/g;
+const CR_RE = /\r/g;
 
 /**
- * Função para normalizar o texto para usar apenas LF como quebra de linha
- * @param text O texto a ser normalizado
- * @returns O texto normalizado com quebras de linha LF
+ * Função para normalizar o texto para usar apenas LF como quebra de linha.
+ * @param text O texto a ser normalizado.
+ * @returns O texto normalizado com quebras de linha LF.
  */
 export function normalizeToLf (text: string): string {
-  return text.replace(CRLF_RE, '\n');
+  return text.replace(CRLF_RE, '\n').replace(CR_RE, '\n');
 }
 
 /**
- * Função para aplicar o estilo de quebra de linha ao texto
- * @param textLf O texto com quebras de linha LF
- * @param mode O modo de quebra de linha a ser aplicado
- * @param originalText O texto original para referência no modo 'Auto'
- * @returns O texto com o estilo de quebra de linha aplicado
+ * Função para aplicar o estilo de quebra de linha ao texto.
+ * @param textLf O texto com quebras de linha LF.
+ * @param mode O modo de quebra de linha a ser aplicado.
+ * @param originalText O texto original para referência no modo 'Auto'.
+ * @returns O texto com o estilo de quebra de linha aplicado.
  */
 export function applyLineEnding (textLf: string, mode: LineEnding, originalText: string): string {
   // Se o modo for 'Auto', detecta o estilo de quebra de linha usado no texto original
-  if (mode === 'Auto') {
-    const usesCrlf = CRLF_RE.test(originalText);
-    
-    return usesCrlf ? textLf.replace(/\n/g, '\r\n') : textLf;
-  }
+  switch (mode) {
+    case 'Auto': {
+      const breakLineType = CRLF_RE.test(originalText) ? '\r\n' : '\r';
 
-  // Se o modo for 'CRLF', converte as quebras de linha LF para CRLF
-  if (mode === 'CRLF') {
-    return textLf.replace(/\n/g, '\r\n');
+      return LF_RE.test(originalText) ? textLf : textLf.replace(/\n/g, breakLineType);
+    }
+    case 'CRLF':
+      return textLf.replace(/\n/g, '\r\n');
+    default:
+      return textLf;
   }
-
-  return textLf;
 }
 
 /**
- * Função para remover espaços em branco no final de cada linha
- * @param lines As linhas de texto
- * @param enabled Se a remoção deve ser aplicada
- * @returns As linhas de texto com espaços em branco removidos
+ * Função para remover espaços em branco no final de cada linha.
+ * @param lines As linhas de texto.
+ * @param enabled Se a remoção deve ser aplicada.
+ * @returns As linhas de texto com espaços em branco removidos.
  */
 export function trimTrailingWhitespace (lines: string[], enabled: boolean): string[] {
   // Se a remoção de espaços em branco no final das linhas não estiver habilitada, retorna as linhas originais
@@ -51,10 +52,10 @@ export function trimTrailingWhitespace (lines: string[], enabled: boolean): stri
 }
 
 /**
- * Função para reduzir linhas em branco consecutivas
- * @param lines As linhas de texto
- * @param maxConsecutive O número máximo de linhas em branco consecutivas permitidas
- * @returns As linhas de texto com linhas em branco reduzidas
+ * Função para reduzir linhas em branco consecutivas.
+ * @param lines As linhas de texto.
+ * @param maxConsecutive O número máximo de linhas em branco consecutivas permitidas.
+ * @returns As linhas de texto com linhas em branco reduzidas.
  */
 export function reduceBlankLines (lines: string[], maxConsecutive: number): string[] {
   const out: string[] = [];
@@ -80,10 +81,10 @@ export function reduceBlankLines (lines: string[], maxConsecutive: number): stri
 }
 
 /**
- * Função para remover linhas em branco no início do texto
- * @param lines As linhas de texto
- * @param enabled Se a remoção deve ser aplicada
- * @returns As linhas de texto com linhas em branco removidas do início
+ * Função para remover linhas em branco no início do texto.
+ * @param lines As linhas de texto.
+ * @param enabled Se a remoção deve ser aplicada.
+ * @returns As linhas de texto com linhas em branco removidas do início.
  */
 export function removeLeadingBlankLines (lines: string[], enabled: boolean): string[] {
   // Se a remoção de linhas em branco no início do texto não estiver habilitada, retorna as linhas originais
@@ -102,10 +103,10 @@ export function removeLeadingBlankLines (lines: string[], enabled: boolean): str
 }
 
 /**
- * Função para garantir que o texto termine com uma nova linha
- * @param text O texto a ser verificado
- * @param enabled Se a garantia deve ser aplicada
- * @returns O texto com uma nova linha final, se necessário
+ * Função para garantir que o texto termine com uma nova linha.
+ * @param text O texto a ser verificado.
+ * @param enabled Se a garantia deve ser aplicada.
+ * @returns O texto com uma nova linha final, se necessário.
  */
 export function ensureFinalNewline (text: string, enabled: boolean): string {
   // Se a garantia de nova linha final não estiver habilitada, retorna o texto original
