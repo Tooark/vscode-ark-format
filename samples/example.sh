@@ -1,31 +1,34 @@
+
 #!/bin/bash
 
 # Basic if/then
-if [ "$1" = "ok" ]; then
-  echo "ok"
+if [ "$1" = "ok" ];then
+echo "ok"
 fi
 
 # Nested if/else
 if [ -f "file.txt" ]; then
-  if [ -r "file.txt" ]; then
-    echo "readable"
-  else
-    echo "not readable"
-  fi
+if [ -r "file.txt" ];then
+echo "readable"
+else
+echo "not readable"
+fi
 fi
 
 # Function definitions
 myfunc(){
-  echo "hello"
+echo "hello"
 }
 
 function another_func{
-  echo "world"
+echo "world"
 }
 
 function with_parens()  {
-  echo "parens"
+echo "parens"
 }
+
+
 
 # Case with ;& and ;;&
 case "$1" in
@@ -64,14 +67,16 @@ curl -X POST \
   http://localhost:8080/api
 
 # For and while loops
-for i in 1 2 3; do
-  echo $i
+for i in 1 2 3;do
+echo $i
 done
 
-while [ true ]; do
-  echo "loop"
-  break
+while [ true ];do
+echo "loop"
+break
 done
+
+
 
 # Escaped quotes
 echo "say \"hello\" world"
