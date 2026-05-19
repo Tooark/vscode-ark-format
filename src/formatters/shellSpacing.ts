@@ -69,7 +69,7 @@ function transformCode (code: string, cfg: ShellSpacingConfig): string {
  * @returns O trecho de código shell com o espaçamento normalizado em comentários.
  */
 function normalizeCommentSpacing (code: string): string {
-  const commentStart = code.indexOf('#');
+  const commentStart = findCommentStart(code);
 
   // Se não houver comentário, retorna o código original
   if (commentStart === -1) {
@@ -95,4 +95,33 @@ function normalizeCommentSpacing (code: string): string {
 
   // Insere um espaço entre o marcador de comentário e o texto do comentário
   return code.slice(0, markerEnd) + ' ' + code.slice(markerEnd);
+}
+
+/**
+ * Função para encontrar a posição do início de um comentário em uma linha de código shell.
+ * Retorna a posição do início de comentário shell (`#`) quando ele de fato atua como comentário.
+ * Ignora `#` usados em expansões como `${#var}` e `${var##pattern}`.
+ * @param code A linha de código shell a ser analisada.
+ * @returns A posição do início do comentário ou -1 se não houver comentário.
+ */
+function findCommentStart (code: string): number {
+  // Itera sobre a linha para encontrar um `#` que seja um comentário
+  for (let i = 0; i < code.length; i++) {
+    // Verifica se o caractere atual é `#`
+    if (code[i] !== '#') {
+      continue;
+    }
+
+    // Comentário em linha inteira
+    if (i === 0) {
+      return i;
+    }
+
+    // Comentário inline típico: precisa ser precedido por espaço/tab.
+    if (/\s/.test(code[i - 1])) {
+      return i;
+    }
+  }
+
+  return -1;
 }

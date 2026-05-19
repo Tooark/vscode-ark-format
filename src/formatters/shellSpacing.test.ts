@@ -71,6 +71,16 @@ describe('applyShellSpacing', () => {
     expect(applyShellSpacing('#!/usr/bin/env bash', defaultCfg)).toBe('#!/usr/bin/env bash');
   });
 
+  it('does not treat ${#...} length expansion as comment', () => {
+    const input = 'if [[ ${#lint_results[@]} -gt 0 ]]; then';
+    expect(applyShellSpacing(input, defaultCfg)).toBe(input);
+  });
+
+  it('does not inject space in ${var##pattern} expansion', () => {
+    const input = 'url="${url%"${url##*[![:space:]]}"}"';
+    expect(applyShellSpacing(input, defaultCfg)).toBe(input);
+  });
+
   it('respects disabled options', () => {
     const cfg = {
       spaceBeforeThenDo: false,

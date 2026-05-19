@@ -186,6 +186,201 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
 }
 
 /**
+ * Retorna apenas as partes de código fora de aspas, útil para decisões de indentação.
+ * Caracteres literais dentro de strings não devem abrir ou fechar blocos shell.
+ * @param input - Linha original de shell.
+ * @returns O conteúdo concatenado das partes classificadas como código.
+ */
+export function getCodePartsOnly (input: string, initialMode: QuoteKind = 'code'): string {
+  let mode: QuoteKind = initialMode;
+  let code = '';
+
+  // Iterar por cada caractere da linha para extrair apenas as partes de código
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    // Verifica o modo atual e as transições de estado com base nos caracteres encontrados
+    if (mode === 'code') {
+      // $'...' ANSI-C quoting
+      if (ch === '$' && input[i + 1] === "'") {
+        mode = 'ansi';
+        i++;
+        continue;
+      }
+
+      // Verificar os caracteres que iniciam modos de aspas ou comentários
+      switch (ch) {
+        case "'": // Verificar se o caractere é uma aspa simples, indicando o início do modo de aspas simples
+          mode = 'sq';
+          continue;
+        case '"': // Verificar se o caractere é uma aspa dupla, indicando o início do modo de aspas duplas
+          mode = 'dq';
+          continue;
+        case '`': // Verificar se o caractere é uma crase, indicando o início do modo de crase
+          mode = 'bt';
+          continue;
+        default:
+          code += ch;
+          continue;
+      }
+    }
+
+    // Verifica os modos de aspas simples
+    if (mode === 'sq') {
+      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de aspas simples
+      if (ch === "'") {
+        mode = 'code';
+      }
+
+      continue;
+    }
+
+    // Verifica os modos de aspas duplas
+    if (mode === 'dq') {
+      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+      if (ch === '\\' && i + 1 < input.length) {
+        i++;
+        continue;
+      }
+
+      // Verificar se o caractere é uma aspa dupla, indicando o fim do modo de aspas duplas
+      if (ch === '"') {
+        mode = 'code';
+      }
+
+      continue;
+    }
+
+    // Verifica os modos de ANSI-C quoting
+    if (mode === 'ansi') {
+      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+      if (ch === '\\' && i + 1 < input.length) {
+        i++;
+        continue;
+      }
+
+      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de ANSI-C quoting
+      if (ch === "'") {
+        mode = 'code';
+      }
+
+      continue;
+    }
+
+    // Verifica os modos de crase
+    if (mode === 'bt') {
+      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+      if (ch === '\\' && i + 1 < input.length) {
+        i++;
+        continue;
+      }
+
+      // Verificar se o caractere é uma crase, indicando o fim do modo de crase
+      if (ch === '`') {
+        mode = 'code';
+      }
+    }
+  }
+
+  return code;
+}
+
+/**
+ * Função para calcular o modo de aspas final após processar uma linha inteira de código shell.
+ * @param input - Linha original (sem trim) para preservar semântica de escapes.
+ * @param initialMode - Modo de aspas de entrada (estado vindo da linha anterior).
+ * @returns O modo final após processar a linha.
+ */
+export function getQuoteModeAfterLine (input: string, initialMode: QuoteKind = 'code'): QuoteKind {
+  let mode: QuoteKind = initialMode;
+
+  // Iterar por cada caractere da linha para determinar o modo de aspas final
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    // Verificar o modo atual e as transições de estado com base nos caracteres encontrados
+    switch (mode) {
+      case 'code':  // Modo de código
+        // $'...' ANSI-C quoting
+        if (ch === '$' && input[i + 1] === "'") {
+          mode = 'ansi';
+          i++;
+          continue;
+        }
+
+        // Verificar os caracteres que iniciam modos de aspas ou comentários
+        switch (ch) {
+          case "'": // Verificar se o caractere é uma aspa simples, indicando o início do modo de aspas simples
+            mode = 'sq';
+            continue;
+          case '"': // Verificar se o caractere é uma aspa dupla, indicando o início do modo de aspas duplas
+            mode = 'dq';
+            continue;
+          case '`': // Verificar se o caractere é uma crase, indicando o início do modo de crase
+            mode = 'bt';
+            continue;
+          case '#': // Comentário fora de aspas: resto da linha não altera estado de aspas.
+            break;
+          default:
+            continue;
+        }
+
+        break;
+      case 'sq':    // Modo de aspas simples
+        // Verificar se o caractere é uma aspa simples, indicando o fim do modo de aspas simples
+        if (ch === "'") {
+          mode = 'code';
+        }
+
+        continue;
+      case 'dq':    // Modo de aspas duplas
+        // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+        if (ch === '\\' && i + 1 < input.length) {
+          i++;
+          continue;
+        }
+
+        // Verificar se o caractere é uma aspa dupla, indicando o fim do modo de aspas duplas
+        if (ch === '"') {
+          mode = 'code';
+        }
+
+        continue;
+      case 'ansi':  // Modo de ANSI-C quoting
+        // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+        if (ch === '\\' && i + 1 < input.length) {
+          i++;
+          continue;
+        }
+
+        // Verificar se o caractere é uma aspa simples, indicando o fim do modo de ANSI-C quoting
+        if (ch === "'") {
+          mode = 'code';
+        }
+
+        continue;
+      case 'bt':    // Modo de crase
+        // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
+        if (ch === '\\' && i + 1 < input.length) {
+          i++;
+          continue;
+        }
+
+        // Verificar se o caractere é uma crase, indicando o fim do modo de crase
+        if (ch === '`') {
+          mode = 'code';
+        }
+
+        continue;
+    }
+
+    break;
+  }
+
+  return mode;
+}
+
+/**
  * Função para detectar se um operador `<<` de heredoc aparece na parte de código da linha
  * (ou seja, não dentro de aspas ou comentários).
  * Lida com os seguintes casos: `<<EOF`, `<<-EOF`, `<<'EOF'`, `<<"EOF"`, `<<-'EOF'`

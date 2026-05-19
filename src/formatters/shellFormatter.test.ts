@@ -206,4 +206,136 @@ describe('ShellFormatter.formatText', () => {
     expect(lines[14]).toBe('  esac');
     expect(lines[15]).toBe('done');
   });
+
+  it('preserves indentation inside multiline jq filter string', () => {
+    const input = [
+      'for sev in "${fail_sev_array[@]}"; do',
+      'local sev_upper="${sev^^}"',
+      'local sev_count',
+      'sev_count=$(jq -r ' + '\\',
+      '--arg sev "$sev_upper" ' + '\\',
+      "'[",
+      '  .Results[]? |',
+      '  (',
+      '    (.Vulnerabilities[]? // empty),',
+      '    (.Misconfigurations[]? // empty),',
+      '    (.Secrets[]? // empty)',
+      '  ) | select(.Severity == $sev)',
+      "] | length' " + '\\',
+      '"$output" 2>/dev/null || echo "0")',
+      'vuln_found_count=$((vuln_found_count + sev_count))',
+      'done',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'for sev in "${fail_sev_array[@]}"; do',
+      '  local sev_upper="${sev^^}"',
+      '  local sev_count',
+      '  sev_count=$(jq -r ' + '\\',
+      '    --arg sev "$sev_upper" ' + '\\',
+      "    '[",
+      '      .Results[]? |',
+      '      (',
+      '        (.Vulnerabilities[]? // empty),',
+      '        (.Misconfigurations[]? // empty),',
+      '        (.Secrets[]? // empty)',
+      '      ) | select(.Severity == $sev)',
+      "    ] | length' " + '\\',
+      '    "$output" 2>/dev/null || echo "0")',
+      '  vuln_found_count=$((vuln_found_count + sev_count))',
+      'done',
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
+
+  it('preserves jq json object indentation inside multiline single quote', () => {
+    const input = [
+      'jq -n ' + '\\',
+      '--arg schema "ci-tools-report" ' + '\\',
+      '--arg version "1.0" ' + '\\',
+      "'{",
+      '  schema: $schema,',
+      '  version: $version',
+      "}' > \"$output_file\"",
+      '',
+    ].join('\n');
+
+    const expected = [
+      'jq -n ' + '\\',
+      '  --arg schema "ci-tools-report" ' + '\\',
+      '  --arg version "1.0" ' + '\\',
+      "  '{",
+      '    schema: $schema,',
+      '    version: $version',
+      "  }' > \"$output_file\"",
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
+
+  it('does not keep extra block indentation after multiline quoted object closes', () => {
+    const input = [
+      'wrap_ci_report() {',
+      'local output_file="$1"',
+      'jq -n ' + '\\',
+      '--arg schema "ci-tools-report" ' + '\\',
+      "'{",
+      '  schema: $schema',
+      "}' > \"$output_file\"",
+      'log "Wrapped report saved"',
+      '}',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'wrap_ci_report() {',
+      '  local output_file="$1"',
+      '  jq -n ' + '\\',
+      '    --arg schema "ci-tools-report" ' + '\\',
+      "    '{",
+      '      schema: $schema',
+      "    }' > \"$output_file\"",
+      '  log "Wrapped report saved"',
+      '}',
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
+
+  it('normalizes excessive indentation in multiline jq summary string', () => {
+    const input = [
+      'severity_summary=$(jq -r ' + '\\',
+      '  --arg sevs "$fail_severity" \'' ,
+      '        ($sevs | split(",") | map(gsub("^\\\\s+|\\\\s+$"; "") | ascii_upcase)) as $slist',
+      '        | [ .Results[]? | ((.Vulnerabilities[]? // empty), (.Misconfigurations[]? // empty), (.Secrets[]? // empty)) ] as $v',
+      '        | $slist',
+      '        | map(. as $sev | "\\($sev): \\($v | map(select(.Severity == $sev)) | length)")',
+      '        | .[]',
+      '        \'' + ' "$output" 2>/dev/null || true)',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'severity_summary=$(jq -r ' + '\\',
+      '  --arg sevs "$fail_severity" \'' ,
+      '  ($sevs | split(",") | map(gsub("^\\\\s+|\\\\s+$"; "") | ascii_upcase)) as $slist',
+      '  | [ .Results[]? | ((.Vulnerabilities[]? // empty), (.Misconfigurations[]? // empty), (.Secrets[]? // empty)) ] as $v',
+      '  | $slist',
+      '  | map(. as $sev | "\\($sev): \\($v | map(select(.Severity == $sev)) | length)")',
+      '  | .[]',
+      '  \'' + ' "$output" 2>/dev/null || true)',
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
 });
