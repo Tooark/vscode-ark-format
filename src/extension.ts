@@ -32,7 +32,11 @@ export function activate (context: vscode.ExtensionContext) {
 
   // Registra o provedor de formatação de documento
   const docProvider = vscode.languages.registerDocumentFormattingEditProvider(selector, {
-    provideDocumentFormattingEdits (document, options, token) {
+    provideDocumentFormattingEdits (
+      document: vscode.TextDocument,
+      options: vscode.FormattingOptions,
+      token: vscode.CancellationToken
+    ): vscode.ProviderResult<vscode.TextEdit[]> {
       const cfg = vscode.workspace.getConfiguration('arkFormatShell');
 
       // Verifica se a formatação está habilitada globalmente
@@ -75,7 +79,12 @@ export function activate (context: vscode.ExtensionContext) {
 
   // Registra o provedor de formatação de intervalo
   const rangeProvider = vscode.languages.registerDocumentRangeFormattingEditProvider(selector, {
-    provideDocumentRangeFormattingEdits (document, range, options, token) {
+    provideDocumentRangeFormattingEdits (
+      document: vscode.TextDocument,
+      range: vscode.Range,
+      options: vscode.FormattingOptions,
+      token: vscode.CancellationToken
+    ): vscode.ProviderResult<vscode.TextEdit[]> {
       const cfg = vscode.workspace.getConfiguration('arkFormatShell');
 
       // Verifica se a formatação está habilitada globalmente
@@ -122,7 +131,7 @@ export function activate (context: vscode.ExtensionContext) {
 
   // Limpa diagnósticos quando o documento é fechado
   context.subscriptions.push(
-    vscode.workspace.onDidCloseTextDocument(doc => {
+    vscode.workspace.onDidCloseTextDocument((doc: vscode.TextDocument) => {
       diagnosticCollection.delete(doc.uri);
     })
   );
