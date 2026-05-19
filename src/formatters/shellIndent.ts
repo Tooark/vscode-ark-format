@@ -69,7 +69,7 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   }
 
   // Blocos de controle
-  if (/^fi\b/.test(trimmed)) {
+  if (/^(fi|endif)\b/.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
 
     return;

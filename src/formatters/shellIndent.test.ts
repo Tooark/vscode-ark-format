@@ -21,6 +21,13 @@ describe('dedentBeforeLine', () => {
     expect(st.indent).toBe(0);
   });
 
+  it('dedents on endif with word boundary (tcsh)', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    dedentBeforeLine('endif', st);
+    expect(st.indent).toBe(0);
+  });
+
   it('does NOT dedent on words starting with fi', () => {
     const st = createInitialState();
     st.indent = 1;

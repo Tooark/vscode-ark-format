@@ -379,4 +379,59 @@ describe('ShellFormatter.formatText', () => {
     const result = format(input);
     expect(result).toBe(expected);
   });
+
+  it('formats tcsh if/else/endif blocks without trailing indentation drift', () => {
+    const input = [
+      '# Conditional expression',
+      'if (-d $configdir) then',
+      'echo "Config directory exists"',
+      'else',
+      'echo "Creating config directory"',
+      'mkdir -p $configdir',
+      'endif',
+      '',
+      '# Test file permissions',
+      'if (-r $configdir && -w $configdir) then',
+      'echo "Config directory is readable and writable"',
+      'endif',
+      '',
+      '# Function definition',
+      'set cleanupfiles = 0',
+      'alias cleanup "rm -f /tmp/myapp_*; @ cleanupfiles++"',
+      '',
+      '# Use alias',
+      'cleanup',
+      '',
+      'echo "Cleaned up $cleanupfiles operations"',
+      '',
+    ].join('\n');
+
+    const expected = [
+      '# Conditional expression',
+      'if (-d $configdir) then',
+      '  echo "Config directory exists"',
+      'else',
+      '  echo "Creating config directory"',
+      '  mkdir -p $configdir',
+      'endif',
+      '',
+      '# Test file permissions',
+      'if (-r $configdir && -w $configdir) then',
+      '  echo "Config directory is readable and writable"',
+      'endif',
+      '',
+      '# Function definition',
+      'set cleanupfiles = 0',
+      'alias cleanup "rm -f /tmp/myapp_*; @ cleanupfiles++"',
+      '',
+      '# Use alias',
+      'cleanup',
+      '',
+      'echo "Cleaned up $cleanupfiles operations"',
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
 });
