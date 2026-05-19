@@ -60,6 +60,14 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
     return;
   }
 
+  // tcsh switch labels: dedenta o corpo anterior para alinhar novo case/default
+  if (st.inCase && st.inCasePatternBody && (/^case\b.*:\s*$/.test(trimmed) || /^default:\s*$/.test(trimmed))) {
+    st.indent = Math.max(0, st.indent - 1);
+    st.inCasePatternBody = false;
+
+    return;
+  }
+
   // Blocos de controle
   if (/^fi\b/.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
@@ -75,7 +83,7 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   }
 
   // Blocos de case
-  if (/^esac\b/.test(trimmed)) {
+  if (/^esac\b/.test(trimmed) || /^endsw\b/.test(trimmed)) {
     // Se estiver dentro de um bloco de case, precisa verificar se está dentro do corpo de um padrão
     if (st.inCasePatternBody) {
       st.indent = Math.max(0, st.indent - 1);
@@ -152,6 +160,15 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
     return;
   }
 
+  // Bloco switch (tcsh)
+  if (/^switch\b/.test(trimmed)) {
+    st.indent += 1;
+    st.inCase = true;
+    st.inCasePatternBody = false;
+
+    return;
+  }
+
   // Blocos then, else, elif
   if (/\bthen\s*$/.test(trimmed) || /^else\b/.test(trimmed) || /^elif\b.*;\s*then\s*$/.test(trimmed)) {
     st.indent += 1;
@@ -177,5 +194,21 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   if (st.inCase && !st.inCasePatternBody && /\)\s*$/.test(trimmed) && !/^(;;?&?|;;&)/.test(trimmed)) {
     st.indent += 1;
     st.inCasePatternBody = true;
+
+    return;
+  }
+
+  // Labels de switch tcsh
+  if (st.inCase && !st.inCasePatternBody && (/^case\b.*:\s*$/.test(trimmed) || /^default:\s*$/.test(trimmed))) {
+    st.indent += 1;
+    st.inCasePatternBody = true;
+
+    return;
+  }
+
+  // Terminador de bloco de label tcsh
+  if (st.inCase && st.inCasePatternBody && /^breaksw\b/.test(trimmed)) {
+    st.indent = Math.max(0, st.indent - 1);
+    st.inCasePatternBody = false;
   }
 }

@@ -338,4 +338,45 @@ describe('ShellFormatter.formatText', () => {
     const result = format(input);
     expect(result).toBe(expected);
   });
+
+  it('formats tcsh switch/case blocks with proper nesting', () => {
+    const input = [
+      'switch ($1)',
+      'case "start":',
+      'echo "Starting $application..."',
+      'breaksw',
+      'case "stop":',
+      'echo "Stopping $application..."',
+      'breaksw',
+      'case "restart":',
+      'echo "Restarting $application..."',
+      'breaksw',
+      'default:',
+      'echo "Unknown command"',
+      'breaksw',
+      'endsw',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'switch ($1)',
+      '  case "start":',
+      '    echo "Starting $application..."',
+      '    breaksw',
+      '  case "stop":',
+      '    echo "Stopping $application..."',
+      '    breaksw',
+      '  case "restart":',
+      '    echo "Restarting $application..."',
+      '    breaksw',
+      '  default:',
+      '    echo "Unknown command"',
+      '    breaksw',
+      'endsw',
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
 });
