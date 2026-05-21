@@ -1,10 +1,10 @@
 # 📚 Exemplos de Uso — Shell Formatter Extension
 
 **Ordem sugerida:** 2 de 7 (essencial)  
-**Anterior:** [`01-QUICK-START.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/01-QUICK-START.md)  
-**Próximo:** [`03-FEATURE-INDEX.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/03-FEATURE-INDEX.md)
+**Anterior:** [`01-QUICK-START.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/01-QUICK-START.md)  
+**Próximo:** [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/03-FEATURE-INDEX.md)
 
-Este diretório contém exemplos de diferentes formatos de shell suportados pela extensão **ark-format-shell**. Para lista completa de formatos e arquivos, consulte [`03-FEATURE-INDEX.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/03-FEATURE-INDEX.md) ou [`04-TECHNICAL-SUMMARY.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/04-TECHNICAL-SUMMARY.md).
+Este diretório contém exemplos de diferentes formatos de shell suportados pela extensão **ark-format-shell**. Para lista completa de formatos e arquivos, consulte [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/03-FEATURE-INDEX.md) ou [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/04-TECHNICAL-SUMMARY.md).
 
 ## 🚀 Como Usar
 
@@ -68,7 +68,7 @@ No VS Code:
 
 ## 🔧 Principais Funcionalidades
 
-Para detalhamento completo de features por arquivo e caso de uso, consulte [`03-FEATURE-INDEX.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/03-FEATURE-INDEX.md).
+Para detalhamento completo de features por arquivo e caso de uso, consulte [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/03-FEATURE-INDEX.md).
 
 ## 📝 Dicas de Formatação
 

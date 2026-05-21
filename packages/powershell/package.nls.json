@@ -1,6 +1,6 @@
 {
   "displayName": "Ark Format: PowerShell",
-  "description": "Format PowerShell scripts and modules (.ps1, .psm1, .psd1, .ps1xml) with comprehensive code formatting options",
+  "description": "Format PowerShell scripts and modules (.ps1, .psm1, .psd1) with comprehensive code formatting options",
   "configuration.title": "Ark Format: PowerShell",
   "config.enabled.description": "Enable or disable PowerShell formatting",
   "config.indentSize.description": "Number of spaces for indentation",

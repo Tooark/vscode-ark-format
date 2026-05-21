@@ -1,177 +1,48 @@
-# 🚀 Ark Format: PowerShell
+# 🚩 Ark Format: PowerShell - Start Here
 
-bem-vindo ao **Ark Format: PowerShell** - Um formatador moderno e configurável para scripts PowerShell no VS Code.
+Bem-vindo ao Ark Format: PowerShell, um formatador moderno e configurável para scripts PowerShell no VS Code.
 
-## 📋 O que é isto?
+Este arquivo organiza a leitura dos materiais de `samples/`.
 
-Este pacote é uma extensão VS Code que formata automaticamente seus arquivos PowerShell:
+## 📋 Ordem de leitura sugerida
 
-- 📄 **Extensões suportadas**: `.ps1`, `.psm1`, `.psd1`, `.ps1xml`
-- ⚙️ **Completamente configurável**: Adapte a formatação ao seu estilo
-- 🌍 **Multilíngue**: Suporte para English e Português-BR
-- 🎯 **Precisão**: Formatação inteligente baseada em palavras-chave do PowerShell
+1. [`01-QUICK-START.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/01-QUICK-START.md) - caminho mais curto para testar a extensão.
+2. [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/02-USER-GUIDE.md) - guia completo de configuração e uso.
+3. [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/03-FEATURE-INDEX.md) - referência por feature e por caso de uso.
+4. [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/04-TECHNICAL-SUMMARY.md) - visão técnica detalhada dos exemplos.
+5. [`05-STRUCTURE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/05-STRUCTURE.md) - mapa visual da pasta e fluxos de navegação.
+6. [`06-MANIFEST.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/06-MANIFEST.md) - inventário completo de arquivos e cobertura.
+7. [`07-FINAL-REPORT.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/07-FINAL-REPORT.md) - relatório histórico/conclusivo do pacote.
 
-## 🎯 Início Rápido
+## 📜 Necessidade dos documentos
 
-### 1. Instalar a Extensão
+### Essenciais (recomendado para quase todo mundo)
 
-```bash
-# Via VS Code Marketplace
-# Busque por "Ark Format: PowerShell" by Tooark
+- [`01-QUICK-START.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/01-QUICK-START.md)
+- [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/02-USER-GUIDE.md)
+- [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/03-FEATURE-INDEX.md)
 
-# Ou localmente
-pnpm -F ark-format-powershell package
-code --install-extension dist/ark-format-powershell-*.vsix
-```
+### Complementares (quando quiser aprofundar)
 
-### 2. Usar o Formatter
+- [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/04-TECHNICAL-SUMMARY.md)
+- [`05-STRUCTURE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/05-STRUCTURE.md)
+- [`06-MANIFEST.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/06-MANIFEST.md)
 
-Abra um arquivo PowerShell e escolha uma opção:
+### Histórico (opcional)
 
-- ⌨️ **Formatar documento**: `Shift+Alt+F`
-- 📝 **Formatar seleção**: Selecione o código e pressione `Shift+Alt+F`
-- 💾 **Formatar ao salvar**: Adicione ao `settings.json`:
+- [`07-FINAL-REPORT.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/07-FINAL-REPORT.md)
 
-```json
-"[powershell]": {
-  "editor.defaultFormatter": "tooark.ark-format-powershell",
-  "editor.formatOnSave": true
-}
-```
+## 🚀 Começar em 2 minutos
 
-### 3. Configurar (Opcional)
-
-```json
-{
-  "arkFormatPowerShell.enabled": true,
-  "arkFormatPowerShell.indentSize": 4,
-  "arkFormatPowerShell.indentStyle": "space",
-  "arkFormatPowerShell.trimTrailingWhitespace": true,
-  "arkFormatPowerShell.insertFinalNewline": true
-}
-```
-
-## 📚 Documentação
-
-| Documento | Conteúdo |
-|-----------|----------|
-| [01-QUICK-START.md](./01-QUICK-START.md) | Guia de início rápido |
-| [02-USER-GUIDE.md](./02-USER-GUIDE.md) | Guia completo do usuário |
-| [03-FEATURE-INDEX.md](./03-FEATURE-INDEX.md) | Índice de funcionalidades |
-| [04-TECHNICAL-SUMMARY.md](./04-TECHNICAL-SUMMARY.md) | Resumo técnico |
-
-## ✨ Exemplo de Transformação
-
-### Antes
 ```powershell
-function Get-Data{
-Write-Host "Dados"
-if ($ok){
-return $data
-}
-}
+code samples/01-QUICK-START.md
+code samples/example.ps1
 ```
 
-### Depois
-```powershell
-function Get-Data {
-    Write-Host "Dados"
-    if ($ok) {
-        return $data
-    }
-}
-```
+No VS Code, use `Shift + Alt + F` para formatar.
 
-## 🎨 Funcionalidades
+## 📂 Conteúdo rápido da pasta
 
-✅ Indentação automática baseada em estruturas de controle
-✅ Normalização de espaçamento
-✅ Remoção de linhas em branco desnecessárias
-✅ Conversão de quebras de linha (LF/CRLF)
-✅ Suporte a EditorConfig
-✅ Formatação de seleção
-✅ Configuração por projeto
-✅ Sem dependências externas
-
-## 🔧 Estrutura do Projeto
-
-```
-packages/powershell/
-├── src/                      # Código TypeScript
-│   ├── extension.ts          # Integração VS Code
-│   ├── formatters/
-│   │   ├── types.ts          # Tipos
-│   │   ├── textUtils.ts      # Utilitários de texto
-│   │   ├── powerShellFormatter.ts    # Formatter principal
-│   │   └── powerShellRangeFormatter.ts # Formatter de range
-│   └── *.test.ts             # Testes
-├── l10n/                     # Localização
-├── samples/                  # Exemplos e docs
-└── [config files]            # package.json, tsconfig.json, etc
-```
-
-## 🧪 Testes
-
-```bash
-# Executar testes
-pnpm -F ark-format-powershell test
-
-# Watch mode
-pnpm -F ark-format-powershell test -- --watch
-
-# Com coverage
-pnpm -F ark-format-powershell test -- --coverage
-```
-
-## 🏗️ Desenvolvimento
-
-```bash
-# Instalar dependências
-pnpm install
-
-# Build
-pnpm -F ark-format-powershell build
-
-# Watch mode
-pnpm -F ark-format-powershell watch
-
-# Lint
-pnpm -F ark-format-powershell lint
-
-# Criar VSIX package
-pnpm -F ark-format-powershell package
-```
-
-## 📝 Notas
-
-- A formatação preserva comentários e strings exatamente como estão
-- Suporta todas as estruturas de controle do PowerShell
-- Totalmente seguro - não executa código externo
-- Otimizado para performance mesmo em arquivos grandes
-
-## 🤝 Contribuir
-
-Para contribuir:
-
-1. Fork o repositório
-2. Crie uma branch para sua feature
-3. Adicione testes
-4. Faça um pull request
-
-## 📄 Licença
-
-MIT - Veja [LICENSE](../../LICENSE) para detalhes
-
-## 👤 Autor
-
-**Tooark** - Criando ferramentas de formatação de código modernas
-
----
-
-## 📖 Próximos Passos
-
-👉 [Leia o Quick Start](./01-QUICK-START.md)
-👉 [Veja as Funcionalidades](./03-FEATURE-INDEX.md)
-👉 [Configuração Avançada](./04-TECHNICAL-SUMMARY.md)
-
-Divirta-se formatando! 🎉
+- 4 exemplos PowerShell: `example.ps1`, `example.complex.ps1`, `example.psm1`, `example.psd1`.
+- 2 arquivos de configuração: `.editorconfig`, `settings.example.json`.
+- 5 arquivos de documentação.

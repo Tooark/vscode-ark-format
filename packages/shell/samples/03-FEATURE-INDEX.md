@@ -1,8 +1,8 @@
 # 🗺️ Exemplos da Extensão — Índice Completo
 
 **Ordem sugerida:** 3 de 7 (essencial)  
-**Anterior:** [`02-USER-GUIDE.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/02-USER-GUIDE.md)  
-**Próximo:** [`04-TECHNICAL-SUMMARY.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/04-TECHNICAL-SUMMARY.md)
+**Anterior:** [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/02-USER-GUIDE.md)  
+**Próximo:** [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/04-TECHNICAL-SUMMARY.md)
 
 Índice completo de features e casos de uso demonstrados pelos exemplos.
 
@@ -30,19 +30,21 @@
 5. example.ksh             ← Typed variables, coprocess, aritmética
 6. example.tcsh            ← Aliases, lists, C-shell syntax
 7. example.bats            ← Testing framework, fixtures
+8. example.complex.sh      ← Heredocs, traps, patterns avançados
 ```
 
 ### Por Caso de Uso
 
-| Caso                        | Arquivo            | Quando Usar                                |
-| --------------------------- | ------------------ | ------------------------------------------ |
-| **Cloud - Azure**           | `example.azcli`    | Gerenciamento de recursos, deployment      |
-| **Automation Moderno**      | `example.bash`     | Scripts avançados, CI/CD, local testing    |
-| **Testes Automatizados**    | `example.bats`     | Testing de scripts shell                   |
-| **Legacy/Sistemas Antigos** | `example.tcsh`     | Sistemas BSD, máquinas antigas             |
-| **Sistema Genérico**        | `example.sh`       | Sistema genérico Linux/Unix                |
-| **Sistema Linux/Unix**      | `example.sh.posix` | Máxima compatibilidade com todos os shells |
-| **Korn Shell**              | `example.ksh`      | AIX, Solaris, UNIX comercial               |
+| Caso                        | Arquivo              | Quando Usar                                 |
+| --------------------------- | -------------------- | ------------------------------------------- |
+| **Cloud - Azure**           | `example.azcli`      | Gerenciamento de recursos, deployment       |
+| **Automation Moderno**      | `example.bash`       | Scripts avançados, CI/CD, local testing     |
+| **Testes Automatizados**    | `example.bats`       | Testing de scripts shell                    |
+| **Legacy/Sistemas Antigos** | `example.tcsh`       | Sistemas BSD, máquinas antigas              |
+| **Sistema Genérico**        | `example.sh`         | Sistema genérico Linux/Unix                 |
+| **Sistema Linux/Unix**      | `example.sh.posix`   | Máxima compatibilidade com todos os shells  |
+| **Korn Shell**              | `example.ksh`        | AIX, Solaris, UNIX comercial                |
+| **Scripts Complexos**       | `example.complex.sh` | Cenários avançados, validação de formatação |
 
 ## ✨ Features Demonstradas
 
@@ -90,11 +92,11 @@
 
 ## 🚀 Como Começar
 
-Para instruções passo a passo, consulte [`01-QUICK-START.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/01-QUICK-START.md).
+Para instruções passo a passo, consulte [`01-QUICK-START.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/01-QUICK-START.md).
 
 ## 🔗 Recursos Externos
 
-Consulte [`02-USER-GUIDE.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/02-USER-GUIDE.md) para links de recursos e documentação externa.
+Consulte [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/02-USER-GUIDE.md) para links de recursos e documentação externa.
 
 ## 📝 Notas de Compatibilidade
 

@@ -1,3 +1,5 @@
+
+
 #!/usr/bin/env tcsh
 # C Shell (tcsh) example
 # Note: tcsh is csh-compatible but with enhancements
@@ -12,8 +14,12 @@ set services = (apache mysql redis)
 
 # Iterate over list
 foreach svc ($services)
-  echo "Service: $svc"
+echo "Service: $svc"
 end
+
+
+
+
 
 # Arithmetic using @ operator
 @ counter = 0
@@ -32,17 +38,17 @@ echo "Extension: $extension"
 # Conditional with switch/case
 switch ($1)
 case "start":
-  echo "Starting $application..."
-  breaksw
+echo "Starting $application..."
+breaksw
 case "stop":
-  echo "Stopping $application..."
-  breaksw
+echo "Stopping $application..."
+breaksw
 case "restart":
-  echo "Restarting $application..."
-  breaksw
+echo "Restarting $application..."
+breaksw
 default:
-  echo "Unknown command"
-  breaksw
+echo "Unknown command"
+breaksw
 endsw
 
 # Redirect to file
@@ -56,15 +62,15 @@ echo "User: $current_user, Time: $system_time"
 
 # Conditional expression
 if (-d $configdir) then
-  echo "Config directory exists"
+echo "Config directory exists"
 else
-  echo "Creating config directory"
-  mkdir -p $configdir
+echo "Creating config directory"
+mkdir -p $configdir
 endif
 
 # Test file permissions
 if (-r $configdir && -w $configdir) then
-  echo "Config directory is readable and writable"
+echo "Config directory is readable and writable"
 endif
 
 # Function definition

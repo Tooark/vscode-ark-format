@@ -1,38 +1,37 @@
 # 🔧 Exemplos Gerados — Resumo Executivo
 
 **Ordem sugerida:** 4 de 7 (complementar)  
-**Anterior:** [`03-FEATURE-INDEX.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/03-FEATURE-INDEX.md)  
-**Próximo:** [`05-STRUCTURE.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/05-STRUCTURE.md)
+**Anterior:** [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/03-FEATURE-INDEX.md)  
+**Próximo:** [`05-STRUCTURE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/05-STRUCTURE.md)
 
 ---
 
 ## 🎯 Arquivos dos `samples`
 
-Gerados **17 arquivos** de exemplos e configuração para demonstrar todos os formatos suportados pela extensão.
+A pasta `samples` do pacote Shell contém **18 arquivos** para demonstrar uso, configuração e documentação da extensão.
 
 ### 📋 Lista Completa
 
-| #   | Arquivo                   | Tipo       | Linhas | Propósito                                                |
-| --- | ------------------------- | ---------- | ------ | -------------------------------------------------------- |
-| 1   | `example.azcli`           | Azure CLI  | 103    | Cloud operations (resource groups, storage, app service) |
-| 2   | `example.bash`            | Bash 4+    | 53     | Features avançadas (arrays, string manipulation)         |
-| 3   | `example.bats`            | BATS       | 59     | Testing framework, fixtures                              |
-| 4   | `example.ksh`             | Korn Shell | 58     | Typed vars, coprocess, pattern matching                  |
-| 5   | `example.sh`              | Shell      | 94     | POSIX básico                                             |
-| 6   | `example.sh.posix`        | POSIX      | 59     | Máxima portabilidade                                     |
-| 7   | `example.tcsh`            | C Shell    | 78     | Legacy shell com enhancements                            |
-| 8   | `.editorconfig`           | Config     | 29     | Formatação automática via EditorConfig                   |
-| 9   | `settings.example.json`   | Config     | 89     | Configurações VS Code recomendadas                       |
-| 10  | `00-START-HERE.md`        | Docs       | 47     | Introdução e instruções iniciais                         |
-| 11  | `01-QUICK-START.md`       | Docs       | 169    | Guia de início rápido                                    |
-| 12  | `02-USER-GUIDE.md`        | Docs       | 121    | Guia do usuário                                          |
-| 13  | `03-FEATURE-INDEX.md`     | Docs       | 118    | Índice de funcionalidades                                |
-| 14  | `04-TECHNICAL-SUMMARY.md` | Docs       | 276    | Resumo técnico                                           |
-| 15  | `05-STRUCTURE.md`         | Docs       | 390    | Estrutura do projeto                                     |
-| 16  | `06-MANIFEST.md`          | Docs       | 318    | Manifesto do projeto                                     |
-| 17  | `07-FINAL-REPORT.md`      | Docs       | 344    | Relatório final                                          |
-
-**Total:** 622 linhas de exemplos + 1783 linhas de documentação
+| #   | Arquivo                   | Tipo       | Propósito                                                |
+| --- | ------------------------- | ---------- | -------------------------------------------------------- |
+| 1   | `example.azcli`           | Azure CLI  | Cloud operations (resource groups, storage, app service) |
+| 2   | `example.bash`            | Bash 4+    | Features avançadas (arrays, string manipulation)         |
+| 3   | `example.bats`            | BATS       | Testing framework, fixtures                              |
+| 4   | `example.ksh`             | Korn Shell | Typed vars, coprocess, pattern matching                  |
+| 5   | `example.sh`              | Shell      | POSIX básico                                             |
+| 6   | `example.sh.posix`        | POSIX      | Máxima portabilidade                                     |
+| 7   | `example.tcsh`            | C Shell    | Legacy shell com enhancements                            |
+| 8   | `example.complex.sh`      | Shell      | Scripts complexos, validação de formatação               |
+| 9   | `.editorconfig`           | Config     | Formatação automática via EditorConfig                   |
+| 10  | `settings.example.json`   | Config     | Configurações VS Code recomendadas                       |
+| 11  | `00-START-HERE.md`        | Docs       | Introdução e instruções iniciais                         |
+| 12  | `01-QUICK-START.md`       | Docs       | Guia de início rápido                                    |
+| 13  | `02-USER-GUIDE.md`        | Docs       | Guia do usuário                                          |
+| 14  | `03-FEATURE-INDEX.md`     | Docs       | Índice de funcionalidades                                |
+| 15  | `04-TECHNICAL-SUMMARY.md` | Docs       | Resumo técnico                                           |
+| 16  | `05-STRUCTURE.md`         | Docs       | Estrutura do projeto                                     |
+| 17  | `06-MANIFEST.md`          | Docs       | Manifesto do projeto                                     |
+| 18  | `07-FINAL-REPORT.md`      | Docs       | Relatório final                                          |
 
 ---
 

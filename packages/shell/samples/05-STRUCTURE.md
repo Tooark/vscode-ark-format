@@ -1,8 +1,8 @@
 # 🗂️ Estrutura de Exemplos — Visão Geral
 
 **Ordem sugerida:** 5 de 7 (complementar)  
-**Anterior:** [`04-TECHNICAL-SUMMARY.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/04-TECHNICAL-SUMMARY.md)  
-**Próximo:** [`06-MANIFEST.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/06-MANIFEST.md)
+**Anterior:** [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/04-TECHNICAL-SUMMARY.md)  
+**Próximo:** [`06-MANIFEST.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/06-MANIFEST.md)
 
 ## 📁 Árvore de Arquivos
 
@@ -11,29 +11,29 @@ samples/
 │
 ├─── 📜 EXEMPLOS DE CÓDIGO (7 arquivos)
 │    │
-│    ├─ example.azcli           (103 linhas) ← Cloud operations (resource groups, storage, app service)
-│    ├─ example.bash            (53 linhas)  ← Features avançadas (arrays, string manipulation)
-│    ├─ example.bats            (59 linhas)  ← Testing framework, fixtures
-│    ├─ example.ksh             (58 linhas)  ← Typed vars, coprocess, pattern matching
-│    ├─ example.sh              (94 linhas)  ← POSIX básico
-│    ├─ example.sh.posix        (59 linhas)  ← Máxima portabilidade
-│    └─ example.tcsh            (78 linhas)  ← Legacy shell com enhancements
+│    ├─ example.azcli           ← Cloud operations (resource groups, storage, app service)
+│    ├─ example.bash            ← Features avançadas (arrays, string manipulation)
+│    ├─ example.bats            ← Testing framework, fixtures
+│    ├─ example.ksh             ← Typed vars, coprocess, pattern matching
+│    ├─ example.sh              ← POSIX básico
+│    ├─ example.sh.posix        ← Máxima portabilidade
+│    └─ example.tcsh            ← Legacy shell com enhancements
 │
 ├─── ⚙️ CONFIGURAÇÃO (2 arquivos)
 │    │
-│    ├─ .editorconfig           (29 linhas)  ← EditorConfig
-│    └─ settings.example.json   (89 linhas)  ← VS Code
+│    ├─ .editorconfig           ← EditorConfig
+│    └─ settings.example.json   ← VS Code
 │
 ├─── 📖 DOCUMENTAÇÃO (8 arquivos)
 │    │
-│    ├─ 00-START-HERE.md        (47 linhas)  ← 2 minutos
-│    ├─ 01-QUICK-START.md       (169 linhas) ← 5 minutos
-│    ├─ 02-USER-GUIDE.md        (121 linhas) ← Guia completo
-│    ├─ 03-FEATURE-INDEX.md     (118 linhas) ← Índice
-│    ├─ 04-TECHNICAL-SUMMARY.md (276 linhas) ← Técnico
-│    ├─ 05-STRUCTURE.md         (Este arquivo)
-│    ├─ 06-MANIFEST.md          (318 linhas) ← Inventário completo
-│    └─ 07-CONTRIBUTING.md      (344 linhas) ← Guia de contribuição
+│    ├─ 00-START-HERE.md         ← 2 minutos
+│    ├─ 01-QUICK-START.md        ← 5 minutos
+│    ├─ 02-USER-GUIDE.md         ← Guia completo
+│    ├─ 03-FEATURE-INDEX.md      ← Índice
+│    ├─ 04-TECHNICAL-SUMMARY.md  ← Técnico
+│    ├─ 05-STRUCTURE.md          ← Estrutura e navegação (este arquivo)
+│    ├─ 06-MANIFEST.md           ← Inventário completo
+│    └─ 07-CONTRIBUTING.md       ← Guia de contribuição
 │
 └─── 📊 TOTAL: 17 arquivos, ~2.500 linhas
 ```
@@ -98,27 +98,27 @@ START
 
 ### Por Linguagem
 
-| Linguagem  | Arquivo   | Linhas | Complexidade |
-| ---------- | --------- | ------ | ------------ |
-| Azure CLI  | .azcli    | 103    | ⭐⭐ Médio   |
-| Bash       | .bash     | 53     | ⭐⭐ Médio   |
-| BATS       | .bats     | 59     | ⭐⭐⭐ Adv.  |
-| Korn Shell | .ksh      | 58     | ⭐⭐⭐ Adv.  |
-| POSIX      | .sh       | 94     | ⭐ Básico    |
-| POSIX Pure | .sh.posix | 59     | ⭐ Básico    |
-| C Shell    | .tcsh     | 78     | ⭐⭐ Médio   |
+| Linguagem  | Arquivo     | Complexidade       |
+| ---------- | ----------- | ------------------ |
+| Azure CLI  | `.azcli`    | ⭐⭐ Intermediário |
+| Bash       | `.bash`     | ⭐⭐ Intermediário |
+| BATS       | `.bats`     | ⭐⭐⭐ Avançado    |
+| Korn Shell | `.ksh`      | ⭐⭐⭐ Avançado    |
+| POSIX      | `.sh`       | ⭐ Básico          |
+| POSIX Pure | `.sh.posix` | ⭐ Básico          |
+| C Shell    | `.tcsh`     | ⭐⭐ Intermediário |
 
 ### Por Documentação
 
-| Documento               | Linhas | Público Alvo         |
-| ----------------------- | ------ | -------------------- |
-| 01-QUICK-START.md       | 169    | Iniciantes           |
-| 02-USER-GUIDE.md        | 121    | Todos                |
-| 03-FEATURE-INDEX.md     | 118    | Intermediários       |
-| 04-TECHNICAL-SUMMARY.md | 276    | Avançados            |
-| 05-STRUCTURE.md         | Este   | Navegação            |
-| 06-MANIFEST.md          | 318    | Referência           |
-| 07-CONTRIBUTING.md      | 344    | Guia de contribuição |
+| Documento                 | Público Alvo         |
+| ------------------------- | -------------------- |
+| `01-QUICK-START.md`       | Iniciantes           |
+| `02-USER-GUIDE.md`        | Todos                |
+| `03-FEATURE-INDEX.md`     | Intermediários       |
+| `04-TECHNICAL-SUMMARY.md` | Avançados            |
+| `05-STRUCTURE.md`         | Navegação            |
+| `06-MANIFEST.md`          | Referência           |
+| `07-CONTRIBUTING.md`      | Guia de contribuição |
 
 ---
 
@@ -304,7 +304,7 @@ Total: ~35 minutos para domínio prático
 
 ## 📊 Estatísticas
 
-Para estatísticas completas, detalhes de linhas e cobertura detalhada, consulte [`06-MANIFEST.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/06-MANIFEST.md).
+Para estatísticas completas, detalhes de linhas e cobertura detalhada, consulte [`06-MANIFEST.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/06-MANIFEST.md).
 
 ---
 

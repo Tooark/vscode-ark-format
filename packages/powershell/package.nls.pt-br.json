@@ -1,6 +1,6 @@
 {
   "displayName": "Ark Format: PowerShell",
-  "description": "Formate scripts e módulos PowerShell (.ps1, .psm1, .psd1, .ps1xml) com opções abrangentes de formatação de código",
+  "description": "Formate scripts e módulos PowerShell (.ps1, .psm1, .psd1) com opções abrangentes de formatação de código",
   "configuration.title": "Ark Format: PowerShell",
   "config.effectLanguages.description": "Linguagens para aplicar formatação",
   "config.enabled.description": "Ativar ou desativar formatação PowerShell",

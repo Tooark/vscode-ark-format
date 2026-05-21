@@ -1,64 +1,55 @@
 # 📦 Manifest de Exemplos — ark-format-shell
 
 **Ordem sugerida:** 6 de 7 (complementar)  
-**Anterior:** [`05-STRUCTURE.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/05-STRUCTURE.md)  
-**Próximo:** [`07-FINAL-REPORT.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/07-FINAL-REPORT.md)
+**Anterior:** [`05-STRUCTURE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/05-STRUCTURE.md)  
+**Próximo:** [`07-FINAL-REPORT.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/07-FINAL-REPORT.md)
 
 ---
 
 ## 📋 Inventário Completo
 
-### 🐚 Exemplos de Código (7 arquivos)
+### 🐚 Exemplos de Código (8 arquivos)
 
-| Arquivo            | Linguagem      | Linhas |
-| ------------------ | -------------- | ------ |
-| `example.azcli`    | Azure CLI      | 103    |
-| `example.bash`     | Bash 4+        | 53     |
-| `example.bats`     | BATS Testing   | 59     |
-| `example.ksh`      | Korn Shell 93+ | 58     |
-| `example.sh`       | POSIX Shell    | 94     |
-| `example.sh.posix` | POSIX Portable | 59     |
-| `example.tcsh`     | C Shell (tcsh) | 78     |
-
-**Subtotal:** 504 linhas de código shell
+| Arquivo              | Linguagem      | Objetivo                         |
+| -------------------- | -------------- | -------------------------------- |
+| `example.azcli`      | Azure CLI      | Exemplo de uso do Azure CLI      |
+| `example.bash`       | Bash 4+        | Exemplo de script Bash moderno   |
+| `example.bats`       | BATS Testing   | Exemplo de teste automatizado    |
+| `example.ksh`        | Korn Shell 93+ | Exemplo de script Korn Shell     |
+| `example.sh`         | POSIX Shell    | Exemplo de script POSIX          |
+| `example.sh.posix`   | POSIX Portable | Exemplo de script portátil POSIX |
+| `example.tcsh`       | C Shell (tcsh) | Exemplo de script C Shell        |
+| `example.complex.sh` | Shell Script   | Exemplo de script complexo       |
 
 ### ⚙️ Configuração (2 arquivos)
 
-| Arquivo                 | Tipo        | Linhas | Propósito             |
-| ----------------------- | ----------- | ------ | --------------------- |
-| `.editorconfig`         | INI Config  | 29     | Formatação automática |
-| `settings.example.json` | JSON Config | 89     | VS Code settings      |
-
-**Subtotal:** 118 linhas de configuração
+| Arquivo                 | Tipo        | Objetivo              |
+| ----------------------- | ----------- | --------------------- |
+| `.editorconfig`         | INI Config  | Formatação automática |
+| `settings.example.json` | JSON Config | VS Code settings      |
 
 ### 📖 Documentação (8 arquivos)
 
-| Arquivo                   | Tipo     | Linhas       | Conteúdo                         |
-| ------------------------- | -------- | ------------ | -------------------------------- |
-| `00-START-HERE.md`        | Markdown | 47           | Introdução e instruções iniciais |
-| `01-QUICK-START.md`       | Markdown | 169          | Quick start 5 minutos            |
-| `02-USER-GUIDE.md`        | Markdown | 121          | Guia completo de uso             |
-| `03-FEATURE-INDEX.md`     | Markdown | 118          | Índice e mapa de referência      |
-| `04-TECHNICAL-SUMMARY.md` | Markdown | 276          | Resumo técnico detalhado         |
-| `05-STRUCTURE.md`         | Markdown | 390          | Estrutura do projeto             |
-| `06-MANIFEST.md`          | Markdown | Este arquivo | Inventário completo              |
-| `07-FINAL-REPORT.md`      | Markdown | 344          | Relatório final                  |
-
-**Subtotal:** 1.783 linhas de documentação
+| Arquivo                   | Tipo     | Conteúdo                         |
+| ------------------------- | -------- | -------------------------------- |
+| `00-START-HERE.md`        | Markdown | Introdução e instruções iniciais |
+| `01-QUICK-START.md`       | Markdown | Quick start 5 minutos            |
+| `02-USER-GUIDE.md`        | Markdown | Guia completo de uso             |
+| `03-FEATURE-INDEX.md`     | Markdown | Índice e mapa de referência      |
+| `04-TECHNICAL-SUMMARY.md` | Markdown | Resumo técnico detalhado         |
+| `05-STRUCTURE.md`         | Markdown | Estrutura do projeto             |
+| `06-MANIFEST.md`          | Markdown | Inventário completo              |
+| `07-FINAL-REPORT.md`      | Markdown | Relatório final                  |
 
 ---
 
 ## 📊 Estatísticas
 
 ```plaintext
-Total de Arquivos:  13
-Total de Linhas:    2,405
-Tamanho Aproximado: ~45 KB (texto)
-
-Breakdown:
-  • Código Shell:   504 linhas (21%)
-  • Configuração:   118 linhas (5%)
-  • Documentação:   1.783 linhas (74%)
+Total de arquivos: 18
+Exemplos de código: 8
+Arquivos de configuração: 2
+Documentos: 8
 ```
 
 ---

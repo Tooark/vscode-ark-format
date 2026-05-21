@@ -15,43 +15,43 @@ resource_group="myapp-prod-rg"
 location="eastus"
 
 az group create \
-  --name "$resource_group" \
-  --location "$location"
+--name "$resource_group" \
+--location "$location"
 
 # Create storage account
 storage_account="myappstorage$(date +%s)"
 
 az storage account create \
-  --name "$storage_account" \
-  --resource-group "$resource_group" \
-  --location "$location" \
-  --sku Standard_LRS \
-  --kind StorageV2
+--name "$storage_account" \
+--resource-group "$resource_group" \
+--location "$location" \
+--sku Standard_LRS \
+--kind StorageV2
 
 # Create container
 container_name="myapp-data"
 
 az storage container create \
-  --name "$container_name" \
-  --account-name "$storage_account"
+--name "$container_name" \
+--account-name "$storage_account"
 
 # Upload file to container
 if [ -f "data.json" ];then
 az storage blob upload \
-    --file data.json \
-    --container-name "$container_name" \
-    --name "backup/$(date +%Y-%m-%d)/data.json" \
-    --account-name "$storage_account"
+--file data.json \
+--container-name "$container_name" \
+--name "backup/$(date +%Y-%m-%d)/data.json" \
+--account-name "$storage_account"
 fi
 
 # Create App Service plan
 app_plan="myapp-plan"
 
 az appservice plan create \
-  --name "$app_plan" \
-  --resource-group "$resource_group" \
-  --sku B1 \
-  --is-linux
+--name "$app_plan" \
+--resource-group "$resource_group" \
+--sku B1 \
+--is-linux
 
 
 
@@ -59,30 +59,30 @@ az appservice plan create \
 app_name="myapp-$(date +%s | tail -c 5)"
 
 az webapp create \
-  --resource-group "$resource_group" \
-  --plan "$app_plan" \
-  --name "$app_name" \
-  --runtime "DOTNETCORE|6.0"
+--resource-group "$resource_group" \
+--plan "$app_plan" \
+--name "$app_name" \
+--runtime "DOTNETCORE|6.0"
 
 # Configure app settings
 az webapp config appsettings set \
-  --resource-group "$resource_group" \
-  --name "$app_name" \
-  --settings \
-  WEBSITE_RUN_FROM_PACKAGE=1 \
-  APPINSIGHTS_INSTRUMENTATIONKEY="key-here"
+--resource-group "$resource_group" \
+--name "$app_name" \
+--settings \
+WEBSITE_RUN_FROM_PACKAGE=1 \
+APPINSIGHTS_INSTRUMENTATIONKEY="key-here"
 
 # Deploy code
 az webapp deployment source config-zip \
-  --resource-group "$resource_group" \
-  --name "$app_name" \
-  --src app.zip
+--resource-group "$resource_group" \
+--name "$app_name" \
+--src app.zip
 
 # Get app URL
 app_url=$(az webapp show \
-  --resource-group "$resource_group" \
-  --name "$app_name" \
-  --query defaultHostName -o tsv)
+--resource-group "$resource_group" \
+--name "$app_name" \
+--query defaultHostName -o tsv)
 
 echo "App deployed to: https://$app_url"
 
@@ -90,14 +90,14 @@ echo "App deployed to: https://$app_url"
 function_app="myapp-func-$(date +%s | tail -c 5)"
 
 az functionapp create \
-  --resource-group "$resource_group" \
-  --consumption-plan-location "$location" \
-  --runtime node \
-  --name "$function_app" \
-  --storage-account "$storage_account"
+--resource-group "$resource_group" \
+--consumption-plan-location "$location" \
+--runtime node \
+--name "$function_app" \
+--storage-account "$storage_account"
 
 # List all resources in the resource group
 echo "=== Created Resources ==="
 az resource list \
-  --resource-group "$resource_group" \
-  --query "[].{name:name, type:type}" -o table
+--resource-group "$resource_group" \
+--query "[].{name:name, type:type}" -o table

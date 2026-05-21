@@ -1,223 +1,196 @@
-# Technical Summary - Ark Format: PowerShell
+# 🔧 Exemplos Gerados — Resumo Executivo
 
-## Architecture
+**Ordem sugerida:** 4 de 7 (complementar)  
+**Anterior:** [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/03-FEATURE-INDEX.md)  
+**Próximo:** [`05-STRUCTURE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/05-STRUCTURE.md)
 
-### Components
+---
 
-1. **Extension Host** (`extension.ts`)
-   - Registers document formatting and range formatting providers
-   - Manages configuration loading
-   - Handles VS Code integration
+## 🎯 Arquivos dos `samples`
 
-2. **Formatter Core** (`powerShellFormatter.ts`)
-   - Main formatting logic
-   - Indentation detection and application
-   - Text transformation pipeline
+A pasta `samples` do pacote PowerShell contém **14 arquivos** para demonstrar uso, configuração e documentação da extensão.
 
-3. **Range Formatter** (`powerShellRangeFormatter.ts`)
-   - Handles selection-based formatting
-   - Maintains document integrity for partial formatting
+### 📋 Lista Completa
 
-4. **Text Utilities** (`textUtils.ts`)
-   - Line ending normalization
-   - Whitespace management
-   - Blank line normalization
+| #   | Arquivo                   | Tipo      | Propósito                                   |
+| --- | ------------------------- | --------- | ------------------------------------------- |
+| 1   | `example.ps1`             | Script    | Exemplo geral de script PowerShell          |
+| 2   | `example.psm1`            | Módulo    | Estrutura de módulo e exportação de funções |
+| 3   | `example.psd1`            | Manifesto | Definição de metadados do módulo            |
+| 4   | `example.complex.ps1`     | Script    | Cenário robusto para testes de formatação   |
+| 5   | `.editorconfig`           | Config    | Regras de formatação por arquivo            |
+| 6   | `settings.example.json`   | Config    | Configurações recomendadas no VS Code       |
+| 7   | `00-START-HERE.md`        | Docs      | Entrada rápida dos exemplos                 |
+| 8   | `01-QUICK-START.md`       | Docs      | Guia inicial                                |
+| 9   | `02-USER-GUIDE.md`        | Docs      | Guia completo                               |
+| 10  | `03-FEATURE-INDEX.md`     | Docs      | Índice por feature e caso de uso            |
+| 11  | `04-TECHNICAL-SUMMARY.md` | Docs      | Resumo técnico                              |
+| 12  | `05-STRUCTURE.md`         | Docs      | Mapa da estrutura de arquivos               |
+| 13  | `06-MANIFEST.md`          | Docs      | Inventário e referência                     |
+| 14  | `07-FINAL-REPORT.md`      | Docs      | Fechamento e visão consolidada              |
 
-5. **Type Definitions** (`types.ts`)
-   - Configuration interfaces
-   - Formatter options
-   - Result types
+---
 
-## Formatting Pipeline
+## 🦾 Formatos Suportados Documentados
 
-\`\`\`
-Input Text
-    ↓
-Normalize Line Endings (CRLF/CR → LF)
-    ↓
-Remove Leading Blank Lines
-    ↓
-Normalize Consecutive Blank Lines
-    ↓
-Trim Trailing Whitespace
-    ↓
-Apply Indentation (PowerShell-aware)
-    ↓
-Insert Final Newline (if configured)
-    ↓
-Convert Line Endings (LF → CRLF/LF)
-    ↓
-Output Text
-\`\`\`
+### Linguagens/arquivos
 
-## Indentation Algorithm
+```plaintext
+✅ PowerShell Script (.ps1)
+✅ PowerShell Module (.psm1)
+✅ PowerShell Module Manifest (.psd1)
+```
 
-### Pattern Recognition
+### Versões de PowerShell
 
-The formatter detects indentation changes based on PowerShell keywords:
+```plaintext
+✅ Windows PowerShell 5.1
+✅ PowerShell 7+ (pwsh)
+```
 
-**Opening Keywords** (increase indent):
-- Block starters: `function`, `if`, `while`, `for`, `foreach`, `switch`, `try`
-- Special blocks: `begin`, `process`, `end`, `dynamicparam`
-- Type definitions: `class`, `enum`, `interface`, `struct`
-- Brace syntax: lines ending with `{`
+---
 
-**Closing Keywords** (decrease indent):
-- `catch`, `finally`, `else`, `elseif`, `end`
-- Lines starting with `}`
+## 📖 Conteúdo por Arquivo
 
-### Algorithm Steps
+### 1️⃣ example.ps1
 
-1. Split text into lines
-2. For each line:
-   - Check if line starts with closing keyword → decrease indent level
-   - Trim the line
-   - Apply indentation based on current level
-   - Check if line ends with opening keyword → increase indent level
-3. Join lines back together
+```plaintext
+Tópicos:
+  • if/else, switch e loops
+  • funções e parâmetros
+  • cmdlets comuns
+  • organização de script
+```
 
-## Configuration System
+### 2️⃣ example.psm1
 
-Configuration is loaded from VS Code settings using the shared config system:
+```plaintext
+Tópicos:
+  • estrutura de módulo
+  • funções públicas e privadas
+  • Export-ModuleMember
+  • boas práticas de organização
+```
 
-\`\`\`typescript
-const config = getConfig('arkFormatPowerShell');
-const indentSize = config.get<number>('indentSize') ?? 4;
-\`\`\`
+### 3️⃣ example.psd1
 
-### Setting Keys
+```plaintext
+Tópicos:
+  • metadados de módulo
+  • hashtable de manifesto
+  • versões e dependências
+  • definição de funções exportadas
+```
 
-- `arkFormatPowerShell.enabled`
-- `arkFormatPowerShell.indentSize`
-- `arkFormatPowerShell.indentStyle`
-- `arkFormatPowerShell.trimTrailingWhitespace`
-- `arkFormatPowerShell.maxConsecutiveBlankLines`
-- `arkFormatPowerShell.removeLeadingBlankLines`
-- `arkFormatPowerShell.insertFinalNewline`
-- `arkFormatPowerShell.lineEnding`
-- `arkFormatPowerShell.effectLanguages`
-- `arkFormatPowerShell.useEditorConfig`
+### 4️⃣ example.complex.ps1
 
-## Testing
+```plaintext
+Tópicos:
+  • [CmdletBinding()] e param multilinha
+  • try/catch/finally
+  • hashtable e PSCustomObject
+  • pipeline e filtros
+  • comentários e here-string
+```
 
-### Test Coverage
+---
 
-- **textUtils.test.ts**: Text transformation utility tests
-  - Line ending normalization
-  - Whitespace trimming
-  - Blank line management
+## 🔧 Configuração Incluída
 
-- **powerShellFormatter.test.ts**: Formatter tests
-  - Document formatting
-  - Indentation logic
-  - Configuration handling
-  - Error cases
+### `.editorconfig`
 
-### Running Tests
+```ini
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+root = true
+```
 
-\`\`\`bash
-# Run all tests
-pnpm test
+Aplicado principalmente para: `*.ps1`, `*.psm1`, `*.psd1`
 
-# Run tests in watch mode
-pnpm test --watch
+### `settings.example.json`
 
-# Run specific test file
-pnpm test textUtils.test.ts
-\`\`\`
+```json
+{
+  "arkFormatPowerShell.enabled": true,
+  "arkFormatPowerShell.indentSize": 4,
+  "arkFormatPowerShell.indentStyle": "space",
+  "arkFormatPowerShell.useEditorConfig": true,
+  "arkFormatPowerShell.rangeFormatting.useDocumentContext": true,
+  "[powershell]": {
+    "editor.defaultFormatter": "tooark.ark-format-powershell",
+    "editor.formatOnSave": true
+  }
+}
+```
 
-## Build System
+---
 
-### Scripts
+## 📊 Features Demonstradas
 
-- `pnpm build` - Build the extension
-- `pnpm watch` - Watch mode for development
-- `pnpm lint` - Run ESLint
-- `pnpm test` - Run tests
-- `pnpm package` - Create .vsix package
+| Feature              | Arquivo(s)                                           | ✓   |
+| -------------------- | ---------------------------------------------------- | --- |
+| `if/elseif/else`     | `example.ps1`, `example.complex.ps1`                 | ✅  |
+| `switch`             | `example.ps1`                                        | ✅  |
+| `foreach/for/while`  | `example.ps1`, `example.complex.ps1`                 | ✅  |
+| funções com `param`  | todos os scripts                                     | ✅  |
+| `try/catch/finally`  | `example.complex.ps1`                                | ✅  |
+| hashtable (`@{}`)    | `example.ps1`, `example.psd1`, `example.complex.ps1` | ✅  |
+| `PSCustomObject`     | `example.complex.ps1`                                | ✅  |
+| here-string          | `example.ps1`, `example.complex.ps1`                 | ✅  |
+| formatação de módulo | `example.psm1`                                       | ✅  |
+| manifesto de módulo  | `example.psd1`                                       | ✅  |
 
-### Build Process
+---
 
-1. **esbuild** bundles TypeScript
-2. Outputs to `dist/extension.js`
-3. Generates sourcemaps for debugging
-4. Minifies for production builds
+## 🚀 Como Usar nos Exemplos
 
-### Dependencies
+### Formatar arquivo inteiro
 
-**Runtime:**
-- `vscode` - VS Code API
+```plaintext
+VS Code: Shift + Alt + F
+```
 
-**Development:**
-- `@types/vscode` - Type definitions
-- `typescript` - TypeScript compiler
-- `esbuild` - Bundler
-- `vitest` - Test framework
-- `eslint` - Linter
-- `@tooark/ark-format-shared` - Shared utilities
+### Formatar seleção
 
-## Performance Characteristics
+```plaintext
+VS Code: Ctrl + K, Ctrl + F
+```
 
-### Time Complexity
+### Testar módulo (`.psm1`)
 
-- **Normalization**: O(n) where n = text length
-- **Indentation**: O(n) single pass through lines
-- **Range formatting**: O(n) for range + O(m) for rest (m = remaining text)
+```powershell
+Import-Module ./samples/example.psm1 -Force
+Get-Command -Module example
+```
 
-### Space Complexity
+### Validar manifesto (`.psd1`)
 
-- O(n) for all operations (stores formatted text)
+```powershell
+Test-ModuleManifest ./samples/example.psd1
+```
 
-### Benchmarks (typical cases)
+---
 
-- 1KB file: < 1ms
-- 10KB file: < 5ms
-- 100KB file: < 50ms
+## 📁 Estrutura Final da Pasta `/samples`
 
-## Extensibility
-
-### Adding New Features
-
-1. Add configuration to `package.json` contributes
-2. Create utility functions in `textUtils.ts`
-3. Update `PowerShellFormatter` with new transformation
-4. Add tests in corresponding `.test.ts` files
-5. Update documentation
-
-### Custom Indentation Rules
-
-Modify the keyword patterns in:
-- `isOpeningKeyword()` method
-- `isClosingKeyword()` method
-
-## Localization
-
-Messages and configuration descriptions are localized:
-- `l10n/bundle.l10n.json` - English strings
-- `l10n/bundle.l10n.pt-br.json` - Portuguese-BR strings
-
-Use `vscode.l10n.t()` for translatable strings in code.
-
-## Security Considerations
-
-- No external command execution (safe)
-- No file system access outside documents (safe)
-- No network calls (safe)
-- Input is only text transformation (safe)
-
-## Known Limitations
-
-1. Does not format comments
-2. Does not handle custom DSLs
-3. Simple regex-based keyword detection (not AST-based)
-4. Does not merge lines or reflow paragraphs
-5. Range formatting maintains original indentation context
-
-## Future Improvements
-
-- [ ] AST-based formatting for better accuracy
-- [ ] Comment formatting
-- [ ] Line wrapping for long lines
-- [ ] Integration with external PowerShell formatters
-- [ ] Semantic indentation based on context
-- [ ] Custom rule support
+```plaintext
+samples/
+├── example.ps1
+├── example.psm1
+├── example.psd1
+├── example.complex.ps1
+├── .editorconfig
+├── settings.example.json
+├── 00-START-HERE.md
+├── 01-QUICK-START.md
+├── 02-USER-GUIDE.md
+├── 03-FEATURE-INDEX.md
+├── 04-TECHNICAL-SUMMARY.md
+├── 05-STRUCTURE.md
+├── 06-MANIFEST.md
+└── 07-FINAL-REPORT.md
+```

@@ -1,15 +1,15 @@
 # 📊 RELATÓRIO FINAL — Exemplos Gerados
 
 **Ordem sugerida:** 7 de 7 (historico/opcional)  
-**Anterior:** [`06-MANIFEST.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/06-MANIFEST.md)
+**Anterior:** [`06-MANIFEST.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/06-MANIFEST.md)
 
 ---
 
 ## 🎯 Resumo Executivo
 
-**17 arquivos** (~61 KB) contendo:
+Conjunto final da pasta `packages/shell/samples` com foco em documentação prática e exemplos reais de Shell.
 
-- ✅ **7 exemplos de código** shell em diferentes linguagens
+- ✅ **8 exemplos de código** shell em diferentes linguagens
 - ✅ **2 arquivos de configuração** (EditorConfig + VS Code)
 - ✅ **8 documentos** de guia e referência
 - ✅ Cobertura de **5 sugestões** implementadas
@@ -19,51 +19,47 @@
 
 ## 📋 Inventário Completo
 
-### 🦾 Exemplos Shell (7 arquivos | 9,19 KB)
+### 🦾 Exemplos Shell
 
-| Arquivo            | Tamanho | Linhas | Linguagem      |
-| ------------------ | ------- | ------ | -------------- |
-| `example.azcli`    | 2,47 KB | 103    | Azure CLI      |
-| `example.bash`     | 0,95 KB | 53     | Bash 4+        |
-| `example.bats`     | 1,03 KB | 59     | BATS Testing   |
-| `example.ksh`      | 1,26 KB | 58     | Korn Shell     |
-| `example.sh`       | 1,22 KB | 94     | POSIX          |
-| `example.sh.posix` | 0,90 KB | 59     | POSIX Portable |
-| `example.tcsh`     | 1,54 KB | 78     | C Shell        |
+| Arquivo            | Linguagem      |
+| ------------------ | -------------- |
+| `example.azcli`    | Azure CLI      |
+| `example.bash`     | Bash 4+        |
+| `example.bats`     | BATS Testing   |
+| `example.ksh`      | Korn Shell     |
+| `example.sh`       | POSIX          |
+| `example.sh.posix` | POSIX Portable |
+| `example.tcsh`     | C Shell        |
 
-### ⚙️ Configuração (2 arquivos | 3,14 KB)
+### ⚙️ Configuração
 
-| Arquivo                 | Tamanho | Linhas | Propósito             |
-| ----------------------- | ------- | ------ | --------------------- |
-| `.editorconfig`         | 0,48 KB | 29     | Formatação automática |
-| `settings.example.json` | 2,66 KB | 89     | Config VS Code        |
+| Arquivo                 | Papel                                |
+| ----------------------- | ------------------------------------ |
+| `.editorconfig`         | Regras de estilo por extensão        |
+| `settings.example.json` | Configuração de exemplo para VS Code |
 
-### 📖 Documentação (8 arquivos | 48,7 KB)
+### 📖 Documentação
 
-| Arquivo                   | Tamanho | Linhas | Conteúdo             | Tipo |
-| ------------------------- | ------- | ------ | -------------------- | ---- |
-| `00-START-HERE.md`        | 2,65 KB | 47     | Sumário inicial      | 🚩   |
-| `01-QUICK-START.md`       | 3,58 KB | 169    | Quick start (5 min)  | ⚡   |
-| `02-USER-GUIDE.md`        | 3,69 KB | 121    | Guia de usuário      | 📚   |
-| `03-FEATURE-INDEX.md`     | 4,40 KB | 118    | Índice de referência | 🗺️   |
-| `04-TECHNICAL-SUMMARY.md` | 8,63 KB | 276    | Resumo técnico       | 🔧   |
-| `05-STRUCTURE.md`         | 10,0 KB | 390    | Estrutura do projeto | 🗂️   |
-| `06-MANIFEST.md`          | 7,17 KB | 318    | Inventário           | 📦   |
-| `07-FINAL-REPORT.md`      | 9,80 KB | 344    | Relatório final      | 📊   |
+| Arquivo                   | Conteúdo             | Tipo |
+| ------------------------- | -------------------- | ---- |
+| `00-START-HERE.md`        | Sumário inicial      | 🚩   |
+| `01-QUICK-START.md`       | Quick start (5 min)  | ⚡   |
+| `02-USER-GUIDE.md`        | Guia de usuário      | 📚   |
+| `03-FEATURE-INDEX.md`     | Índice de referência | 🗺️   |
+| `04-TECHNICAL-SUMMARY.md` | Resumo técnico       | 🔧   |
+| `05-STRUCTURE.md`         | Estrutura do projeto | 🗂️   |
+| `06-MANIFEST.md`          | Inventário           | 📦   |
+| `07-FINAL-REPORT.md`      | Relatório final      | 📊   |
 
 ---
 
 ## 📊 Estatísticas Gerais
 
 ```plaintext
-TOTAL DE ARQUIVOS:  17
-TOTAL DE LINHAS:    2,405
-TAMANHO APROXIMADO: ~61 KB
-
-Breakdown por Tipo:
-  • Código Shell:     359 linhas (21%)
-  • Configuração:      85 linhas (5%)
-  • Documentação:   1,232 linhas (74%)
+Total de arquivos em samples: 18
+Exemplos de código: 8
+Configuração: 2
+Documentação: 8
 ```
 
 ---
@@ -71,33 +67,32 @@ Breakdown por Tipo:
 ## 🗺️ Localização
 
 ```plaintext
-ark-vscode-extension-esbuild-template/
+ark-format/packages/shell/
 └── samples/
     │
-    ├─ EXEMPLOS SHELL (7 arquivos, 9 KB)
-    │  ├─ example.azcli           2,47 KB
-    │  ├─ example.bash            0,95 KB
-    │  ├─ example.bats            1,03 KB
-    │  ├─ example.ksh             1,26 KB
-    │  ├─ example.sh              1,22 KB
-    │  ├─ example.sh.posix        0,90 KB
-    │  └─ example.tcsh            1,54 KB
+    ├─ EXEMPLOS SHELL
+    │  ├─ example.azcli
+    │  ├─ example.bash
+    │  ├─ example.bats
+    │  ├─ example.ksh
+    │  ├─ example.sh
+    │  ├─ example.complex.sh
+    │  ├─ example.sh.posix
+    │  └─ example.tcsh
     │
-    ├─ CONFIGURAÇÃO (2 arquivos, 3 KB)
-    │  ├─ .editorconfig           0,48 KB
-    │  └─ settings.example.json   2,66 KB
+    ├─ CONFIGURAÇÃO
+    │  ├─ .editorconfig
+    │  └─ settings.example.json
     │
-    └─ DOCUMENTAÇÃO (8 arquivos, 49 KB)
-       ├─ 00-START-HERE.md        2,65 KB
-       ├─ 01-QUICK-START.md       3,58 KB
-       ├─ 02-USER-GUIDE.md        3,69 KB
-       ├─ 03-FEATURE-INDEX.md     4,40 KB
-       ├─ 04-TECHNICAL-SUMMARY.md 8,63 KB
-       ├─ 05-STRUCTURE.md         10,0 KB
-       ├─ 06-MANIFEST.md          7,17 KB
-       └─ 07-FINAL-REPORT.md      9,80 KB
-
-Total: 17 arquivos, ~61 KB, ~2.405 linhas
+    └─ DOCUMENTAÇÃO
+       ├─ 00-START-HERE.md
+       ├─ 01-QUICK-START.md
+       ├─ 02-USER-GUIDE.md
+       ├─ 03-FEATURE-INDEX.md
+       ├─ 04-TECHNICAL-SUMMARY.md
+       ├─ 05-STRUCTURE.md
+       ├─ 06-MANIFEST.md
+       └─ 07-FINAL-REPORT.md
 ```
 
 ---
@@ -205,7 +200,7 @@ cp samples/settings.example.json .vscode/
 
 ## 📈 Cobertura de Features nos Exemplos
 
-Consulte [`03-FEATURE-INDEX.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/03-FEATURE-INDEX.md) para análise completa de features demonstradas em cada arquivo de exemplo.
+Consulte [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/03-FEATURE-INDEX.md) para análise completa de features demonstradas em cada arquivo de exemplo.
 
 ---
 

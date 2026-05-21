@@ -1,177 +1,110 @@
-# Features - Ark Format: PowerShell
+# 🗺️ Exemplos da Extensão — Índice Completo
 
-## Formatting Features
+**Ordem sugerida:** 3 de 7 (essencial)  
+**Anterior:** [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/02-USER-GUIDE.md)  
+**Próximo:** [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/04-TECHNICAL-SUMMARY.md)
 
-### 1. Automatic Indentation
+Índice completo de features e casos de uso demonstrados pelos exemplos.
 
-The formatter automatically indents code based on PowerShell control structures:
+## 🎯 Mapa Rápido
 
-\`\`\`powershell
-# Before
-function Test {
-Write-Host "Indented?"
-}
+### Por Nível de Complexidade
 
-# After (with indentation)
-function Test {
-    Write-Host "Indented!"
-}
-\`\`\`
+#### **Básico (Iniciante)**
 
-Supported keywords for indentation:
-- **Opening**: `function`, `process`, `begin`, `dynamicparam`, `end`, `if`, `elseif`, `while`, `for`, `foreach`, `switch`, `try`, `catch`, `finally`, `class`, `enum`, `interface`, `struct`
-- **Closing**: `catch`, `finally`, `else`, `elseif`, `end`
+```plaintext
+1. example.ps1              ← if/else, switch, funções, cmdlets comuns
+```
 
-### 2. Whitespace Management
+#### **Intermediário**
 
-- **Trim trailing whitespace**: Remove spaces at the end of lines
-- **Normalize consecutive blank lines**: Reduce multiple blank lines to a maximum (default: 1)
-- **Remove leading blank lines**: Clean up blank lines at the start of files
-- **Insert final newline**: Ensure files end with a newline
+```plaintext
+2. example.psm1             ← Módulo PowerShell, Export-ModuleMember
+3. example.psd1             ← Manifesto de módulo, hashtables e metadados
+```
 
-### 3. Line Ending Conversion
+#### **Avançado**
 
-Automatically convert between different line endings:
-- **LF** (Unix/Linux/macOS): `\n`
-- **CRLF** (Windows): `\r\n`
-- **Auto**: Detect from the current file
+```plaintext
+4. example.complex.ps1      ← Param multilinha, try/catch/finally, pipelines
+```
 
-### 4. Customizable Options
+### Por Caso de Uso
 
-Configure the formatter to match your coding style:
+| Caso                    | Arquivo               | Quando Usar                                                       |
+| ----------------------- | --------------------- | ----------------------------------------------------------------- |
+| **Scripts Genéricos**   | `example.ps1`         | Scripts PowerShell comuns, sem estrutura de módulo                |
+| **Módulos PowerShell**  | `example.psm1`        | Desenvolvimento de módulos, organização de funções                |
+| **Manifests de Módulo** | `example.psd1`        | Criação de manifestos, hashtables complexas                       |
+| **Scripts Complexos**   | `example.complex.ps1` | Scripts com bloco param, validação, logging e tratamento de erros |
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `indentSize` | number | 4 | Number of spaces for indentation |
-| `indentStyle` | string | space | Use `space` or `tab` for indentation |
-| `trimTrailingWhitespace` | boolean | true | Remove trailing whitespace |
-| `maxConsecutiveBlankLines` | number | 1 | Maximum consecutive blank lines |
-| `removeLeadingBlankLines` | boolean | true | Remove blank lines at start |
-| `insertFinalNewline` | boolean | true | Add newline at end of file |
-| `lineEnding` | string | Auto | Line ending style |
-| `useEditorConfig` | boolean | false | Use .editorconfig file |
-| `enabled` | boolean | true | Enable/disable the formatter |
+## ✨ Features Demonstradas
 
-### 5. Format Selection
+### Estruturas de Controle
 
-Format only a portion of your code:
+```plaintext
+✓ if/elseif/else
+✓ switch com condições e default
+✓ foreach/for/while
+✓ try/catch/finally
+✓ funções com blocos param
+```
 
-1. Select the code you want to format
-2. Press `Shift+Alt+F` or use Command Palette: "Format Selection"
-3. The selected code will be formatted without affecting the rest
+### Variáveis e Tipos
 
-### 6. EditorConfig Support
+```plaintext
+✓ Variáveis tipadas ([string], [int], [switch])
+✓ Arrays e coleções de strings
+✓ Hashtables (@{})
+✓ PSCustomObject para dados estruturados
+✓ Subexpressões e interpolação em strings
+✓ Valores padrão em parâmetros
+```
 
-Create a `.editorconfig` file in your project:
+### I/O e Redirecionamento
 
-\`\`\`ini
-[*.ps1]
-indent_style = space
-indent_size = 4
-end_of_line = lf
-insert_final_newline = true
-\`\`\`
+```plaintext
+✓ Here-strings (@"..."@ e @'...'@)
+✓ Pipeline com Where-Object/ForEach-Object
+✓ Saída com Write-Host/Write-Error/Write-Warning
+✓ Conversão e serialização (ConvertTo-Json)
+✓ Formatação tabular (Format-Table)
+```
 
-Enable it in settings:
-\`\`\`json
-{
-  "arkFormatPowerShell.useEditorConfig": true
-}
-\`\`\`
+### Features Avançadas
 
-## Example Transformations
+```plaintext
+✓ CmdletBinding e parâmetros opcionais
+✓ Tratamento de erro com exceções
+✓ Relatórios com objetos e seleção de propriedades
+✓ Bloco param multilinha com atributos [Parameter]
+✓ Testes de comportamento do formatter por cenário real
+✓ Organização de exemplos por script, módulo e manifesto
+```
 
-### Example 1: Basic Function
+## 🚀 Como Começar
 
-**Input:**
-\`\`\`powershell
-function Get-Data{
-Write-Host "Getting data"
-return $data
-}
-\`\`\`
+Para instruções passo a passo, consulte [`01-QUICK-START.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/01-QUICK-START.md).
 
-**Output:**
-\`\`\`powershell
-function Get-Data {
-    Write-Host "Getting data"
-    return $data
-}
-\`\`\`
+## 🔗 Recursos Externos
 
-### Example 2: If/Else Block
+Consulte [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/02-USER-GUIDE.md) para links de recursos e documentação externa.
 
-**Input:**
-\`\`\`powershell
-if ($condition){
-Write-Host "True"
-}
-else{
-Write-Host "False"
-}
-\`\`\`
+## 📝 Notas de Compatibilidade
 
-**Output:**
-\`\`\`powershell
-if ($condition) {
-    Write-Host "True"
-}
-else {
-    Write-Host "False"
-}
-\`\`\`
+| Ambiente                            | Compatível | Notas                                          |
+| ----------------------------------- | ---------- | ---------------------------------------------- |
+| PowerShell 5.1 (Windows PowerShell) | ✅ Sim     | Compatível com scripts tradicionais em Windows |
+| PowerShell 7+ (pwsh)                | ✅ Sim     | Compatível e recomendado para multiplataforma  |
+| Arquivos `.ps1`                     | ✅ Sim     | Scripts gerais                                 |
+| Arquivos `.psm1`                    | ✅ Sim     | Módulos PowerShell                             |
+| Arquivos `.psd1`                    | ✅ Sim     | Manifestos de módulo                           |
 
-### Example 3: Try/Catch Block
+## ❓ Troubleshooting
 
-**Input:**
-\`\`\`powershell
-try{
-Get-Item $path
-}catch{
-Write-Error $_
-}finally{
-Write-Host "Cleanup"
-}
-\`\`\`
-
-**Output:**
-\`\`\`powershell
-try {
-    Get-Item $path
-}
-catch {
-    Write-Error $_
-}
-finally {
-    Write-Host "Cleanup"
-}
-\`\`\`
-
-## Performance Considerations
-
-- The formatter processes files quickly, even large scripts
-- Format-on-save is non-blocking
-- Range formatting is optimized for selection
-
-## Limitations
-
-- Comments are preserved as-is (no comment formatting)
-- String literals are not modified
-- Regex patterns within strings are preserved
-- Complex DSLs and custom syntax may not format perfectly
-
-## Troubleshooting
-
-### Formatter not running?
-
-1. Ensure the extension is installed: `Ctrl+Shift+X` → Search "Ark Format PowerShell"
-2. Check if formatting is enabled in settings
-3. Verify the file extension is supported (.ps1, .psm1, .psd1, .ps1xml)
-4. Check if another formatter is set as default
-
-### Want different formatting?
-
-1. Go to File → Preferences → Settings
-2. Search for "arkFormatPowerShell"
-3. Adjust options to your preference
-4. Or use `.editorconfig` for project-specific settings
+| Problema                                          | Solução                                                                     |
+| ------------------------------------------------- | --------------------------------------------------------------------------- |
+| Arquivo `.ps1` não formata                        | Defina `tooark.ark-format-powershell` como formatter padrão para PowerShell |
+| Indentação em seleção ficou diferente do esperado | Ative `arkFormatPowerShell.rangeFormatting.useDocumentContext`              |
+| Bloco `param (...)` não indentou                  | Verifique se está em formato multilinha com `param (` e fechamento em `)`   |
+| Diferença de quebra de linha entre arquivos       | Ajuste `arkFormatPowerShell.lineEnding` para `LF`, `CRLF` ou `Auto`         |

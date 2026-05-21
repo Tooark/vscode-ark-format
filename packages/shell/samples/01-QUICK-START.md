@@ -1,7 +1,7 @@
 # ⚡ Quick Start — Guia Rápido
 
 **Ordem sugerida:** 1 de 7 (essencial)  
-**Próximo:** [`02-USER-GUIDE.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/02-USER-GUIDE.md)  
+**Próximo:** [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/02-USER-GUIDE.md)  
 **Primeiros passos com a extensão ark-format-shell**
 
 ---
@@ -140,9 +140,9 @@ Se usar `shfmt`, erros aparecem no Problems panel:
 
 ## 🎓 Aprenda Mais
 
-- 📖 [`02-USER-GUIDE.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/02-USER-GUIDE.md) — Guia completo
-- 🗺️ [`03-FEATURE-INDEX.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/03-FEATURE-INDEX.md) — Índice de referência
-- 📊 [`04-TECHNICAL-SUMMARY.md`](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/samples/04-TECHNICAL-SUMMARY.md) — Detalhes técnicos
+- 📖 [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/02-USER-GUIDE.md) — Guia completo
+- 🗺️ [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/03-FEATURE-INDEX.md) — Índice de referência
+- 📊 [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/samples/04-TECHNICAL-SUMMARY.md) — Detalhes técnicos
 
 ---
 

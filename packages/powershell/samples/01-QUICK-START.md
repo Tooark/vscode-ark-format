@@ -1,67 +1,142 @@
-# Quick Start - Ark Format: PowerShell
+# ⚡ Quick Start — Guia Rápido
 
-## Installation
+**Ordem sugerida:** 1 de 7 (essencial)  
+**Próximo:** [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/02-USER-GUIDE.md)  
+**Primeiros passos com a extensão ark-format-powershell**
 
-1. Install the extension from VS Code Marketplace (search for "Ark Format: PowerShell" by Tooark)
-2. Or install manually:
-   - Clone the repository
-   - Run `pnpm install` in the root directory
-   - Run `pnpm build` to build the extension
-   - Run `code --install-extension dist/ark-format-powershell-*.vsix`
+---
 
-## Basic Usage
+## 🚀 5 Minutos de Setup
 
-### Format on Save
+### Passo 1: Abrir Arquivo PowerShell
 
-Add this to your VS Code settings:
+```powershell
+# Abra qualquer arquivo .ps1, .psm1, .psd1, etc em VS Code
+code samples/example.ps1
+```
 
-\`\`\`json
-"[powershell]": {
-  "editor.defaultFormatter": "tooark.ark-format-powershell",
-  "editor.formatOnSave": true
-}
-\`\`\`
+### Passo 2: Formatar
 
-### Manual Formatting
+```plaintext
+Windows/Linux:  Shift + Alt + F
+Mac:            Shift + Option + F
+```
 
-1. Open a PowerShell file (.ps1, .psm1, .psd1, .ps1xml)
-2. Press `Shift+Alt+F` to format the entire document
-3. Or select code and press `Shift+Alt+F` to format the selection
+✅ Pronto! Seu arquivo está formatado.
 
-### Configuration
+---
 
-Configure the formatter in your settings:
+## 🎯 Cenários Comuns
 
-\`\`\`json
+### ✋ Formatar Apenas Uma Seleção
+
+```plaintext
+1. Selecione o bloco de código
+2. Ctrl + K, Ctrl + F (Windows/Linux)
+    Cmd + K,  Cmd + F (Mac)
+```
+
+### 🦾 Suportar Múltiplas Linguagens
+
+No VS Code, adicione a `.vscode/settings.json`:
+
+```json
 {
-  "arkFormatPowerShell.enabled": true,
-  "arkFormatPowerShell.indentSize": 4,
-  "arkFormatPowerShell.indentStyle": "space",
-  "arkFormatPowerShell.trimTrailingWhitespace": true,
-  "arkFormatPowerShell.insertFinalNewline": true
+  "arkFormatPowerShell.effectLanguages": ["powershell"]
 }
-\`\`\`
+```
 
-## Supported Extensions
+### 📝 Aplicar EditorConfig
 
-- **`.ps1`** - PowerShell Scripts
-- **`.psm1`** - PowerShell Modules
-- **`.psd1`** - PowerShell Module Manifests
-- **`.ps1xml`** - PowerShell XML Configuration Files
+Crie `.editorconfig` na raiz:
 
-## Features
+```ini
+[*.ps1]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+```
 
-✨ Automatic indentation based on control structures (if, function, try, foreach, etc.)
-✨ Trim trailing whitespace
-✨ Normalize consecutive blank lines
-✨ Remove leading blank lines
-✨ Insert final newline
-✨ Configurable line endings (LF, CRLF, Auto-detect)
-✨ EditorConfig support
-✨ Multi-language support (English, Portuguese-BR)
+Depois habilite:
 
-## See Also
+```json
+{
+  "arkFormatPowerShell.useEditorConfig": true
+}
+```
 
-- [Full Documentation](./02-USER-GUIDE.md)
-- [Configuration Guide](./03-FEATURE-INDEX.md)
-- [Technical Details](./04-TECHNICAL-SUMMARY.md)
+### 🎨 Formatar ao Salvar
+
+```json
+{
+  "[powershell]": {
+    "editor.defaultFormatter": "tooark.ark-format-powershell",
+    "editor.formatOnSave": true
+  }
+}
+```
+
+---
+
+## 🔧 Dicas Profissionais
+
+### Dica 1: Range Formatting Inteligente
+
+```powershell
+# Com essa opção habilitada:
+"rangeFormatting.useDocumentContext": true
+
+# A indentação de uma seleção será calculada baseada
+# no contexto do documento - perfeito para refatoração!
+```
+
+### Dica 2: EditorConfig + Formatter
+
+EditorConfig + extensão = sem configuração manual
+
+```ini
+[*.ps1]
+indent_size = 4
+```
+
+---
+
+## ❓ Troubleshooting Rápido
+
+| Problema                     | Solução                                       |
+| ---------------------------- | --------------------------------------------- |
+| Arquivo não formata          | Verifique se `.ps1` está em `effectLanguages` |
+| Indentação errada            | Ative `useDocumentContext: true`              |
+| EditorConfig não funciona    | Ative: `useEditorConfig: true`                |
+| Conflito com outro formatter | Defina como default formatter                 |
+
+---
+
+## 🎓 Aprenda Mais
+
+- 📖 [`02-USER-GUIDE.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/02-USER-GUIDE.md) — Guia completo
+- 🗺️ [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/03-FEATURE-INDEX.md) — Índice de referência
+- 📊 [`04-TECHNICAL-SUMMARY.md`](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/samples/04-TECHNICAL-SUMMARY.md) — Detalhes técnicos
+
+---
+
+## ⏱️ Tempos Estimados
+
+```plaintext
+              Setup básico: 2 min
+          Primeiro formato: 30 seg
+   Configurar EditorConfig: 1 min
+Setup múltiplas linguagens: 3 min
+Aprender todas as features: 20 min
+```
+
+---
+
+## 🎯 Próximo Passo
+
+👉 **Abra VS Code e tente:** `Shift + Alt + F` em qualquer arquivo `.ps1`
+
+```powershell
+code samples/example.ps1
+# Depois pressione: Shift + Alt + F
+```

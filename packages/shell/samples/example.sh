@@ -62,9 +62,9 @@ echo "normal line after"
 
 # Line continuation
 curl -X POST \
-  --header "Content-Type: application/json" \
-  --data '{"key": "value"}' \
-  http://localhost:8080/api
+--header "Content-Type: application/json" \
+--data '{"key": "value"}' \
+http://localhost:8080/api
 
 # For and while loops
 for i in 1 2 3;do
