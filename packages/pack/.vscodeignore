@@ -1,3 +1,7 @@
-node_modules/**
-src/**
-**/*.ts
+# Dependencies
+node_modules/
+
+# Editor & VCS
+.vscode/
+.git/
+.gitignore

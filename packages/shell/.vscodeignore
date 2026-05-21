@@ -1,17 +1,27 @@
-.vscode/**
-.git/**
-.gitignore
+# Source files
+src/
 **/*.ts
 **/*.map
-test/**
-coverage/**
-samples/**
+
+# Test artifacts
+coverage/
+
+# Samples
+samples/
+
+# Build configuration
+esbuild.mjs
 *.config.ts
 *.config.mjs
-vitest.config.ts
-esbuild.mjs
-eslint.config.mjs
 tsconfig.json
+
+# Dependencies & lock files
 node_modules/
 package-lock.json
 pnpm-lock.yaml
+
+# Editor & VCS
+.vscode/
+.git/
+.gitignore
+.editorconfig

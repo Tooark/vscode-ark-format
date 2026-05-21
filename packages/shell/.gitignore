@@ -1,22 +1,9 @@
-.vscode/**
-.git/**
-.gitignore
-**/*.ts
-**/*.map
-test/**
-dist/**
-coverage/**
-samples/**
-*.config.ts
-*.config.mjs
-vitest.config.ts
-esbuild.mjs
-eslint.config.mjs
-tsconfig.json
-node_modules/
-package-lock.json
-pnpm-lock.yaml
+# Build outputs
+dist/
+
+# Test artifacts
+coverage/
+.vscode-test/
+
+# Package artifacts
 *.vsix
-.DS_Store
-*.log
-.env

@@ -1,9 +1,5 @@
-node_modules/
+# Build outputs
 dist/
-*.vsix
-.vscode/
-.DS_Store
-*.log
-.env
-.editorconfig
+
+# Test artifacts
 coverage/
