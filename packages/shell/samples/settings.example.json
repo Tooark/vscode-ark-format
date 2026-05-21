@@ -1,0 +1,89 @@
+{
+  "description": "Example VS Code settings for ark-format-shell extension",
+  "comments": "Copy these settings to your .vscode/settings.json file",
+
+  // Enable the formatter for multiple shell languages
+  "arkFormatShell.enabled": true,
+
+  // Choose between 'internal' (built-in) or 'shfmt' (external)
+  "arkFormatShell.engine": "internal",
+
+  // If using shfmt engine:
+  // "arkFormatShell.engine": "shfmt",
+  "arkFormatShell.shfmt.path": "shfmt",
+  "arkFormatShell.shfmt.flags": "-i 2 -bn -ci",
+
+  // Support multiple shell script languages
+  "arkFormatShell.effectLanguages": [
+    "shellscript",      // Standard .sh files
+    "bash",             // .bash files
+    "bats",             // .bats test files
+    "azcli",            // .azcli Azure CLI scripts
+    "tcsh",             // .tcsh C-shell scripts
+    "ksh"               // .ksh Korn shell scripts
+  ],
+
+  // Apply EditorConfig rules from .editorconfig file
+  "arkFormatShell.useEditorConfig": true,
+
+  // Use document context for range formatting
+  // This calculates correct indentation for selected blocks
+  "arkFormatShell.rangeFormatting.useDocumentContext": true,
+
+  // Formatting options
+  "arkFormatShell.indentSize": 2,
+  "arkFormatShell.indentStyle": "space",
+  "arkFormatShell.trimTrailingWhitespace": true,
+  "arkFormatShell.insertFinalNewline": true,
+  "arkFormatShell.removeLeadingBlankLines": false,
+  "arkFormatShell.maxConsecutiveBlankLines": 1,
+  "arkFormatShell.collapseSpaces": true,
+
+  // Spacing options
+  "arkFormatShell.spacing.spaceBeforeThenDo": true,
+  "arkFormatShell.spacing.spaceAfterKeywords": true,
+  "arkFormatShell.spacing.spaceBeforeFunctionBrace": true,
+
+  // Editor configuration
+  "[shellscript]": {
+    "editor.defaultFormatter": "tooark.ark-format-shell",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+
+  "[bash]": {
+    "editor.defaultFormatter": "tooark.ark-format-shell",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+
+  "[bats]": {
+    "editor.defaultFormatter": "tooark.ark-format-shell",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+
+  "[azcli]": {
+    "editor.defaultFormatter": "tooark.ark-format-shell",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+
+  "[ksh]": {
+    "editor.defaultFormatter": "tooark.ark-format-shell",
+    "editor.formatOnSave": false,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+
+  "[tcsh]": {
+    "editor.defaultFormatter": "tooark.ark-format-shell",
+    "editor.formatOnSave": false,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  }
+}

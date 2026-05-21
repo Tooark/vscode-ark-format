@@ -1,0 +1,14 @@
+.vscode/**
+.git/**
+.gitignore
+src/**
+samples/**
+**/*.ts
+**/*.map
+node_modules/**
+package-lock.json
+pnpm-lock.yaml
+.eslintrc*
+eslint.config.*
+tsconfig.json
+esbuild.mjs

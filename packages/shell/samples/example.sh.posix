@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# POSIX shell example - maximum portability
+# Works in sh, bash, ksh, dash, zsh with POSIX mode
+
+# Simple variable assignment
+APP_NAME="myapp"
+APP_VERSION="1.0"
+CONFIG_FILE="/etc/myapp/config"
+
+# POSIX parameter expansion
+if [ -z "$1" ];then
+echo "Usage: $0 <command>"
+exit 1
+fi
+
+case "$1" in
+start)
+echo "Starting $APP_NAME v$APP_VERSION..."
+;;
+stop)
+echo "Stopping $APP_NAME..."
+;;
+status)
+if [ -f "$CONFIG_FILE" ];then
+echo "Config file exists at $CONFIG_FILE"
+else
+echo "Config file not found"
+fi
+;;
+*)
+echo "Unknown command: $1" >&2
+exit 1
+;;
+esac
+
+
+
+# POSIX arithmetic
+count=0
+for file in /var/log/*.log;do
+if [ -r "$file" ];then
+count=$((count + 1))
+fi
+done
+
+echo "Found $count readable log files"
+
+# Command substitution (works in all shells)
+today=$(date +%Y-%m-%d)
+echo "Today: $today"
+
+# Simple function
+cleanup(){
+rm -f /tmp/myapp_*
+echo "Cleanup completed"
+}
+
+trap cleanup EXIT
