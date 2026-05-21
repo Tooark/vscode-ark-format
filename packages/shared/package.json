@@ -1,0 +1,64 @@
+{
+  "name": "@tooark/ark-format-shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "default": "./dist/config.js"
+    },
+    "./document": {
+      "types": "./dist/document.d.ts",
+      "default": "./dist/document.js"
+    },
+    "./editorConfig": {
+      "types": "./dist/editorConfig.d.ts",
+      "default": "./dist/editorConfig.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "default": "./dist/errors.js"
+    },
+    "./indent": {
+      "types": "./dist/indent.d.ts",
+      "default": "./dist/indent.js"
+    },
+    "./lex": {
+      "types": "./dist/lex.d.ts",
+      "default": "./dist/lex.js"
+    },
+    "./logger": {
+      "types": "./dist/logger.d.ts",
+      "default": "./dist/logger.js"
+    },
+    "./path": {
+      "types": "./dist/path.d.ts",
+      "default": "./dist/path.js"
+    },
+    "./process": {
+      "types": "./dist/process.d.ts",
+      "default": "./dist/process.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "lint": "pnpm exec eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}
