@@ -1,0 +1,21 @@
+{
+  "displayName": "Ark Format: PowerShell",
+  "description": "Formate scripts e módulos PowerShell (.ps1, .psm1, .psd1, .ps1xml) com opções abrangentes de formatação de código",
+  "configuration.title": "Ark Format: PowerShell",
+  "config.effectLanguages.description": "Linguagens para aplicar formatação",
+  "config.enabled.description": "Ativar ou desativar formatação PowerShell",
+  "config.indentSize.description": "Número de espaços para indentação",
+  "config.indentStyle.description": "Usar espaços ou tabulações para indentação",
+  "config.insertFinalNewline.description": "Inserir uma nova linha ao final do arquivo",
+  "config.lineEnding.description": "Estilo de quebra de linha (LF, CRLF, ou Auto-detectar)",
+  "config.maxConsecutiveBlankLines.description": "Número máximo de linhas em branco consecutivas",
+  "config.collapseSpaces.description": "Colapsar múltiplos espaços em um (fora de strings e contextos de alinhamento)",
+  "config.rangeFormatting.enabled.description": "Habilitar formatação de intervalo (seleção)",
+  "config.rangeFormatting.reindent.description": "Re-indentar intervalo selecionado (usa contexto do documento para calcular indentação base)",
+  "config.rangeFormatting.useDocumentContext.description": "Ao re-indentar um intervalo, faz pré-varredura das linhas anteriores à seleção para calcular o nível de indentação base correto",
+  "config.removeLeadingBlankLines.description": "Remover linhas em branco no início do arquivo",
+  "config.trimTrailingWhitespace.description": "Remover espaços em branco no final das linhas",
+  "config.useEditorConfig.description": "Usar arquivo .editorconfig para opções de formatação",
+  "command.formatDocument": "Formatar Documento PowerShell",
+  "command.formatSelection": "Formatar Seleção PowerShell"
+}

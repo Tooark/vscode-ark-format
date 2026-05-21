@@ -1,0 +1,20 @@
+{
+  "arkFormatPowerShell.enabled": true,
+  "arkFormatPowerShell.indentSize": 4,
+  "arkFormatPowerShell.indentStyle": "space",
+  "arkFormatPowerShell.trimTrailingWhitespace": true,
+  "arkFormatPowerShell.maxConsecutiveBlankLines": 1,
+  "arkFormatPowerShell.removeLeadingBlankLines": true,
+  "arkFormatPowerShell.insertFinalNewline": true,
+  "arkFormatPowerShell.lineEnding": "Auto",
+  "arkFormatPowerShell.collapseSpaces": true,
+  "arkFormatPowerShell.rangeFormatting.enabled": true,
+  "arkFormatPowerShell.rangeFormatting.reindent": false,
+  "arkFormatPowerShell.rangeFormatting.useDocumentContext": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "[powershell]": {
+    "editor.defaultFormatter": "tooark.ark-format-powershell",
+    "editor.formatOnSave": true
+  }
+}

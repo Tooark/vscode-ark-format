@@ -1,0 +1,21 @@
+{
+  "displayName": "Ark Format: PowerShell",
+  "description": "Format PowerShell scripts and modules (.ps1, .psm1, .psd1, .ps1xml) with comprehensive code formatting options",
+  "configuration.title": "Ark Format: PowerShell",
+  "config.enabled.description": "Enable or disable PowerShell formatting",
+  "config.indentSize.description": "Number of spaces for indentation",
+  "config.indentStyle.description": "Use spaces or tabs for indentation",
+  "config.trimTrailingWhitespace.description": "Remove trailing whitespace from lines",
+  "config.maxConsecutiveBlankLines.description": "Maximum number of consecutive blank lines",
+  "config.removeLeadingBlankLines.description": "Remove blank lines at the beginning of the file",
+  "config.insertFinalNewline.description": "Insert a newline at the end of the file",
+  "config.lineEnding.description": "Line ending style (LF, CRLF, or Auto-detect)",
+  "config.collapseSpaces.description": "Collapse multiple spaces into one (outside of strings and alignment contexts)",
+  "config.effectLanguages.description": "Languages to apply formatting to",
+  "config.useEditorConfig.description": "Use .editorconfig file for formatting options",
+  "config.rangeFormatting.enabled.description": "Enable range (selection) formatting",
+  "config.rangeFormatting.reindent.description": "Re-indent selected range (uses document context to calculate base indent)",
+  "config.rangeFormatting.useDocumentContext.description": "When re-indenting a range, pre-scan lines before the selection to compute the correct base indent level",
+  "command.formatDocument": "Format PowerShell Document",
+  "command.formatSelection": "Format PowerShell Selection"
+}

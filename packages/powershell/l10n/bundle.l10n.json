@@ -1,0 +1,6 @@
+{
+  "ark.active": "Ark Format: PowerShell is now active!",
+  "ark.incompatible.flag": "Incompatible flag: cannot be used with editor formatting",
+  "ark.failed.format": "Failed to format PowerShell document: {0}",
+  "ark.error.format": "Fatal error formatting PowerShell: {0}"
+}

@@ -1,0 +1,164 @@
+{
+  "name": "ark-format-powershell",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "1.0.0",
+  "publisher": "tooark",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tooark/vscode-ark-format/packages/powershell"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "formatter",
+    "powershell",
+    "ps1",
+    "esbuild",
+    "pnpm",
+    "tooark"
+  ],
+  "icon": "assets/icon.png",
+  "activationEvents": [
+    "onLanguage:powershell"
+  ],
+  "l10n": "./l10n",
+  "main": "./dist/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "powershell",
+        "extensions": [
+          ".ps1",
+          ".psm1",
+          ".psd1",
+          ".ps1xml"
+        ],
+        "aliases": [
+          "PowerShell",
+          "pwsh"
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "%configuration.title%",
+      "properties": {
+        "arkFormatPowerShell.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.enabled.description%"
+        },
+        "arkFormatPowerShell.effectLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "powershell"
+          ],
+          "description": "%config.effectLanguages.description%"
+        },
+        "arkFormatPowerShell.useEditorConfig": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.useEditorConfig.description%"
+        },
+        "arkFormatPowerShell.indentStyle": {
+          "type": "string",
+          "default": "space",
+          "enum": [
+            "space",
+            "tab"
+          ],
+          "description": "%config.indentStyle.description%"
+        },
+        "arkFormatPowerShell.indentSize": {
+          "type": "number",
+          "default": 2,
+          "minimum": 0,
+          "description": "%config.indentSize.description%"
+        },
+        "arkFormatPowerShell.lineEnding": {
+          "type": "string",
+          "default": "CRLF",
+          "enum": [
+            "LF",
+            "CRLF",
+            "Auto"
+          ],
+          "description": "%config.lineEnding.description%"
+        },
+        "arkFormatPowerShell.trimTrailingWhitespace": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.trimTrailingWhitespace.description%"
+        },
+        "arkFormatPowerShell.maxConsecutiveBlankLines": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "description": "%config.maxConsecutiveBlankLines.description%"
+        },
+        "arkFormatPowerShell.removeLeadingBlankLines": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.removeLeadingBlankLines.description%"
+        },
+        "arkFormatPowerShell.insertFinalNewline": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.insertFinalNewline.description%"
+        },
+        "arkFormatPowerShell.collapseSpaces": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.collapseSpaces.description%"
+        },
+        "arkFormatPowerShell.rangeFormatting.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.rangeFormatting.enabled.description%"
+        },
+        "arkFormatPowerShell.rangeFormatting.reindent": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.rangeFormatting.reindent.description%"
+        },
+        "arkFormatPowerShell.rangeFormatting.useDocumentContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.rangeFormatting.useDocumentContext.description%"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "arkFormatPowerShell.formatDocument",
+        "title": "%command.formatDocument%"
+      },
+      {
+        "command": "arkFormatPowerShell.formatSelection",
+        "title": "%command.formatSelection%"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs --production",
+    "watch": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs --watch",
+    "compile": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs",
+    "lint": "pnpm exec eslint src",
+    "vscode:prepublish": "pnpm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "pnpm exec vsce package --no-dependencies",
+    "publish": "pnpm exec vsce publish --no-dependencies"
+  },
+  "dependencies": {
+    "@tooark/ark-format-shared": "workspace:*"
+  }
+}
