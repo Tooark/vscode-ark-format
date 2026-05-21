@@ -5,6 +5,11 @@
   "version": "1.0.0",
   "publisher": "tooark",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tooark/vscode-ark-format.git",
+    "directory": "packages/pack"
+  },
   "icon": "assets/icon.png",
   "engines": {
     "vscode": "^1.85.0"
@@ -14,7 +19,8 @@
     "Formatters"
   ],
   "extensionPack": [
-    "tooark.ark-format-shell"
+    "tooark.ark-format-shell",
+    "tooark.ark-format-powershell"
   ],
   "scripts": {
     "package": "pnpm exec vsce package --no-dependencies"
