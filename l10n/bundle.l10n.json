@@ -1,6 +1,0 @@
-{
-  "ark.active": "Ark Format: Shell is now active!",
-  "ark.incompatible.flag": "Incompatible flag: -w cannot be used with editor formatting",
-  "ark.failed.shfmt": "Failed to execute shfmt: {0}",
-  "ark.error.shfmt": "Fatal error calling shfmt: {0}"
-}
