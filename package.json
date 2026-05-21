@@ -1,179 +1,18 @@
 {
-  "name": "ark-format-shell",
-  "displayName": "%displayName%",
-  "description": "%description%",
-  "version": "1.0.0",
-  "publisher": "Tooark",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Tooark/ark-format-shell"
-  },
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": [
-    "Formatters"
-  ],
-  "keywords": [
-    "formatter",
-    "shell",
-    "bash",
-    "esbuild",
-    "pnpm",
-    "tooark"
-  ],
-  "icon": "assets/icon.png",
-  "activationEvents": [
-    "onLanguage:shellscript",
-    "onLanguage:bats",
-    "onLanguage:azcli"
-  ],
-  "l10n": "./l10n",
-  "main": "./dist/extension.js",
-  "contributes": {
-    "configuration": {
-      "title": "%configuration.title%",
-      "properties": {
-        "arkFormatShell.engine": {
-          "type": "string",
-          "default": "internal",
-          "enum": [
-            "internal",
-            "shfmt"
-          ],
-          "enumDescriptions": [
-            "%config.engine.enum.internal%",
-            "%config.engine.enum.shfmt%"
-          ],
-          "description": "%config.engine.description%"
-        },
-        "arkFormatShell.shfmt.path": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null,
-          "description": "%config.shfmt.path.description%"
-        },
-        "arkFormatShell.shfmt.flags": {
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null,
-          "description": "%config.shfmt.flags.description%"
-        },
-        "arkFormatShell.useEditorConfig": {
-          "type": "boolean",
-          "default": false,
-          "description": "%config.useEditorConfig.description%"
-        },
-        "arkFormatShell.effectLanguages": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": [
-            "shellscript"
-          ],
-          "description": "%config.effectLanguages.description%"
-        },
-        "arkFormatShell.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.enabled.description%"
-        },
-        "arkFormatShell.indentSize": {
-          "type": "number",
-          "default": 2,
-          "minimum": 0,
-          "description": "%config.indentSize.description%"
-        },
-        "arkFormatShell.trimTrailingWhitespace": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.trimTrailingWhitespace.description%"
-        },
-        "arkFormatShell.maxConsecutiveBlankLines": {
-          "type": "number",
-          "default": 1,
-          "minimum": 0,
-          "description": "%config.maxConsecutiveBlankLines.description%"
-        },
-        "arkFormatShell.removeLeadingBlankLines": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.removeLeadingBlankLines.description%"
-        },
-        "arkFormatShell.insertFinalNewline": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.insertFinalNewline.description%"
-        },
-        "arkFormatShell.lineEnding": {
-          "type": "string",
-          "default": "LF",
-          "enum": [
-            "LF",
-            "CRLF",
-            "Auto"
-          ],
-          "description": "%config.lineEnding.description%"
-        },
-        "arkFormatShell.collapseSpaces": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.collapseSpaces.description%"
-        },
-        "arkFormatShell.spacing.spaceBeforeThenDo": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.spacing.spaceBeforeThenDo.description%"
-        },
-        "arkFormatShell.spacing.spaceAfterKeywords": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.spacing.spaceAfterKeywords.description%"
-        },
-        "arkFormatShell.spacing.spaceBeforeFunctionBrace": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.spacing.spaceBeforeFunctionBrace.description%"
-        },
-        "arkFormatShell.rangeFormatting.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.rangeFormatting.enabled.description%"
-        },
-        "arkFormatShell.rangeFormatting.reindent": {
-          "type": "boolean",
-          "default": false,
-          "description": "%config.rangeFormatting.reindent.description%"
-        },
-        "arkFormatShell.rangeFormatting.useDocumentContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "%config.rangeFormatting.useDocumentContext.description%"
-        }
-      }
-    }
-  },
+  "name": "vscode-ark-format-workspace",
+  "private": true,
   "scripts": {
-    "build": "node ./esbuild.mjs --production",
-    "watch": "node ./esbuild.mjs --watch",
-    "compile": "node ./esbuild.mjs",
-    "vscode:prepublish": "pnpm run build",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "package": "pnpm exec vsce package --no-dependencies",
-    "publish": "pnpm exec vsce publish --no-dependencies"
+    "build": "pnpm -r --if-present build",
+    "watch": "pnpm -r --parallel --if-present watch",
+    "lint": "pnpm -r --if-present lint",
+    "package": "pnpm -r --if-present package"
   },
   "devDependencies": {
     "@types/node": "^20.19.41",
     "@types/vscode": "^1.120.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
+    "@vitest/coverage-v8": "^4.1.7",
     "@vscode/vsce": "^3.9.0",
     "esbuild": "^0.21.0",
     "eslint": "^8.56.0",

@@ -1,0 +1,22 @@
+{
+  "name": "ark-format",
+  "displayName": "Ark Format",
+  "description": "Extension pack for Ark Format family",
+  "version": "1.0.0",
+  "publisher": "tooark",
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Extension Packs",
+    "Formatters"
+  ],
+  "extensionPack": [
+    "tooark.ark-format-shell"
+  ],
+  "scripts": {
+    "package": "pnpm exec vsce package --no-dependencies"
+  }
+}
