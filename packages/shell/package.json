@@ -7,11 +7,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Tooark/vscode-ark-format/packages/shell"
+    "url": "https://github.com/Tooark/vscode-ark-format.git",
+    "directory": "packages/shell"
+  },
+  "homepage": "https://github.com/Tooark/vscode-ark-format/tree/main/packages/shell",
+  "bugs": {
+    "url": "https://github.com/Tooark/vscode-ark-format/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
   },
+  "icon": "assets/icon.png",
   "categories": [
     "Formatters"
   ],
@@ -23,7 +29,6 @@
     "pnpm",
     "tooark"
   ],
-  "icon": "assets/icon.png",
   "activationEvents": [
     "onLanguage:azcli",
     "onLanguage:bash",
@@ -108,6 +113,7 @@
         "arkFormatShell.enabled": {
           "type": "boolean",
           "default": true,
+          "order": 1,
           "description": "%config.enabled.description%"
         },
         "arkFormatShell.effectLanguages": {
@@ -125,11 +131,13 @@
             "shellscript",
             "tcsh"
           ],
+          "order": 2,
           "description": "%config.effectLanguages.description%"
         },
         "arkFormatShell.useEditorConfig": {
           "type": "boolean",
           "default": false,
+          "order": 3,
           "description": "%config.useEditorConfig.description%"
         },
         "arkFormatShell.engine": {
@@ -143,6 +151,7 @@
             "%config.engine.enum.internal%",
             "%config.engine.enum.shfmt%"
           ],
+          "order": 10,
           "description": "%config.engine.description%"
         },
         "arkFormatShell.shfmt.path": {
@@ -151,6 +160,7 @@
             "null"
           ],
           "default": null,
+          "order": 11,
           "description": "%config.shfmt.path.description%"
         },
         "arkFormatShell.shfmt.flags": {
@@ -159,6 +169,7 @@
             "null"
           ],
           "default": null,
+          "order": 12,
           "description": "%config.shfmt.flags.description%"
         },
         "arkFormatShell.indentStyle": {
@@ -168,12 +179,14 @@
             "space",
             "tab"
           ],
+          "order": 20,
           "description": "%config.indentStyle.description%"
         },
         "arkFormatShell.indentSize": {
           "type": "number",
           "default": 2,
           "minimum": 0,
+          "order": 21,
           "description": "%config.indentSize.description%"
         },
         "arkFormatShell.lineEnding": {
@@ -184,62 +197,74 @@
             "CRLF",
             "Auto"
           ],
+          "order": 22,
           "description": "%config.lineEnding.description%"
         },
         "arkFormatShell.trimTrailingWhitespace": {
           "type": "boolean",
           "default": true,
+          "order": 23,
           "description": "%config.trimTrailingWhitespace.description%"
         },
         "arkFormatShell.maxConsecutiveBlankLines": {
           "type": "number",
           "default": 1,
           "minimum": 0,
+          "order": 24,
           "description": "%config.maxConsecutiveBlankLines.description%"
         },
         "arkFormatShell.removeLeadingBlankLines": {
           "type": "boolean",
           "default": true,
+          "order": 25,
           "description": "%config.removeLeadingBlankLines.description%"
         },
         "arkFormatShell.insertFinalNewline": {
           "type": "boolean",
           "default": true,
+          "order": 26,
           "description": "%config.insertFinalNewline.description%"
         },
         "arkFormatShell.collapseSpaces": {
           "type": "boolean",
           "default": true,
+          "order": 27,
           "description": "%config.collapseSpaces.description%"
         },
         "arkFormatShell.spacing.spaceBeforeThenDo": {
           "type": "boolean",
           "default": true,
+          "order": 30,
           "description": "%config.spacing.spaceBeforeThenDo.description%"
         },
         "arkFormatShell.spacing.spaceAfterKeywords": {
           "type": "boolean",
           "default": true,
+          "order": 31,
           "description": "%config.spacing.spaceAfterKeywords.description%"
         },
         "arkFormatShell.spacing.spaceBeforeFunctionBrace": {
           "type": "boolean",
           "default": true,
+          "order": 32,
           "description": "%config.spacing.spaceBeforeFunctionBrace.description%"
         },
         "arkFormatShell.rangeFormatting.enabled": {
           "type": "boolean",
           "default": true,
+          "order": 40,
           "description": "%config.rangeFormatting.enabled.description%"
         },
         "arkFormatShell.rangeFormatting.reindent": {
           "type": "boolean",
           "default": false,
+          "order": 41,
           "description": "%config.rangeFormatting.reindent.description%"
         },
         "arkFormatShell.rangeFormatting.useDocumentContext": {
           "type": "boolean",
           "default": true,
+          "order": 42,
           "description": "%config.rangeFormatting.useDocumentContext.description%"
         }
       }

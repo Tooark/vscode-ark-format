@@ -1,10 +1,22 @@
 {
-  "name": "vscode-ark-format-workspace",
+  "name": "vscode-ark-format",
+  "description": "Monorepo das extensões VS Code Ark Format (Shell e PowerShell).",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tooark/vscode-ark-format.git"
+  },
+  "homepage": "https://github.com/Tooark/vscode-ark-format",
+  "bugs": {
+    "url": "https://github.com/Tooark/vscode-ark-format/issues"
+  },
   "private": true,
   "scripts": {
     "build": "pnpm -r --if-present build",
     "watch": "pnpm -r --parallel --if-present watch",
     "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "test:watch": "pnpm -r --parallel --if-present test:watch",
     "package": "pnpm -r --if-present package"
   },
   "devDependencies": {

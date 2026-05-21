@@ -25,9 +25,9 @@
 
 **Veja como funciona:**
 
-![Ark Format PowerShell - Configurações](media/powershell-settings.gif)
+![Ark Format PowerShell - Configurações](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/media/powershell-settings.gif)
 
-![Ark Format PowerShell - Formatando Código](media/powershell-using.gif)
+![Ark Format PowerShell - Formatando Código](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/media/powershell-using.gif)
 
 #### Formatar Documento Completo
 

@@ -25,9 +25,9 @@
 
 **Veja como funciona:**
 
-![Ark Format Shell - Configurações](media/shell-settings.gif)
+![Ark Format Shell - Configurações](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/shell/media/shell-settings.gif)
 
-![Ark Format Shell - Formatando Código](media/shell-using.gif)
+![Ark Format Shell - Formatando Código](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/shell/media/shell-using.gif)
 
 #### Formatar Documento Completo
 
@@ -49,7 +49,10 @@ Acesse `File > Preferences > Settings > Ark Format: Shell` para ajustar as confi
 - `.sh` - Shell Script (POSIX)
 - `.bash` - Bash Script
 - `.zsh` - Zsh Script
-- E outros shells baseados em POSIX
+- `.ksh` - Korn Shell Script
+- `.tcsh` - TCSH Script
+- `.azcli` - Azure CLI Script
+- `.bats` - BATS Test Script
 
 ## 🔧 Integração com shfmt
 

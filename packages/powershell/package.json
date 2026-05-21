@@ -7,11 +7,17 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Tooark/vscode-ark-format/packages/powershell"
+    "url": "https://github.com/Tooark/vscode-ark-format.git",
+    "directory": "packages/powershell"
+  },
+  "homepage": "https://github.com/Tooark/vscode-ark-format/tree/main/packages/powershell",
+  "bugs": {
+    "url": "https://github.com/Tooark/vscode-ark-format/issues"
   },
   "engines": {
     "vscode": "^1.85.0"
   },
+  "icon": "assets/icon.png",
   "categories": [
     "Formatters"
   ],
@@ -23,7 +29,6 @@
     "pnpm",
     "tooark"
   ],
-  "icon": "assets/icon.png",
   "activationEvents": [
     "onLanguage:powershell"
   ],
@@ -50,6 +55,7 @@
         "arkFormatPowerShell.enabled": {
           "type": "boolean",
           "default": true,
+          "order": 1,
           "description": "%config.enabled.description%"
         },
         "arkFormatPowerShell.effectLanguages": {
@@ -60,11 +66,13 @@
           "default": [
             "powershell"
           ],
+          "order": 2,
           "description": "%config.effectLanguages.description%"
         },
         "arkFormatPowerShell.useEditorConfig": {
           "type": "boolean",
           "default": false,
+          "order": 3,
           "description": "%config.useEditorConfig.description%"
         },
         "arkFormatPowerShell.indentStyle": {
@@ -74,12 +82,14 @@
             "space",
             "tab"
           ],
+          "order": 10,
           "description": "%config.indentStyle.description%"
         },
         "arkFormatPowerShell.indentSize": {
           "type": "number",
           "default": 2,
           "minimum": 0,
+          "order": 11,
           "description": "%config.indentSize.description%"
         },
         "arkFormatPowerShell.lineEnding": {
@@ -90,47 +100,56 @@
             "CRLF",
             "Auto"
           ],
+          "order": 12,
           "description": "%config.lineEnding.description%"
         },
         "arkFormatPowerShell.trimTrailingWhitespace": {
           "type": "boolean",
           "default": true,
+          "order": 13,
           "description": "%config.trimTrailingWhitespace.description%"
         },
         "arkFormatPowerShell.maxConsecutiveBlankLines": {
           "type": "number",
           "default": 1,
           "minimum": 0,
+          "order": 14,
           "description": "%config.maxConsecutiveBlankLines.description%"
         },
         "arkFormatPowerShell.removeLeadingBlankLines": {
           "type": "boolean",
           "default": true,
+          "order": 15,
           "description": "%config.removeLeadingBlankLines.description%"
         },
         "arkFormatPowerShell.insertFinalNewline": {
           "type": "boolean",
           "default": true,
+          "order": 16,
           "description": "%config.insertFinalNewline.description%"
         },
         "arkFormatPowerShell.collapseSpaces": {
           "type": "boolean",
           "default": true,
+          "order": 17,
           "description": "%config.collapseSpaces.description%"
         },
         "arkFormatPowerShell.rangeFormatting.enabled": {
           "type": "boolean",
           "default": true,
+          "order": 20,
           "description": "%config.rangeFormatting.enabled.description%"
         },
         "arkFormatPowerShell.rangeFormatting.reindent": {
           "type": "boolean",
           "default": false,
+          "order": 21,
           "description": "%config.rangeFormatting.reindent.description%"
         },
         "arkFormatPowerShell.rangeFormatting.useDocumentContext": {
           "type": "boolean",
           "default": true,
+          "order": 22,
           "description": "%config.rangeFormatting.useDocumentContext.description%"
         }
       }

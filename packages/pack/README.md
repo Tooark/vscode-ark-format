@@ -2,20 +2,20 @@
 
 **Ark Format** é um pacote de extensões que reúne todos os formatadores da família Ark Format em uma única instalação. Formate seus scripts **Shell** e **PowerShell** com consistência e flexibilidade diretamente no VS Code.
 
-![Ark Format Icon](assets/icon.png)
+<img src="assets/image.png" width=480>
 
 ## 📦 O que está incluído
 
-| Extensão                                                                                                       | Descrição                                                                                          |
-| -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| **[Ark Format: Shell](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell)**           | Formatação para scripts Shell (.sh, .bash, .zsh) com integração opcional ao shfmt                  |
-| **[Ark Format: PowerShell](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell)** | Formatação para scripts PowerShell (.ps1, .psm1, .psd1) com indentação inteligente de blocos param |
+| Extensão                                                                                                       | Descrição                                                                                                     |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **[Ark Format: Shell](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell)**           | Formatação para scripts Shell (.sh, .bash, .zsh, .ksh, .tcsh, .azcli, .bats) com integração opcional ao shfmt |
+| **[Ark Format: PowerShell](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell)** | Formatação para scripts PowerShell (.ps1, .psm1, .psd1) com indentação inteligente de blocos param            |
 
 ## 🤔 Qual instalar?
 
 | Cenário                                       | Extensão recomendada         |
 | --------------------------------------------- | ---------------------------- |
-| Trabalha apenas com Shell (sh, bash, zsh)     | **Ark Format: Shell**        |
+| Trabalha apenas com Shell                     | **Ark Format: Shell**        |
 | Trabalha apenas com PowerShell                | **Ark Format: PowerShell**   |
 | Trabalha com ambos ou quer cobertura completa | **Ark Format** (este pacote) |
 

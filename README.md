@@ -1,4 +1,4 @@
-# vscode-ark-format
+# ARK Format - Monorepo de Formatação e Extensões VS Code
 
 Ferramenta monorepo para formatação de código (Ark) e extensões VS Code.
 
@@ -15,8 +15,8 @@ Este repositório contém formatadores e extensões organizadas como um monorepo
 
 ## Estrutura do repositório
 
-- [packages/powershell](packages/powershell/README.md) — Extensão VS Code e formatador para PowerShell (inclui tests, l10n, assets)
-- [packages/shell](packages/shell/README.md) — Formatador para Shell (sh, bash)
+- [packages/powershell](packages/powershell/README.md) — Formatador para PowerShell (.ps1, .psm1, .psd1)
+- [packages/shell](packages/shell/README.md) — Formatador para Shell (.sh, .bash, .zsh, .ksh, .tcsh, .azcli, .bats)
 - [packages/shared](packages/shared/README.md) — Código compartilhado (utils, document processing, lexer, indent)
 - [packages/pack](packages/pack/README.md) — Utilitários de empacotamento/artefatos
 - `configs/` — Configurações compartilhadas (ESLint base, tsconfig.base.json, etc.)
@@ -78,7 +78,7 @@ O diretório `.vscode/` na raiz contém recomendações de extensão, `tasks.jso
 Para abrir o host de extensão e testar a extensão localmente:
 
 1. Abra o workspace no VS Code
-2. Execute a *Task* `pnpm: watch shell` ou `pnpm: watch powershell` a partir do painel de Tasks
+2. Execute a _Task_ `pnpm: watch shell` ou `pnpm: watch powershell` a partir do painel de Tasks
 3. Pressione `F5` (Launch Extension) para abrir um novo Host do VS Code com a extensão carregada
 
 ## Contribuição
