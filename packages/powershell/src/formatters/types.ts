@@ -39,6 +39,7 @@ export interface IndentState {
   inHeredoc: boolean;
   heredocEnd: string;
   continuation: boolean;
+  inParamBlock: boolean;
 }
 
 /**

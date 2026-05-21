@@ -16,6 +16,15 @@ describe('isLineContinuation', () => {
 });
 
 describe('dedentBeforeLine', () => {
+  it('dedents on closing parenthesis of param block', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    st.inParamBlock = true;
+    dedentBeforeLine(')', st);
+    expect(st.indent).toBe(0);
+    expect(st.inParamBlock).toBe(false);
+  });
+
   it('dedents on closing brace', () => {
     const st = createInitialState();
     st.indent = 1;
@@ -86,6 +95,20 @@ describe('dedentBeforeLine', () => {
 });
 
 describe('indentAfterLine', () => {
+  it('indents after multiline param open', () => {
+    const st = createInitialState();
+    indentAfterLine('param (', st);
+    expect(st.indent).toBe(1);
+    expect(st.inParamBlock).toBe(true);
+  });
+
+  it('does not indent for single-line param declaration', () => {
+    const st = createInitialState();
+    indentAfterLine('param ([string]$Name)', st);
+    expect(st.indent).toBe(0);
+    expect(st.inParamBlock).toBe(false);
+  });
+
   it('indents after opening brace', () => {
     const st = createInitialState();
     indentAfterLine('if ($true) {', st);

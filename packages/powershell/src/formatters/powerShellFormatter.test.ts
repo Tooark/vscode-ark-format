@@ -51,6 +51,31 @@ describe('PowerShellFormatter.formatDocument', () => {
 });
 
 describe('PowerShellFormatter.formatText', () => {
+  it('indenta conteúdo dentro de bloco param multilinha', () => {
+    const input = [
+      'param (',
+      '[Parameter(Mandatory = $false)]',
+      '[string]$Name = "Mundo",',
+      '',
+      '[Parameter(Mandatory = $false)]',
+      '[string]$Greeting = "Olá"',
+      ')',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      'param (',
+      '  [Parameter(Mandatory = $false)]',
+      '  [string]$Name = "Mundo",',
+      '',
+      '  [Parameter(Mandatory = $false)]',
+      '  [string]$Greeting = "Olá"',
+      ')',
+      ''
+    ].join('\n'));
+  });
+
   it('formata bloco de função com indentação', () => {
     const input = 'function Test{\nWrite-Host "ok"\n}\n';
     const result = format(input);

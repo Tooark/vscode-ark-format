@@ -67,6 +67,23 @@ describe('PowerShellRangeFormatter.formatRange', () => {
 });
 
 describe('PowerShellRangeFormatter.formatSelectedText (reindent)', () => {
+  it('reindenta conteúdo dentro de bloco param multilinha', () => {
+    const input = [
+      'param (',
+      '[string]$Name = "Mundo",',
+      '[string]$Greeting = "Olá"',
+      ')'
+    ].join('\n');
+
+    const result = formatRange(input, { reindent: true, baseIndent: 0 });
+    const lines = result.split('\n');
+
+    expect(lines[0]).toBe('param (');
+    expect(lines[1]).toBe('  [string]$Name = "Mundo",');
+    expect(lines[2]).toBe('  [string]$Greeting = "Olá"');
+    expect(lines[3]).toBe(')');
+  });
+
   it('aplica baseIndent ao reindentar seleção', () => {
     const input = 'if ($true){\nWrite-Host "hi"\n}';
     const result = formatRange(input, { reindent: true, baseIndent: 1 });

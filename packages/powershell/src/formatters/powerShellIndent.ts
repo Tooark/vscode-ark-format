@@ -7,6 +7,8 @@ const END_WITH_OPTIONAL_INLINE_COMMENT = '(?:\\s*(?:#.*)?)$';
 const CLOSE_BRACE_LINE_RE = /^\}/;
 const SAME_LEVEL_CLAUSE_RE = /^(else|elseif|catch|finally)\b/i;
 const OPEN_BRACE_LINE_RE = new RegExp(`\\{${END_WITH_OPTIONAL_INLINE_COMMENT}`);
+const PARAM_OPEN_LINE_RE = new RegExp(`^param\\s*\\(${END_WITH_OPTIONAL_INLINE_COMMENT}`, 'i');
+const PARAM_CLOSE_LINE_RE = new RegExp(`^\\)${END_WITH_OPTIONAL_INLINE_COMMENT}`);
 
 /**
  * Função para criar o estado inicial de indentação.
@@ -17,7 +19,8 @@ export function createInitialState (): IndentState {
     indent: 0,
     inHeredoc: false,
     heredocEnd: '',
-    continuation: false
+    continuation: false,
+    inParamBlock: false
   };
 }
 
@@ -52,6 +55,14 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   // Alinha o fechamento de bloco.
   if (CLOSE_BRACE_LINE_RE.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
+
+    return;
+  }
+
+  // Alinha fechamento do bloco param (...).
+  if (st.inParamBlock && PARAM_CLOSE_LINE_RE.test(trimmed)) {
+    st.indent = Math.max(0, st.indent - 1);
+    st.inParamBlock = false;
 
     return;
   }
@@ -102,5 +113,13 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   // Blocos PowerShell delimitados por chaves.
   if (OPEN_BRACE_LINE_RE.test(trimmed)) {
     st.indent += 1;
+
+    return;
+  }
+
+  // Bloco de parâmetros multilinha: param ( ... ).
+  if (!st.inParamBlock && PARAM_OPEN_LINE_RE.test(trimmed)) {
+    st.indent += 1;
+    st.inParamBlock = true;
   }
 }
