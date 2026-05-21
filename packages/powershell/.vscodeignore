@@ -25,3 +25,6 @@ pnpm-lock.yaml
 .git/
 .gitignore
 .editorconfig
+
+# Media files
+media/

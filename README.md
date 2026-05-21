@@ -89,4 +89,10 @@ Para abrir o host de extensão e testar a extensão localmente:
 
 ## Licença
 
-Este projeto usa a licença descrita em [LICENSE](LICENSE).
+Este projeto está licenciado sob a [MIT License](LICENSE).
+
+## 👤 Autor
+
+| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=120> |
+| :------------------------------------------------------------------------: |
+|            [**Paulo Freitas**](https://paulofreitas.tooark.com)            |

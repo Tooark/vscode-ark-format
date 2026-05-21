@@ -1,46 +1,110 @@
-# Ark Format: Shell (ark-format-shell)
+# Ark Format: Shell
 
-Template **recomendado** para criar uma extensão VS Code em **TypeScript** usando:
+**Ark Format: Shell** é uma extensão de formatação robusta para scripts Shell (sh, bash, zsh, etc.) no Visual Studio Code. Mantenha seus scripts Shell consistentemente formatados com configurações flexíveis e poderosas.
 
-- **esbuild** para bundling (gera um único `dist/extension.js`)- **pnpm** como package manager- Workaround para empacotar/publicar com `@vscode/vsce` usando `--no-dependencies`
+## ✨ Recursos
 
-## Por que esse template?
+- 🎯 **Formatação de documentos completos** - Formate arquivos inteiros com um único comando
+- ✏️ **Formatação de seleções** - Formate apenas o texto selecionado
+- 🎛️ **Configurações personalizáveis** - Controle cada aspecto da formatação
+- 🌍 **Multilíngue** - Suporte completo em Inglês (EN) e Português Brasileiro (PT-BR)
+- 📋 **Integração .editorconfig** - Respeita as configurações do projeto
+- 🔌 **Integração com shfmt** - Use shfmt como engine de formatação (opcional)
+- 🚀 **Performance otimizada** - Usa bundling moderno para máxima performance
 
-- O VS Code recomenda **bundling** para reduzir quantidade de arquivos e melhorar performance; e mostra **esbuild** como opção rápida e simples.- `@vscode/vsce` lista suporte oficial a **npm** e **yarn**; para pnpm é comum usar bundling + `--no-dependencies`.
+## 📺 Como Usar
 
-## Rodar em modo dev
+### Instalação Rápida
 
-```bash
-pnpm install
-pnpm --filter ark-format-shell run watch
-# no VSCode: F5 (Run Extension)
+1. Abra o VS Code
+2. Acesse **Extensões** (Ctrl+Shift+X / Cmd+Shift+X)
+3. Procure por **"Ark Format: Shell"**
+4. Clique em **Instalar**
+
+### Usando a Extensão
+
+**Veja como funciona:**
+
+![Ark Format Shell - Configurações](media/shell-settings.gif)
+
+![Ark Format Shell - Formatando Código](media/shell-using.gif)
+
+#### Formatar Documento Completo
+
+- Pressione **Shift+Alt+F** (Windows/Linux) ou **Shift+Option+F** (Mac)
+- Ou use o comando: `Editor: Format Document`
+
+#### Formatar Seleção
+
+- Selecione o texto que deseja formatar
+- Pressione **Ctrl+K Ctrl+F** (Windows/Linux) ou **Cmd+K Cmd+F** (Mac)
+- Ou use o comando: `Editor: Format Selection`
+
+#### Personalizando
+
+Acesse `File > Preferences > Settings > Ark Format: Shell` para ajustar as configurações conforme necessário.
+
+## 📄 Shells Suportados
+
+- `.sh` - Shell Script (POSIX)
+- `.bash` - Bash Script
+- `.zsh` - Zsh Script
+- E outros shells baseados em POSIX
+
+## 🔧 Integração com shfmt
+
+Ark Format: Shell pode ser configurado para usar **[shfmt](https://github.com/mvdan/sh)** como engine de formatação. Se você já utiliza shfmt em seus projetos ou prefere seus padrões de formatação, basta configurar a integração nas configurações e Ark Format utilizará shfmt como seu formatador de backend.
+
+## ⚙️ Configuração
+
+Customize o comportamento no `settings.json`. Opções disponíveis:
+
+```json
+{
+  "arkFormatShell.enabled": true,
+  "arkFormatShell.indentSize": 4,
+  "arkFormatShell.indentStyle": "space",
+  "arkFormatShell.trimTrailingWhitespace": true,
+  "arkFormatShell.maxConsecutiveBlankLines": 1,
+  "arkFormatShell.removeLeadingBlankLines": true,
+  "arkFormatShell.insertFinalNewline": true,
+  "arkFormatShell.lineEnding": "Auto",
+  "arkFormatShell.collapseSpaces": true,
+  "arkFormatShell.rangeFormatting.enabled": true,
+  "arkFormatShell.rangeFormatting.reindent": false,
+  "arkFormatShell.rangeFormatting.useDocumentContext": true
+}
 ```
 
-## Build (produção)
+### Descrição das Configurações
 
-```bash
-pnpm --filter ark-format-shell run build
-```
+| Opção                                | Padrão  | Descrição                                      |
+| ------------------------------------ | ------- | ---------------------------------------------- |
+| `enabled`                            | `true`  | Ativa ou desativa a extensão                   |
+| `indentSize`                         | `4`     | Número de espaços por nível de indentação      |
+| `indentStyle`                        | `space` | Tipo de indentação (`space` ou `tab`)          |
+| `trimTrailingWhitespace`             | `true`  | Remove espaços em branco no final das linhas   |
+| `maxConsecutiveBlankLines`           | `1`     | Máximo de linhas em branco consecutivas        |
+| `removeLeadingBlankLines`            | `true`  | Remove linhas em branco no início do arquivo   |
+| `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo          |
+| `lineEnding`                         | `Auto`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`) |
+| `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um               |
+| `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo               |
+| `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado              |
+| `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação        |
 
-## Empacotar (.vsix)
+## 💡 Dicas & Boas Práticas
 
-```bash
-pnpm --filter ark-format-shell run package
-# gera um .vsix na raiz
-```
+- Use **Formatação de Seleção** para ajustar apenas partes específicas sem afetar o resto do arquivo
+- Configure **.editorconfig** no seu projeto para manter consistência entre ferramentas
+- Combine com outras extensões formatadoras para um workflow completo
 
-## Publicar
+## 📝 Licença
 
-```bash
-pnpm run publish
-```
+Este projeto está licenciado sob a [MIT License](LICENSE).
 
-> Dica: configure `publisher`, `repository` e `icon` antes de publicar.
+## 👤 Autor
 
----
-
-## Estrutura
-
-- `src/extension.ts` → entrada da extensão
-- `dist/extension.js` → output gerado pelo esbuild
-- `../../.vscode/` → launch/tasks do workspace monorepo
+| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=120> |
+| :------------------------------------------------------------------------: |
+|            [**Paulo Freitas**](https://paulofreitas.tooark.com)            |

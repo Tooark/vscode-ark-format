@@ -5,3 +5,6 @@ node_modules/
 .vscode/
 .git/
 .gitignore
+
+# Media files
+media/

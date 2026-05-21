@@ -111,7 +111,7 @@ ark-format/packages/shell/
 
 ---
 
-## 🎓 Documentação por Audiência
+## 🎓 Trilhas de Uso
 
 ### 👶 Iniciantes
 
@@ -238,9 +238,9 @@ Consulte [`03-FEATURE-INDEX.md`](https://github.com/Tooark/vscode-ark-format/blo
 
 ## 💾 Requisitos
 
-| Item                 | Requisito        | Incluído? |
-| -------------------- | ---------------- | --------- |
-| **VS Code**          | 1.85.0+          | ✅        |
-| **Extensão**         | ark-format-shell | ✅        |
-| **Node.js**          | 14+              | ✅        |
-| **shfmt** (opcional) | externo          | ❌        |
+| Item                 | Requisito          | Incluído? |
+| -------------------- | ------------------ | --------- |
+| **VS Code**          | 1.85.0+            | ✅        |
+| **Extensão**         | `ark-format-shell` | ✅        |
+| **Node.js**          | 14+                | ✅        |
+| **shfmt** (opcional) | externo            | ❌        |

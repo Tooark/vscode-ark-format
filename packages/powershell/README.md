@@ -1,27 +1,60 @@
 # Ark Format: PowerShell
 
-**Ark Format: PowerShell** é uma extensão de formatação para arquivos PowerShell (.ps1, .psm1, .psd1, .ps1xml) no Visual Studio Code.
+**Ark Format: PowerShell** é uma extensão de formatação potente para arquivos PowerShell (.ps1, .psm1, .psd1) no Visual Studio Code. Automatize a formatação consistente de seus scripts com configurações flexíveis.
 
-## Recursos
+## ✨ Recursos
 
-- ✨ Formatação de documentos PowerShell completos
-- 📝 Formatação de seleções de código
-- ⚙️ Configurações personalizáveis
-- 🌍 Suporte multilíngue (EN, PT-BR)
-- 📦 Integração com .editorconfig
+- 🎯 **Formatação inteligente** - Formate documentos completos ou apenas seleções com um único comando
+- ✏️ **Formatação de seleções** - Formate apenas o texto selecionado
+- 📦 **Indentação de bloco param** - Indenta automaticamente blocos `param (...)` multilinha
+- 🎛️ **Altamente configurável** - Personalize cada aspecto: indentação, espaçamento, quebras de linha
+- 🌍 **Multilíngue** - Suporte completo em Inglês (EN) e Português Brasileiro (PT-BR)
+- 📋 **Integração .editorconfig** - Respeita as configurações do projeto
+- ⚡ **Rápido e leve** - Processamento instantâneo com footprint mínimo
 
-## Extensões Suportadas
+## 📺 Como Usar
+
+### Instalação Rápida
+
+1. Abra o VS Code
+2. Acesse **Extensões** (Ctrl+Shift+X / Cmd+Shift+X)
+3. Procure por **"Ark Format: PowerShell"**
+4. Clique em **Instalar**
+
+### Usando a Extensão
+
+**Veja como funciona:**
+
+![Ark Format PowerShell - Configurações](media/powershell-settings.gif)
+
+![Ark Format PowerShell - Formatando Código](media/powershell-using.gif)
+
+#### Formatar Documento Completo
+
+- Pressione **Shift+Alt+F** (Windows/Linux) ou **Shift+Option+F** (Mac)
+- Ou use o comando: `Editor: Format Document`
+
+#### Formatar Seleção
+
+- Selecione o texto que deseja formatar
+- Pressione **Ctrl+K Ctrl+F** (Windows/Linux) ou **Cmd+K Cmd+F** (Mac)
+- Ou use o comando: `Editor: Format Selection`
+
+#### Personalizando
+
+Acesse `File > Preferences > Settings > Ark Format: PowerShell` para ajustar as configurações conforme necessário.
+
+## 📄 Extensões Suportadas
 
 - `.ps1` - PowerShell Script
 - `.psm1` - PowerShell Module
 - `.psd1` - PowerShell Module Manifest
-- `.ps1xml` - PowerShell XML Configuration
 
-## Configuração
+## ⚙️ Configuração
 
-Adicione as seguintes configurações no `settings.json`:
+Customize o comportamento no `settings.json`. Opções disponíveis:
 
-\`\`\`json
+```json
 {
   "arkFormatPowerShell.enabled": true,
   "arkFormatPowerShell.indentSize": 4,
@@ -36,12 +69,31 @@ Adicione as seguintes configurações no `settings.json`:
   "arkFormatPowerShell.rangeFormatting.reindent": false,
   "arkFormatPowerShell.rangeFormatting.useDocumentContext": true
 }
-\`\`\`
+```
 
-## Licença
+### Descrição das Configurações
 
-MIT
+| Opção                                | Padrão  | Descrição                                      |
+| ------------------------------------ | ------- | ---------------------------------------------- |
+| `enabled`                            | `true`  | Ativa ou desativa a extensão                   |
+| `indentSize`                         | `4`     | Número de espaços por nível de indentação      |
+| `indentStyle`                        | `space` | Tipo de indentação (`space` ou `tab`)          |
+| `trimTrailingWhitespace`             | `true`  | Remove espaços em branco no final das linhas   |
+| `maxConsecutiveBlankLines`           | `1`     | Máximo de linhas em branco consecutivas        |
+| `removeLeadingBlankLines`            | `true`  | Remove linhas em branco no início do arquivo   |
+| `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo          |
+| `lineEnding`                         | `Auto`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`) |
+| `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um               |
+| `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo               |
+| `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado              |
+| `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação        |
 
-## Autor
+## 📝 Licença
 
-Tooark
+Este projeto está licenciado sob a [MIT License](LICENSE).
+
+## 👤 Autor
+
+| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=120> |
+| :------------------------------------------------------------------------: |
+|            [**Paulo Freitas**](https://paulofreitas.tooark.com)            |
