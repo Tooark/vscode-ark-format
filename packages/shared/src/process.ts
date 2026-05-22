@@ -89,7 +89,7 @@ export function quoteCliArg (value: string): string {
 
   // Verifica o sistema operacional
   if (isWindows) {
-    return `"${value.replace(/"/g, '\\"')}"`;
+    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
   }
 
   return `'${value.replace(/'/g, `'\\''`)}'`;
