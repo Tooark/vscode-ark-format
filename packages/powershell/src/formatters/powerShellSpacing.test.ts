@@ -83,6 +83,11 @@ describe('applyPowerShellSpacing', () => {
       const result = applyPowerShellSpacing('$x = 1 #valor', { spaceBeforeFunctionBrace: false, collapseSpaces: false });
       expect(result).toBe('$x = 1 # valor');
     });
+
+    it('preserva fechamento de comentário em bloco (#>)', () => {
+      const result = applyPowerShellSpacing('#>', { spaceBeforeFunctionBrace: false, collapseSpaces: false });
+      expect(result).toBe('#>');
+    });
   });
 
   describe('combinações', () => {

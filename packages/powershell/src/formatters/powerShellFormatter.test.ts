@@ -135,6 +135,25 @@ describe('PowerShellFormatter.formatText', () => {
     expect(result).toBe('Write-Host `#naoComentario\n');
   });
 
+  it('preserva fechamento de comentário em bloco (#>)', () => {
+    const input = [
+      '<#',
+      '  .SYNOPSIS',
+      '  Exemplo',
+      '#>',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      '<#',
+      '.SYNOPSIS',
+      'Exemplo',
+      '#>',
+      ''
+    ].join('\n'));
+  });
+
   it('aplica CRLF quando configurado', () => {
     const result = format('Write-Host "ok"\n', { lineEnding: 'CRLF' });
     expect(result).toBe('Write-Host "ok"\r\n');

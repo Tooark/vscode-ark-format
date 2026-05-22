@@ -40,6 +40,11 @@ function normalizeCommentSpacing (code: string): string {
     return code;
   }
 
+  // Preserva fechamento de comentário em bloco do PowerShell: #>
+  if (code[markerEnd] === '>') {
+    return code;
+  }
+
   // Insere um espaço entre o marcador de comentário e o texto do comentário
   return code.slice(0, markerEnd) + ' ' + code.slice(markerEnd);
 }
