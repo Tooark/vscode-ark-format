@@ -2,7 +2,7 @@
 
 **Ark Format** é um pacote de extensões que reúne todos os formatadores da família Ark Format em uma única instalação. Formate seus scripts **Shell** e **PowerShell** com consistência e flexibilidade diretamente no VS Code.
 
-<img src="assets/image.png" width=480>
+<img src="https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/pack/assets/image.png" width=480>
 
 ## 📦 O que está incluído
 
@@ -46,6 +46,6 @@ Este projeto está licenciado sob a [MIT License](LICENSE).
 
 ## 👤 Autor
 
-| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=120> |
-| :------------------------------------------------------------------------: |
-|            [**Paulo Freitas**](https://paulofreitas.tooark.com)            |
+| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=60 style="border-radius: 50%;"> |
+| :---------------------------------------------------------------------------------------------------: |
+|                         [**Paulo Freitas**](https://paulofreitas.tooark.com)                          |
