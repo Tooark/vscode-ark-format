@@ -3,10 +3,7 @@
 ## Alterações desta versão
 
 - Bump de versão do pacote `ark-format`: `1.0.1` -> `1.0.2`.
-
-## Commit relacionado
-
-- `83b72ef6a2fbcc6f0726b9c020b7f0bea5a25b15`
+- Alterado para seguir versão dos pacotes relacionados (ark-format-shell e ark-format-powershell).
 
 ## Informações Adicionais
 

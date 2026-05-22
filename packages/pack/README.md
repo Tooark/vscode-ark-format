@@ -6,10 +6,12 @@
 
 ## 📦 O que está incluído
 
-| Extensão                                                                                                       | Descrição                                                                                                     |
-| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **[Ark Format: Shell](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell)**           | Formatação para scripts Shell (.sh, .bash, .zsh, .ksh, .tcsh, .azcli, .bats) com integração opcional ao shfmt |
-| **[Ark Format: PowerShell](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell)** | Formatação para scripts PowerShell (.ps1, .psm1, .psd1) com indentação inteligente de blocos param            |
+| Extensão                                                                                                                                                | Descrição                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Ark Format: Shell**<br>[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell) \| [Open VSX](https://open-vsx.org/extension/tooark/ark-format-shell)           | Formatação para scripts Shell (.sh, .bash, .zsh, .ksh, .tcsh, .azcli, .bats) com integração opcional ao shfmt |
+| **Ark Format: PowerShell**<br>[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell) \| [Open VSX](https://open-vsx.org/extension/tooark/ark-format-powershell) | Formatação para scripts PowerShell (.ps1, .psm1, .psd1) com indentação inteligente de blocos param            |
+
+> VS Code normalmente usa o VS Marketplace; VSCodium e editores compatíveis costumam usar Open VSX.
 
 ## 🤔 Qual instalar?
 
@@ -43,9 +45,3 @@ Ao instalar este pacote você obtém automaticamente:
 ## 📝 Licença
 
 Este projeto está licenciado sob a [MIT License](LICENSE).
-
-## 👤 Autor
-
-| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=60 style="border-radius: 50%;"> |
-| :---------------------------------------------------------------------------------------------------: |
-|                         [**Paulo Freitas**](https://paulofreitas.tooark.com)                          |

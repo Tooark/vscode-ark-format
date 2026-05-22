@@ -91,9 +91,3 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
 ## 📝 Licença
 
 Este projeto está licenciado sob a [MIT License](LICENSE).
-
-## 👤 Autor
-
-| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=60 style="border-radius: 50%;"> |
-| :---------------------------------------------------------------------------------------------------: |
-|                         [**Paulo Freitas**](https://paulofreitas.tooark.com)                          |
