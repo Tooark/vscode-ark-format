@@ -1,0 +1,303 @@
+name: Publish VS Code Extensions
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
+env:
+  TRIVY_SCANNER_IMAGE: ghcr.io/tooark/trivy-hadolint:1.70
+
+jobs:
+  # ──────────────────────────────────────────────
+  # 1. Resolve metadata for each package
+  # ──────────────────────────────────────────────
+  release-meta:
+    name: Resolve release metadata
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.meta.outputs.matrix }}
+      has_publishable: ${{ steps.meta.outputs.has_publishable }}
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Gather release metadata
+        id: meta
+        run: |
+          set -eu
+
+          PACKAGES='["powershell","shell","pack"]'
+          MATRIX="[]"
+          HAS_PUBLISHABLE=false
+
+          for PKG in powershell shell pack; do
+            PKG_JSON="packages/${PKG}/package.json"
+            VERSION=$(node -p "require('./${PKG_JSON}').version")
+            TAG="${PKG}${VERSION}"
+            NOTES_FILE="notes/${TAG}.md"
+
+            if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+              TAG_EXISTS=true
+            else
+              TAG_EXISTS=false
+              HAS_PUBLISHABLE=true
+            fi
+
+            HAS_NOTES=false
+            if [ -f "$NOTES_FILE" ]; then
+              HAS_NOTES=true
+            fi
+
+            ENTRY=$(jq -n \
+              --arg pkg "$PKG" \
+              --arg version "$VERSION" \
+              --arg tag "$TAG" \
+              --arg tag_exists "$TAG_EXISTS" \
+              --arg notes_file "$NOTES_FILE" \
+              --arg has_notes "$HAS_NOTES" \
+              '{pkg: $pkg, version: $version, tag: $tag, tag_exists: $tag_exists, notes_file: $notes_file, has_notes: $has_notes}')
+
+            MATRIX=$(echo "$MATRIX" | jq --argjson entry "$ENTRY" '. + [$entry]')
+          done
+
+          echo "matrix=$(echo "$MATRIX" | jq -c '.')" >> "$GITHUB_OUTPUT"
+          echo "has_publishable=$HAS_PUBLISHABLE" >> "$GITHUB_OUTPUT"
+
+      - name: Pre-check summary
+        run: |
+          echo "Publishable packages: ${{ steps.meta.outputs.has_publishable }}"
+          echo '${{ steps.meta.outputs.matrix }}' | jq '.'
+
+  # ──────────────────────────────────────────────
+  # 2. Security scan (only if something to publish)
+  # ──────────────────────────────────────────────
+  security-scan:
+    name: Security scan
+    runs-on: ubuntu-latest
+    needs: release-meta
+    if: needs.release-meta.outputs.has_publishable == 'true'
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run filesystem scan
+        env:
+          TRIVY_EXIT_CODE: "1"
+          TRIVY_IGNORE_UNFIXED: "true"
+          TRIVY_TIMEOUT: 10m
+        run: |
+          mkdir -p "${{ runner.temp }}/ci-reports"
+          chmod 0777 "${{ runner.temp }}/ci-reports"
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "${{ runner.temp }}/ci-reports:/tmp/ci-reports" \
+            -e TRIVY_OUTPUT=/tmp/ci-reports/trivy-file.json \
+            "$TRIVY_SCANNER_IMAGE" \
+            filesystem-scan /workspace
+
+      - name: Run repository scan
+        env:
+          TRIVY_SEVERITY: CRITICAL,HIGH
+          TRIVY_EXIT_CODE: "1"
+          TRIVY_IGNORE_UNFIXED: "true"
+          TRIVY_TIMEOUT: 10m
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "${{ runner.temp }}/ci-reports:/tmp/ci-reports" \
+            -e TRIVY_OUTPUT=/tmp/ci-reports/trivy-repo.json \
+            "$TRIVY_SCANNER_IMAGE" \
+            repo-scan /workspace
+
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-${{ github.run_id }}
+          path: ${{ runner.temp }}/ci-reports
+          retention-days: 30
+
+  # ──────────────────────────────────────────────
+  # 3. Build, test & publish each package
+  # ──────────────────────────────────────────────
+  build-and-publish:
+    name: "Publish ${{ matrix.pkg }} v${{ matrix.version }}"
+    runs-on: ubuntu-latest
+    needs:
+      - release-meta
+      - security-scan
+    if: needs.release-meta.outputs.has_publishable == 'true'
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.release-meta.outputs.matrix) }}
+
+    steps:
+      - name: Check if publishing is needed
+        id: check
+        run: |
+          if [ "${{ matrix.tag_exists }}" = "true" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ matrix.tag }} already exists. Skipping ${{ matrix.pkg }}."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Code checkout
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup pnpm
+        if: steps.check.outputs.skip != 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        if: steps.check.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        if: steps.check.outputs.skip != 'true' && matrix.pkg != 'pack'
+        run: pnpm --filter ark-format-${{ matrix.pkg }} run lint
+
+      - name: Build extension
+        if: steps.check.outputs.skip != 'true' && matrix.pkg != 'pack'
+        run: pnpm --filter ark-format-${{ matrix.pkg }} run build
+
+      - name: Run tests
+        if: steps.check.outputs.skip != 'true' && matrix.pkg != 'pack'
+        run: xvfb-run -a pnpm --filter ark-format-${{ matrix.pkg }} run test
+        continue-on-error: true
+
+      - name: Package extension (.vsix)
+        if: steps.check.outputs.skip != 'true'
+        run: pnpm --filter ark-format-${{ matrix.pkg }} run package
+
+      - name: Upload .vsix artifact
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-${{ matrix.pkg }}-${{ matrix.version }}
+          path: packages/${{ matrix.pkg }}/*.vsix
+
+      - name: Publish to VS Code Marketplace
+        if: steps.check.outputs.skip != 'true'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          cd packages/${{ matrix.pkg }}
+          pnpm exec vsce publish --no-dependencies -p $VSCE_PAT
+
+      - name: Publish to Open VSX Registry
+        if: steps.check.outputs.skip != 'true'
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          npm install -g ovsx
+          cd packages/${{ matrix.pkg }}
+          VSIX_FILE=$(ls *.vsix | head -n 1)
+          ovsx publish "$VSIX_FILE" -p $OVSX_PAT
+
+      - name: Create and push version tag
+        if: steps.check.outputs.skip != 'true'
+        env:
+          TAG_NAME: ${{ matrix.tag }}
+        run: |
+          set -eu
+
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG_NAME}" >/dev/null 2>&1; then
+            echo "Tag ${TAG_NAME} already exists on remote, skipping creation."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "refs/tags/$TAG_NAME"
+
+      - name: Create GitHub Release with version notes
+        if: steps.check.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ matrix.tag }}
+          NOTES_FILE: ${{ matrix.notes_file }}
+          HAS_NOTES: ${{ matrix.has_notes }}
+          VERSION: ${{ matrix.version }}
+          PKG: ${{ matrix.pkg }}
+        run: |
+          set -eu
+
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME already exists, skipping creation."
+            exit 0
+          fi
+
+          VSIX_FILES=$(ls packages/${PKG}/*.vsix 2>/dev/null || true)
+
+          if [ "$HAS_NOTES" = "true" ] && [ -n "$NOTES_FILE" ] && [ -f "$NOTES_FILE" ]; then
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --notes-file "$NOTES_FILE" \
+              $VSIX_FILES
+          else
+            TMP_NOTES=$(mktemp)
+            {
+              echo "# Release $TAG_NAME"
+              echo
+              echo "Version **${VERSION}** of package **${PKG}** published automatically."
+              echo
+              echo "Release notes file not found in \`notes/${TAG_NAME}.md\`."
+            } > "$TMP_NOTES"
+
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --notes-file "$TMP_NOTES" \
+              $VSIX_FILES
+
+            rm -f "$TMP_NOTES"
+          fi
+
+  # ──────────────────────────────────────────────
+  # 4. Info when nothing to publish
+  # ──────────────────────────────────────────────
+  skip-existing-versions:
+    name: Skip publish (all tags exist)
+    runs-on: ubuntu-latest
+    needs: release-meta
+    if: needs.release-meta.outputs.has_publishable != 'true'
+    steps:
+      - name: Skip publish
+        run: |
+          echo "All tags already exist. No publication necessary."
+          echo '${{ needs.release-meta.outputs.matrix }}' | jq '.'
