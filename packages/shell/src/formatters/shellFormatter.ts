@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { QuoteKind, ShellFormatterOptions } from './types';
 import { applyShellSpacing } from './shellSpacing';
-import { createInitialState, dedentBeforeLine, indentAfterLine } from './shellIndent';
+import { createInitialState, dedentBeforeLine, indentAfterLine, isLineContinuation } from './shellIndent';
 import { isShebang } from '@tooark/ark-format-shared/lex';
 import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine } from './shellLex';
 import { formatTextGeneric } from './utils';
@@ -53,7 +53,17 @@ export class ShellFormatter {
       indentAfterLine,
       isShebang,
       detectHeredocInCode,
-      getCodePartsOnly,
+      getCodePartsOnly: (line: string, initialMode) => {
+        const codeParts = getCodePartsOnly(line, initialMode);
+
+        // Preserva sinal de continuação no texto de controle mesmo quando ocorre dentro de string multilinha.
+        // Isso permite aplicar recuo correto em comandos quebrados dentro de "$(...)" entre aspas.
+        if (isLineContinuation(line.trim())) {
+          return `${codeParts} \\`;
+        }
+
+        return codeParts;
+      },
       getQuoteModeAfterLine,
       applySpacing: (line: string, opts: ShellFormatterOptions) => applyShellSpacing(line, {
         spaceBeforeThenDo: opts.spacing.spaceBeforeThenDo,

@@ -132,6 +132,33 @@ describe('ShellFormatter.formatText', () => {
     expect(lines[2]).toBe('echo done');
   });
 
+  it('indents aws stepfunctions multiline command inside quoted command substitution', () => {
+    const input = [
+      'STATE_MACHINE_ARN="$(aws stepfunctions create-state-machine \\',
+      '--name "$STATE_MACHINE_NAME" \\',
+      '--role-arn "$STEP_FUNCTION_ROLE_ARN" \\',
+      '--definition "file://$definition_path" \\',
+      '--type STANDARD \\',
+      '--region "$AWS_REGION" \\',
+      "--query 'stateMachineArn' --output text)\"",
+      '',
+    ].join('\n');
+
+    const expected = [
+      'STATE_MACHINE_ARN="$(aws stepfunctions create-state-machine \\',
+      '  --name "$STATE_MACHINE_NAME" \\',
+      '  --role-arn "$STEP_FUNCTION_ROLE_ARN" \\',
+      '  --definition "file://$definition_path" \\',
+      '  --type STANDARD \\',
+      '  --region "$AWS_REGION" \\',
+      "  --query 'stateMachineArn' --output text)\"",
+      '',
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+  });
+
   it('removes leading blank lines', () => {
     const result = format('\n\n#!/bin/bash\necho hi\n');
     expect(result).toBe('#!/bin/bash\necho hi\n');
