@@ -81,20 +81,25 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
 
 ### Descrição das Configurações
 
-| Opção                                | Padrão  | Descrição                                      |
-| ------------------------------------ | ------- | ---------------------------------------------- |
-| `enabled`                            | `true`  | Ativa ou desativa a extensão                   |
-| `indentSize`                         | `4`     | Número de espaços por nível de indentação      |
-| `indentStyle`                        | `space` | Tipo de indentação (`space` ou `tab`)          |
-| `trimTrailingWhitespace`             | `true`  | Remove espaços em branco no final das linhas   |
-| `maxConsecutiveBlankLines`           | `1`     | Máximo de linhas em branco consecutivas        |
-| `removeLeadingBlankLines`            | `true`  | Remove linhas em branco no início do arquivo   |
-| `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo          |
-| `lineEnding`                         | `Auto`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`) |
-| `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um               |
-| `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo               |
-| `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado              |
-| `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação        |
+| Opção                                | Padrão     | Descrição                                                 |
+| ------------------------------------ | ---------- | --------------------------------------------------------- |
+| `enabled`                            | `true`     | Ativa ou desativa a extensão                              |
+| `indentSize`                         | `2`        | Número de espaços por nível de indentação                 |
+| `indentStyle`                        | `space`    | Tipo de indentação (`space` ou `tab`)                     |
+| `trimTrailingWhitespace`             | `true`     | Remove espaços em branco no final das linhas              |
+| `maxConsecutiveBlankLines`           | `1`        | Máximo de linhas em branco consecutivas                   |
+| `removeLeadingBlankLines`            | `true`     | Remove linhas em branco no início do arquivo              |
+| `insertFinalNewline`                 | `true`     | Insere nova linha ao final do arquivo                     |
+| `lineEnding`                         | `LF`       | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`)            |
+| `collapseSpaces`                     | `true`     | Converte múltiplos espaços em um                          |
+| `spacing.spaceBeforeThenDo`          | `true`     | Adiciona espaço antes de `then` e `do`                    |
+| `spacing.spaceAfterKeywords`         | `true`     | Adiciona espaço após palavras-chave                       |
+| `spacing.spaceBeforeFunctionBrace`   | `true`     | Adiciona espaço antes da chave de função                  |
+| `rangeFormatting.enabled`            | `true`     | Habilita formatação de intervalo                          |
+| `rangeFormatting.reindent`           | `false`    | Reindenta o intervalo selecionado                         |
+| `rangeFormatting.useDocumentContext` | `true`     | Usa contexto do documento na formatação                   |
+| `engine`                             | `internal` | Define o engine de formatação (`internal` ou `shfmt`)     |
+| `useEditorConfig`                    | `false`    | Usa contexto do arquivo `.editorconfig` para configuração |
 
 ## 💡 Dicas & Boas Práticas
 
