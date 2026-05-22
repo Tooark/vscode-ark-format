@@ -11,7 +11,7 @@
     "url": "https://github.com/Tooark/vscode-ark-format/issues"
   },
   "private": true,
-  "packageManager": "pnpm@9",
+  "packageManager": "pnpm@11.2.2",
   "scripts": {
     "build": "pnpm -r --if-present build",
     "watch": "pnpm -r --parallel --if-present watch",
@@ -23,13 +23,13 @@
   "devDependencies": {
     "@types/node": "^20.19.41",
     "@types/vscode": "^1.120.0",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "@vitest/coverage-v8": "^4.1.7",
     "@vscode/vsce": "^3.9.0",
-    "esbuild": "^0.25.0",
-    "eslint": "^8.56.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.4.0",
     "typescript": "^5.3.0",
-    "vitest": "^4.1.6"
+    "vitest": "^4.1.7"
   }
 }
