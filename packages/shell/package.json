@@ -2,7 +2,7 @@
   "name": "ark-format-shell",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
@@ -42,71 +42,6 @@
   "l10n": "./l10n",
   "main": "./dist/extension.js",
   "contributes": {
-    "languages": [
-      {
-        "id": "azcli",
-        "extensions": [
-          ".azcli"
-        ],
-        "aliases": [
-          "Azure CLI"
-        ]
-      },
-      {
-        "id": "bash",
-        "extensions": [
-          ".bash"
-        ],
-        "aliases": [
-          "Bash"
-        ]
-      },
-      {
-        "id": "bats",
-        "extensions": [
-          ".bats"
-        ],
-        "aliases": [
-          "Bats"
-        ]
-      },
-      {
-        "id": "ksh",
-        "extensions": [
-          ".ksh"
-        ],
-        "aliases": [
-          "KornShell"
-        ]
-      },
-      {
-        "id": "sh",
-        "extensions": [
-          ".sh"
-        ],
-        "aliases": [
-          "Shell"
-        ]
-      },
-      {
-        "id": "sh.posix",
-        "extensions": [
-          ".sh.posix"
-        ],
-        "aliases": [
-          "POSIX Shell"
-        ]
-      },
-      {
-        "id": "tcsh",
-        "extensions": [
-          ".tcsh"
-        ],
-        "aliases": [
-          "Tcsh"
-        ]
-      }
-    ],
     "configuration": {
       "title": "%configuration.title%",
       "properties": {

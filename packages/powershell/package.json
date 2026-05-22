@@ -2,7 +2,7 @@
   "name": "ark-format-powershell",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
@@ -35,20 +35,6 @@
   "l10n": "./l10n",
   "main": "./dist/extension.js",
   "contributes": {
-    "languages": [
-      {
-        "id": "powershell",
-        "extensions": [
-          ".ps1",
-          ".psm1",
-          ".psd1"
-        ],
-        "aliases": [
-          "PowerShell",
-          "pwsh"
-        ]
-      }
-    ],
     "configuration": {
       "title": "%configuration.title%",
       "properties": {
