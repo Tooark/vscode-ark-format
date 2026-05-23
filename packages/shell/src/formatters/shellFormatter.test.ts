@@ -250,6 +250,78 @@ describe('ShellFormatter.formatText', () => {
     expect(lines[15]).toBe('done');
   });
 
+  it('dedents next case label after inline branch terminator', () => {
+    const input = [
+      'parse_metadata_flags() {',
+      'local remaining=()',
+      'while [[ $# -gt 0 ]]; do',
+      'case "${1}" in',
+      '--branch)',
+      '[[ -z "${2:-}" ]] && { log_err "Missing value for --branch"; return 2; }',
+      'CLI_BRANCH="${2}"; shift 2 ;;',
+      '--branch=*)',
+      'CLI_BRANCH="${1#--branch=}"; shift ;;',
+      '*)',
+      'remaining+=("$1"); shift ;;',
+      'esac',
+      'done',
+      '}',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'parse_metadata_flags() {',
+      '  local remaining=()',
+      '  while [[ $# -gt 0 ]]; do',
+      '    case "${1}" in',
+      '      --branch)',
+      '        [[ -z "${2:-}" ]] && { log_err "Missing value for --branch"; return 2; }',
+      '        CLI_BRANCH="${2}"; shift 2 ;;',
+      '      --branch=*)',
+      '        CLI_BRANCH="${1#--branch=}"; shift ;;',
+      '      *)',
+      '        remaining+=("$1"); shift ;;',
+      '    esac',
+      '  done',
+      '}',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
+  it('preserves nested if indentation before inline case terminator', () => {
+    const input = [
+      'do_config_scan() {',
+      'local args=()',
+      'while [[ $# -gt 0 ]]; do',
+      'case "${1}" in',
+      '*)',
+      'if [[ "$target_set" == "false" ]]; then target="$1"; target_set="true"; shift',
+      'else break; fi ;;',
+      'esac',
+      'done',
+      '}',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'do_config_scan() {',
+      '  local args=()',
+      '  while [[ $# -gt 0 ]]; do',
+      '    case "${1}" in',
+      '      *)',
+      '        if [[ "$target_set" == "false" ]]; then target="$1"; target_set="true"; shift',
+      '        else break; fi ;;',
+      '    esac',
+      '  done',
+      '}',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
   it('preserves indentation inside multiline jq filter string', () => {
     const input = [
       'for sev in "${fail_sev_array[@]}"; do',

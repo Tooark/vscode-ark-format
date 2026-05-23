@@ -100,6 +100,16 @@ describe('dedentBeforeLine', () => {
     expect(st.inCasePatternBody).toBe(false);
   });
 
+  it('does not dedent a non-terminator line that merely ends with ;; after other code', () => {
+    const st = createInitialState();
+    st.indent = 2;
+    st.inCase = true;
+    st.inCasePatternBody = true;
+    dedentBeforeLine('CLI_BRANCH="${2}"; shift 2 ;;', st);
+    expect(st.indent).toBe(2);
+    expect(st.inCasePatternBody).toBe(true);
+  });
+
   it('does NOT remove continuation indent before line (happens in indentAfterLine)', () => {
     const st = createInitialState();
     st.indent = 2;
@@ -199,6 +209,22 @@ describe('indentAfterLine', () => {
     expect(st.indent).toBe(1);
   });
 
+  it('indents after if with inline then body when block continues', () => {
+    const st = createInitialState();
+    indentAfterLine('if [[ "$target_set" == "false" ]]; then target="$1"; shift', st);
+    expect(st.indent).toBe(1);
+  });
+
+  it('does not indent after else when fi closes on the same line', () => {
+    const st = createInitialState();
+    st.indent = 2;
+    st.inCase = true;
+    st.inCasePatternBody = true;
+    indentAfterLine('else break; fi ;;', st);
+    expect(st.indent).toBe(1);
+    expect(st.inCasePatternBody).toBe(false);
+  });
+
   it('indents after do', () => {
     const st = createInitialState();
     indentAfterLine('for i in 1 2 3; do', st);
@@ -237,6 +263,26 @@ describe('indentAfterLine', () => {
     indentAfterLine('start) # comment', st);
     expect(st.indent).toBe(1);
     expect(st.inCasePatternBody).toBe(true);
+  });
+
+  it('closes case pattern body when terminator is inline at end of line', () => {
+    const st = createInitialState();
+    st.indent = 2;
+    st.inCase = true;
+    st.inCasePatternBody = true;
+    indentAfterLine('CLI_BRANCH="${2}"; shift 2 ;;', st);
+    expect(st.indent).toBe(1);
+    expect(st.inCasePatternBody).toBe(false);
+  });
+
+  it('closes case pattern body when inline terminator has trailing comment', () => {
+    const st = createInitialState();
+    st.indent = 2;
+    st.inCase = true;
+    st.inCasePatternBody = true;
+    indentAfterLine('CLI_BRANCH="${2}"; shift 2 ;;& # fallthrough', st);
+    expect(st.indent).toBe(1);
+    expect(st.inCasePatternBody).toBe(false);
   });
 
   it('sets continuation on line ending with backslash', () => {

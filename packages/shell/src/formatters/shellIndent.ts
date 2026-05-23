@@ -4,6 +4,8 @@ import { IndentState } from './types';
 
 // Expressões regulares para identificar padrões de início de blocos e outros elementos que afetam a indentação
 const END_WITH_OPTIONAL_INLINE_COMMENT = '(?:\\s*(?:#.*)?)$';
+const CASE_BRANCH_TERMINATOR_RE = /^(?:;;|;&|;;&)\s*(?:#.*)?$/;
+const CASE_BRANCH_TERMINATOR_INLINE_RE = /(?:;;|;&|;;&)\s*(?:#.*)?$/;
 const CASE_IN_START_RE = new RegExp(`^case\\b.*\\bin${END_WITH_OPTIONAL_INLINE_COMMENT}`);
 const THEN_LINE_RE = new RegExp(`\\bthen${END_WITH_OPTIONAL_INLINE_COMMENT}`);
 const ELIF_THEN_LINE_RE = new RegExp(`^elif\\b.*;\\s*then${END_WITH_OPTIONAL_INLINE_COMMENT}`);
@@ -12,6 +14,21 @@ const OPEN_BRACE_LINE_RE = new RegExp(`\\{${END_WITH_OPTIONAL_INLINE_COMMENT}`);
 const CASE_PATTERN_LINE_RE = new RegExp(`\\)${END_WITH_OPTIONAL_INLINE_COMMENT}`);
 const TCSH_CASE_LABEL_RE = new RegExp(`^case\\b.*:${END_WITH_OPTIONAL_INLINE_COMMENT}`);
 const TCSH_DEFAULT_LABEL_RE = new RegExp(`^default:${END_WITH_OPTIONAL_INLINE_COMMENT}`);
+
+function opensIfBodyOnNextLine (trimmed: string): boolean {
+  if (!/^(if|elif)\b/.test(trimmed) || !/\bthen\b/.test(trimmed)) {
+    return false;
+  }
+
+  const thenIndex = trimmed.indexOf('then');
+  const afterThen = thenIndex >= 0 ? trimmed.slice(thenIndex + 4) : '';
+
+  return !/\bfi\b/.test(afterThen);
+}
+
+function opensElseBodyOnNextLine (trimmed: string): boolean {
+  return /^else\b/.test(trimmed) && !/\bfi\b/.test(trimmed);
+}
 
 /**
  * Função para criar o estado inicial de indentação.
@@ -57,7 +74,7 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   }
 
   // caso termine com: ;; ; ;& ;;&
-  if (st.inCase && st.inCasePatternBody && /^(;;?&?|;;&)/.test(trimmed)) {
+  if (st.inCase && st.inCasePatternBody && (/^(;;?&?|;;&)/.test(trimmed) || CASE_BRANCH_TERMINATOR_RE.test(trimmed))) {
     st.indent = Math.max(0, st.indent - 1);
     st.inCasePatternBody = false;
 
@@ -168,7 +185,7 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   }
 
   // Blocos then, else, elif
-  if (THEN_LINE_RE.test(trimmed) || /^else\b/.test(trimmed) || ELIF_THEN_LINE_RE.test(trimmed)) {
+  if (THEN_LINE_RE.test(trimmed) || ELIF_THEN_LINE_RE.test(trimmed) || opensIfBodyOnNextLine(trimmed) || opensElseBodyOnNextLine(trimmed)) {
     st.indent += 1;
 
     return;
@@ -192,6 +209,13 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   if (st.inCase && !st.inCasePatternBody && CASE_PATTERN_LINE_RE.test(trimmed) && !/^(;;?&?|;;&)/.test(trimmed)) {
     st.indent += 1;
     st.inCasePatternBody = true;
+
+    return;
+  }
+
+  if (st.inCase && st.inCasePatternBody && CASE_BRANCH_TERMINATOR_INLINE_RE.test(trimmed)) {
+    st.indent = Math.max(0, st.indent - 1);
+    st.inCasePatternBody = false;
 
     return;
   }
