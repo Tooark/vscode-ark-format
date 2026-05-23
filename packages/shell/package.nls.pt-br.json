@@ -23,7 +23,5 @@
   "config.spacing.spaceAfterKeywords.description": "Garantir espaço após palavras-chave como 'if', 'while', 'until', 'for'",
   "config.spacing.spaceBeforeFunctionBrace.description": "Garantir espaço antes da chave de abertura em definições de função",
   "config.trimTrailingWhitespace.description": "Remover espaços em branco no final das linhas",
-  "config.useEditorConfig.description": "Usar arquivo .editorconfig para opções de formatação",
-  "command.formatDocument": "Formatar Documento Shell",
-  "command.formatSelection": "Formatar Seleção Shell"
+  "config.useEditorConfig.description": "Usar arquivo .editorconfig para opções de formatação"
 }

@@ -203,17 +203,7 @@
           "description": "%config.rangeFormatting.useDocumentContext.description%"
         }
       }
-    },
-    "commands": [
-      {
-        "command": "arkFormatShell.formatDocument",
-        "title": "%command.formatDocument%"
-      },
-      {
-        "command": "arkFormatShell.formatSelection",
-        "title": "%command.formatSelection%"
-      }
-    ]
+    }
   },
   "scripts": {
     "build": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs --production",

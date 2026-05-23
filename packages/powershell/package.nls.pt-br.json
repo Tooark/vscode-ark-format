@@ -15,7 +15,5 @@
   "config.rangeFormatting.useDocumentContext.description": "Ao re-indentar um intervalo, faz pré-varredura das linhas anteriores à seleção para calcular o nível de indentação base correto",
   "config.removeLeadingBlankLines.description": "Remover linhas em branco no início do arquivo",
   "config.trimTrailingWhitespace.description": "Remover espaços em branco no final das linhas",
-  "config.useEditorConfig.description": "Usar arquivo .editorconfig para opções de formatação",
-  "command.formatDocument": "Formatar Documento PowerShell",
-  "command.formatSelection": "Formatar Seleção PowerShell"
+  "config.useEditorConfig.description": "Usar arquivo .editorconfig para opções de formatação"
 }

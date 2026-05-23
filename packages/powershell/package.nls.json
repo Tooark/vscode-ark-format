@@ -15,7 +15,5 @@
   "config.useEditorConfig.description": "Use .editorconfig file for formatting options",
   "config.rangeFormatting.enabled.description": "Enable range (selection) formatting",
   "config.rangeFormatting.reindent.description": "Re-indent selected range (uses document context to calculate base indent)",
-  "config.rangeFormatting.useDocumentContext.description": "When re-indenting a range, pre-scan lines before the selection to compute the correct base indent level",
-  "command.formatDocument": "Format PowerShell Document",
-  "command.formatSelection": "Format PowerShell Selection"
+  "config.rangeFormatting.useDocumentContext.description": "When re-indenting a range, pre-scan lines before the selection to compute the correct base indent level"
 }
