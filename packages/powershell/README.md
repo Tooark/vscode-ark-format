@@ -1,69 +1,88 @@
 # Ark Format: PowerShell
 
-**Ark Format: PowerShell** é uma extensão de formatação potente para arquivos PowerShell (.ps1, .psm1, .psd1) no Visual Studio Code. Automatize a formatação consistente de seus scripts com configurações flexíveis.
+[![Open VSX Version](https://img.shields.io/open-vsx/v/tooark/ark-format-powershell)](https://open-vsx.org/extension/tooark/ark-format-powershell)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/tooark/ark-format-powershell)](https://open-vsx.org/extension/tooark/ark-format-powershell)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## ✨ Recursos
+A powerful formatting extension for **PowerShell** files in **Visual Studio Code** (`.ps1`, `.psm1`, `.psd1`).  
+Automate consistent formatting across your scripts with flexible settings and optional `.editorconfig` support.
 
-- 🎯 **Formatação inteligente** - Formate documentos completos ou apenas seleções com um único comando
-- ✏️ **Formatação de seleções** - Formate apenas o texto selecionado
-- 📦 **Indentação de bloco param** - Indenta automaticamente blocos `param (...)` multilinha
-- 🎛️ **Altamente configurável** - Personalize cada aspecto: indentação, espaçamento, quebras de linha
-- 🌍 **Multilíngue** - Suporte completo em Inglês (EN) e Português Brasileiro (PT-BR)
-- 📋 **Integração .editorconfig** - Respeita as configurações do projeto
-- ⚡ **Rápido e leve** - Processamento instantâneo com footprint mínimo
+🌍 **Languages:** **English** (this file) | [**Português (PT-BR)**](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/README.pt-BR.md)
 
-## 📺 Como Usar
+---
 
-### Instalação Rápida
+## ✨ Features
 
-1. Abra o VS Code
-2. Acesse **Extensões** (Ctrl+Shift+X / Cmd+Shift+X)
-3. Procure por **"Ark Format: PowerShell"**
-4. Clique em **Instalar**
+- 🎯 **Smart formatting** — format whole documents or selections with a single command
+- ✏️ **Selection formatting** — format only the selected text (range formatting)
+- 📦 **`param (...)` block indentation** — automatically indents multi-line `param` blocks
+- 🎛️ **Highly configurable** — control indentation, spacing, line breaks, and more
+- 🌍 **Multi-language UI** — English (EN) and Brazilian Portuguese (PT-BR)
+- 📋 **.editorconfig integration** — respects project-level preferences (optional)
+- ⚡ **Fast & lightweight** — instant formatting with minimal overhead
 
-### Usando a Extensão
+---
 
-**Veja como funciona:**
+## 🚀 Getting Started
 
-![Ark Format PowerShell - Configurações](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/media/powershell-settings.gif)
+### Install
 
-![Ark Format PowerShell - Formatando Código](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/media/powershell-using.gif)
+- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format-powershell
+- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell
 
-#### Formatar Documento Completo
+Or inside VS Code:
 
-- Pressione **Shift+Alt+F** (Windows/Linux) ou **Shift+Option+F** (Mac)
-- Ou use o comando: `Editor: Format Document`
+1. Open **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`)
+2. Search for **Ark Format: PowerShell**
+3. Click **Install**
 
-#### Formatar Seleção
+---
 
-- Selecione o texto que deseja formatar
-- Pressione **Ctrl+K Ctrl+F** (Windows/Linux) ou **Cmd+K Cmd+F** (Mac)
-- Ou use o comando: `Editor: Format Selection`
+## 🧩 How to Use
 
-#### Personalizando
+### Preview
 
-Acesse `File > Preferences > Settings > Ark Format: PowerShell` para ajustar as configurações conforme necessário.
+![Ark Format PowerShell - Settings](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/media/powershell-settings.gif)
 
-## 📄 Extensões Suportadas
+![Ark Format PowerShell - Formatting in Action](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/powershell/media/powershell-using.gif)
 
-- `.ps1` - PowerShell Script
-- `.psm1` - PowerShell Module
-- `.psd1` - PowerShell Module Manifest
+### Format a Full Document
 
-## ⚙️ Configuração
+- Press **Shift+Alt+F** (Windows/Linux) or **Shift+Option+F** (Mac)
+- Or run: `Editor: Format Document`
 
-Customize o comportamento no `settings.json`. Opções disponíveis:
+### Format a Selection
+
+- Select the text you want to format
+- Press **Ctrl+K Ctrl+F** (Windows/Linux) or **Cmd+K Cmd+F** (Mac)
+- Or run: `Editor: Format Selection`
+
+> Tip: You can set Ark Format as the default formatter for PowerShell to ensure consistent formatting on save.
+
+---
+
+## 📄 Supported File Types
+
+- `.ps1` — PowerShell Script
+- `.psm1` — PowerShell Module
+- `.psd1` — PowerShell Module Manifest
+
+---
+
+## ⚙️ Configuration
+
+Customize the formatter in `settings.json`:
 
 ```json
 {
   "arkFormatPowerShell.enabled": true,
-  "arkFormatPowerShell.indentSize": 4,
+  "arkFormatPowerShell.indentSize": 2,
   "arkFormatPowerShell.indentStyle": "space",
   "arkFormatPowerShell.trimTrailingWhitespace": true,
   "arkFormatPowerShell.maxConsecutiveBlankLines": 1,
   "arkFormatPowerShell.removeLeadingBlankLines": true,
   "arkFormatPowerShell.insertFinalNewline": true,
-  "arkFormatPowerShell.lineEnding": "Auto",
+  "arkFormatPowerShell.lineEnding": "CRLF",
   "arkFormatPowerShell.collapseSpaces": true,
   "arkFormatPowerShell.rangeFormatting.enabled": true,
   "arkFormatPowerShell.rangeFormatting.reindent": false,
@@ -71,24 +90,30 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
 }
 ```
 
-### Descrição das Configurações
+### Description of Settings
 
-| Opção                                | Padrão  | Descrição                                                 |
-| ------------------------------------ | ------- | --------------------------------------------------------- |
-| `enabled`                            | `true`  | Ativa ou desativa a extensão                              |
-| `indentStyle`                        | `space` | Tipo de indentação (`space` ou `tab`)                     |
-| `indentSize`                         | `2`     | Número de espaços por nível de indentação                 |
-| `trimTrailingWhitespace`             | `true`  | Remove espaços em branco no final das linhas              |
-| `maxConsecutiveBlankLines`           | `1`     | Máximo de linhas em branco consecutivas                   |
-| `removeLeadingBlankLines`            | `true`  | Remove linhas em branco no início do arquivo              |
-| `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo                     |
-| `lineEnding`                         | `CRLF`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`)            |
-| `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um                          |
-| `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo                          |
-| `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado                         |
-| `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação                   |
-| `useEditorConfig`                    | `false` | Usa contexto do arquivo `.editorconfig` para configuração |
+| Option                               | Default | Description                                         |
+| ------------------------------------ | ------- | --------------------------------------------------- |
+| `enabled`                            | `true`  | Enables or disables the extension                   |
+| `indentStyle`                        | `space` | Indentation type (`space` or `tab`)                 |
+| `indentSize`                         | `2`     | Number of spaces per indentation level              |
+| `trimTrailingWhitespace`             | `true`  | Removes trailing whitespace                         |
+| `maxConsecutiveBlankLines`           | `1`     | Maximum number of consecutive blank lines           |
+| `removeLeadingBlankLines`            | `true`  | Removes blank lines at the beginning of the file    |
+| `insertFinalNewline`                 | `true`  | Inserts a new line at the end of the file           |
+| `lineEnding`                         | `CRLF`  | Line break type (`Auto`, `LF`, `CRLF`)              |
+| `collapseSpaces`                     | `true`  | Converts multiple spaces into one                   |
+| `rangeFormatting.enabled`            | `true`  | Enables range formatting                            |
+| `rangeFormatting.reindent`           | `false` | Reindents the selected range                        |
+| `rangeFormatting.useDocumentContext` | `true`  | Uses document context for formatting                |
+| `useEditorConfig`                    | `false` | Uses `.editorconfig` file context for configuration |
 
-## 📝 Licença
+## 💡 Tips & Best Practices
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+- Use **Selection Formatting** to adjust only specific parts without affecting the rest of the file
+- Configure **.editorconfig** in your project to maintain consistency between tools
+- Combine with other formatting extensions for a complete workflow
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).

@@ -1,47 +1,90 @@
 # Ark Format
 
-**Ark Format** é um pacote de extensões que reúne todos os formatadores da família Ark Format em uma única instalação. Formate seus scripts **Shell** e **PowerShell** com consistência e flexibilidade diretamente no VS Code.
+[![Open VSX Version](https://img.shields.io/open-vsx/v/tooark/ark-format)](https://open-vsx.org/extension/tooark/ark-format)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/tooark/ark-format)](https://open-vsx.org/extension/tooark/ark-format)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-<img src="https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/pack/assets/image.png" width=480>
+An extension pack that bundles the complete **Ark Format** family in a single install.
+Format both **Shell** and **PowerShell** scripts consistently in Visual Studio Code.
 
-## 📦 O que está incluído
+🌍 **Languages:** **English** (this file) | [**Português (PT-BR)**](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/pack/README.pt-BR.md)
 
-| Extensão                                                                                                                                                | Descrição                                                                                                     |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Ark Format: Shell**<br>[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell) \| [Open VSX](https://open-vsx.org/extension/tooark/ark-format-shell)           | Formatação para scripts Shell (.sh, .bash, .zsh, .ksh, .tcsh, .azcli, .bats) com integração opcional ao shfmt |
-| **Ark Format: PowerShell**<br>[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell) \| [Open VSX](https://open-vsx.org/extension/tooark/ark-format-powershell) | Formatação para scripts PowerShell (.ps1, .psm1, .psd1) com indentação inteligente de blocos param            |
+---
 
-> VS Code normalmente usa o VS Marketplace; VSCodium e editores compatíveis costumam usar Open VSX.
+## ✨ Features
 
-## 🤔 Qual instalar?
+- 📦 **All-in-one install** — includes Shell and PowerShell formatters in one package
+- 🎯 **Smart formatting** — full document and selection formatting support
+- 🎛️ **Independent settings** — each formatter keeps its own configuration
+- 🌍 **Multi-language UI** — English (EN) and Brazilian Portuguese (PT-BR)
+- 📋 **.editorconfig support** — integrates with project-level conventions
+- ⚡ **Fast setup** — install once and start formatting immediately
 
-| Cenário                                       | Extensão recomendada         |
-| --------------------------------------------- | ---------------------------- |
-| Trabalha apenas com Shell                     | **Ark Format: Shell**        |
-| Trabalha apenas com PowerShell                | **Ark Format: PowerShell**   |
-| Trabalha com ambos ou quer cobertura completa | **Ark Format** (este pacote) |
+---
 
-## ✨ Recursos
+## 🚀 Getting Started
 
-Ao instalar este pacote você obtém automaticamente:
+### Install
 
-- 🎯 **Formatação inteligente** - Documentos completos ou seleções parciais
-- 🎛️ **Configurações independentes** - Cada linguagem possui suas próprias opções
-- 🌍 **Multilíngue** - Interface em Inglês (EN) e Português Brasileiro (PT-BR)
-- 📋 **Integração .editorconfig** - Respeita as convenções do projeto
-- 🔌 **Integração com shfmt** - Use shfmt como engine para Shell (opcional)
-- 📦 **Indentação de bloco param** - Formatação inteligente de param() no PowerShell
-- ⚡ **Leve e rápido** - Sem dependências externas obrigatórias
+- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format
+- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format
 
-## 📺 Como Usar
+Or inside VS Code:
 
-1. Instale **Ark Format** pelo Marketplace
-2. Abra qualquer arquivo `.sh`, `.bash`, `.ps1`, `.psm1` ou `.psd1`
-3. Formate com **Shift+Alt+F** (Windows/Linux) ou **Shift+Option+F** (Mac)
-4. Personalize em `File > Preferences > Settings` buscando por `arkFormat`
+1. Open **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`)
+2. Search for **Ark Format**
+3. Click **Install**
 
-> Consulte a documentação individual de cada extensão para ver todas as opções de configuração disponíveis.
+---
 
-## 📝 Licença
+## 📦 Included Extensions
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+| Extension                                                                                                                                                   | Description                                                                                                 |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Ark Format: Shell**<br>[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell) \| [Open VSX](https://open-vsx.org/extension/tooark/ark-format-shell)           | Formatter for Shell scripts (`.sh`, `.bash`, `.zsh`, `.ksh`, `.tcsh`, `.azcli`, `.bats`) with optional shfmt integration |
+| **Ark Format: PowerShell**<br>[VS Marketplace](https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell) \| [Open VSX](https://open-vsx.org/extension/tooark/ark-format-powershell) | Formatter for PowerShell scripts (`.ps1`, `.psm1`, `.psd1`) with smart `param (...)` block indentation |
+
+> Note: VS Code typically uses VS Marketplace, while VSCodium and compatible editors often use Open VSX.
+
+---
+
+## 🧩 How to Use
+
+### Preview
+
+<img src="https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/pack/assets/image.png" width="480" alt="Ark Format extension pack preview" />
+
+### Format a Full Document
+
+- Press **Shift+Alt+F** (Windows/Linux) or **Shift+Option+F** (Mac)
+- Or run: `Editor: Format Document`
+
+### Format a Selection
+
+- Select the text you want to format
+- Press **Ctrl+K Ctrl+F** (Windows/Linux) or **Cmd+K Cmd+F** (Mac)
+- Or run: `Editor: Format Selection`
+
+> Tip: You can set language-specific default formatters for Shell and PowerShell for formatting on save.
+
+---
+
+## 🤔 Which One Should You Install?
+
+| Scenario                                      | Recommended Extension      |
+| --------------------------------------------- | -------------------------- |
+| You work only with Shell                      | **Ark Format: Shell**      |
+| You work only with PowerShell                 | **Ark Format: PowerShell** |
+| You work with both or want full coverage      | **Ark Format** (this pack) |
+
+---
+
+## 💡 Tips & Best Practices
+
+- Use this package when you want both formatters managed together
+- Use individual extensions if your workspace only needs one language
+- Check each formatter README for its complete configuration options
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).

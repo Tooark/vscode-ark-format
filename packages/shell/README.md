@@ -1,77 +1,110 @@
 # Ark Format: Shell
 
-**Ark Format: Shell** é uma extensão de formatação robusta para scripts Shell (sh, bash, zsh, etc.) no Visual Studio Code. Mantenha seus scripts Shell consistentemente formatados com configurações flexíveis e poderosas.
+[![Open VSX Version](https://img.shields.io/open-vsx/v/tooark/ark-format-shell)](https://open-vsx.org/extension/tooark/ark-format-shell)
+[![Open VSX Downloads](https://img.shields.io/open-vsx/dt/tooark/ark-format-shell)](https://open-vsx.org/extension/tooark/ark-format-shell)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## ✨ Recursos
+A robust formatting extension for **Shell scripts** (sh, bash, zsh, and more) in **Visual Studio Code**.  
+Keep your scripts consistently formatted with flexible configuration and optional integration with **shfmt**.
 
-- 🎯 **Formatação de documentos completos** - Formate arquivos inteiros com um único comando
-- ✏️ **Formatação de seleções** - Formate apenas o texto selecionado
-- 🎛️ **Configurações personalizáveis** - Controle cada aspecto da formatação
-- 🌍 **Multilíngue** - Suporte completo em Inglês (EN) e Português Brasileiro (PT-BR)
-- 📋 **Integração .editorconfig** - Respeita as configurações do projeto
-- 🔌 **Integração com shfmt** - Use shfmt como engine de formatação (opcional)
-- 🚀 **Performance otimizada** - Usa bundling moderno para máxima performance
+🌍 **Languages:** **English** (this file) | [**Português (PT-BR)**](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/shell/README.pt-BR.md)
 
-## 📺 Como Usar
+---
 
-### Instalação Rápida
+## ✨ Features
 
-1. Abra o VS Code
-2. Acesse **Extensões** (Ctrl+Shift+X / Cmd+Shift+X)
-3. Procure por **"Ark Format: Shell"**
-4. Clique em **Instalar**
+- 🎯 **Full document formatting** — format entire files with a single command
+- ✏️ **Selection formatting** — format only the selected text
+- 🎛️ **Highly configurable** — control indentation, spacing, and formatting behavior
+- 🌍 **Multi-language UI** — English (EN) and Brazilian Portuguese (PT-BR)
+- 📋 **.editorconfig support** — respects project configuration (optional)
+- 🔌 **shfmt integration** — use shfmt as a formatting engine (optional)
+- ⚡ **Optimized performance** — fast and lightweight processing
 
-### Usando a Extensão
+---
 
-**Veja como funciona:**
+## 🚀 Getting Started
+
+### Install
+
+- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format-shell
+- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell
+
+Or inside VS Code:
+
+1. Open **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`)
+2. Search for **Ark Format: Shell**
+3. Click **Install**
+
+---
+
+## 🧩 How to Use
+
+### Preview
 
 ![Ark Format Shell - Configurações](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/shell/media/shell-settings.gif)
 
 ![Ark Format Shell - Formatando Código](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/shell/media/shell-using.gif)
 
-#### Formatar Documento Completo
+### Format a Full Document
 
-- Pressione **Shift+Alt+F** (Windows/Linux) ou **Shift+Option+F** (Mac)
-- Ou use o comando: `Editor: Format Document`
+- Press **Shift+Alt+F** (Windows/Linux) or **Shift+Option+F** (Mac)
+- Or use the command: `Editor: Format Document`
 
-#### Formatar Seleção
+### Format a Selection
 
-- Selecione o texto que deseja formatar
-- Pressione **Ctrl+K Ctrl+F** (Windows/Linux) ou **Cmd+K Cmd+F** (Mac)
-- Ou use o comando: `Editor: Format Selection`
+- Select the text you want to format
+- Press **Ctrl+K Ctrl+F** (Windows/Linux) or **Cmd+K Cmd+F** (Mac)
+- Or use the command: `Editor: Format Selection`
 
-#### Personalizando
+> Tip: You can set Ark Format as the default formatter for Shell files to ensure consistent formatting on save.
 
-Acesse `File > Preferences > Settings > Ark Format: Shell` para ajustar as configurações conforme necessário.
+---
 
-## 📄 Shells Suportados
+## 📄 Supported File Types
 
-- `.sh` - Shell Script (POSIX)
-- `.bash` - Bash Script
-- `.zsh` - Zsh Script
-- `.ksh` - Korn Shell Script
-- `.tcsh` - TCSH Script
-- `.azcli` - Azure CLI Script
-- `.bats` - BATS Test Script
+- `.sh` — POSIX Shell
+- `.bash` — Bash
+- `.zsh` — Zsh
+- `.ksh` — KornShell
+- `.tcsh` — TCSH
+- `.azcli` — Azure CLI
+- `.bats` — BATS tests
 
-## 🔧 Integração com shfmt
+---
 
-Ark Format: Shell pode ser configurado para usar **[shfmt](https://github.com/mvdan/sh)** como engine de formatação. Se você já utiliza shfmt em seus projetos ou prefere seus padrões de formatação, basta configurar a integração nas configurações e Ark Format utilizará shfmt como seu formatador de backend.
+## 🔧 shfmt Integration
 
-## ⚙️ Configuração
+You can configure Ark Format to use **[shfmt](https://github.com/mvdan/sh)** as the formatting engine.
 
-Customize o comportamento no `settings.json`. Opções disponíveis:
+Use this if:
+
+- You already use shfmt in CI/CD
+- You want standardized formatting across tools
+- You prefer shfmt’s formatting rules
+
+Example:
+
+```json
+{
+  "arkFormatShell.engine": "shfmt"
+}
+```
+
+## ⚙️ Configuration
+
+Customize the behavior in `settings.json`. Available options:
 
 ```json
 {
   "arkFormatShell.enabled": true,
-  "arkFormatShell.indentSize": 4,
+  "arkFormatShell.indentSize": 2,
   "arkFormatShell.indentStyle": "space",
   "arkFormatShell.trimTrailingWhitespace": true,
   "arkFormatShell.maxConsecutiveBlankLines": 1,
   "arkFormatShell.removeLeadingBlankLines": true,
   "arkFormatShell.insertFinalNewline": true,
-  "arkFormatShell.lineEnding": "Auto",
+  "arkFormatShell.lineEnding": "LF",
   "arkFormatShell.collapseSpaces": true,
   "arkFormatShell.rangeFormatting.enabled": true,
   "arkFormatShell.rangeFormatting.reindent": false,
@@ -79,34 +112,34 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
 }
 ```
 
-### Descrição das Configurações
+### Description of Settings
 
-| Opção                                | Padrão     | Descrição                                                 |
-| ------------------------------------ | ---------- | --------------------------------------------------------- |
-| `enabled`                            | `true`     | Ativa ou desativa a extensão                              |
-| `indentSize`                         | `2`        | Número de espaços por nível de indentação                 |
-| `indentStyle`                        | `space`    | Tipo de indentação (`space` ou `tab`)                     |
-| `trimTrailingWhitespace`             | `true`     | Remove espaços em branco no final das linhas              |
-| `maxConsecutiveBlankLines`           | `1`        | Máximo de linhas em branco consecutivas                   |
-| `removeLeadingBlankLines`            | `true`     | Remove linhas em branco no início do arquivo              |
-| `insertFinalNewline`                 | `true`     | Insere nova linha ao final do arquivo                     |
-| `lineEnding`                         | `LF`       | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`)            |
-| `collapseSpaces`                     | `true`     | Converte múltiplos espaços em um                          |
-| `spacing.spaceBeforeThenDo`          | `true`     | Adiciona espaço antes de `then` e `do`                    |
-| `spacing.spaceAfterKeywords`         | `true`     | Adiciona espaço após palavras-chave                       |
-| `spacing.spaceBeforeFunctionBrace`   | `true`     | Adiciona espaço antes da chave de função                  |
-| `rangeFormatting.enabled`            | `true`     | Habilita formatação de intervalo                          |
-| `rangeFormatting.reindent`           | `false`    | Reindenta o intervalo selecionado                         |
-| `rangeFormatting.useDocumentContext` | `true`     | Usa contexto do documento na formatação                   |
-| `engine`                             | `internal` | Define o engine de formatação (`internal` ou `shfmt`)     |
-| `useEditorConfig`                    | `false`    | Usa contexto do arquivo `.editorconfig` para configuração |
+| Option                               | Default    | Description                                                    |
+| ------------------------------------ | ---------- | -------------------------------------------------------------- |
+| `enabled`                            | `true`     | Enables or disables the extension                              |
+| `indentSize`                         | `2`        | Number of spaces per indentation level                         |
+| `indentStyle`                        | `space`    | Indentation type (`space` or `tab`)                            |
+| `trimTrailingWhitespace`             | `true`     | Removes trailing whitespace                                    |
+| `maxConsecutiveBlankLines`           | `1`        | Maximum number of consecutive blank lines                      |
+| `removeLeadingBlankLines`            | `true`     | Removes leading blank lines                                    |
+| `insertFinalNewline`                 | `true`     | Inserts a new line at the end of the file                      |
+| `lineEnding`                         | `LF`       | Line break type (`Auto`, `LF`, `CRLF`)                         |
+| `collapseSpaces`                     | `true`     | Converts multiple spaces into one                              |
+| `spacing.spaceBeforeThenDo`          | `true`     | Adds space before `then` and `do`                              |
+| `spacing.spaceAfterKeywords`         | `true`     | Adds space after keywords                                      |
+| `spacing.spaceBeforeFunctionBrace`   | `true`     | Adds space before the function brace                           |
+| `rangeFormatting.enabled`            | `true`     | Enables range formatting                                       |
+| `rangeFormatting.reindent`           | `false`    | Reindents the selected range                                   |
+| `rangeFormatting.useDocumentContext` | `true`     | Uses document context in formatting                            |
+| `engine`                             | `internal` | Defines the formatting engine (`internal` or `shfmt`)          |
+| `useEditorConfig`                    | `false`    | Uses the context of the `.editorconfig` file for configuration |
 
-## 💡 Dicas & Boas Práticas
+## 💡 Tips & Best Practices
 
-- Use **Formatação de Seleção** para ajustar apenas partes específicas sem afetar o resto do arquivo
-- Configure **.editorconfig** no seu projeto para manter consistência entre ferramentas
-- Combine com outras extensões formatadoras para um workflow completo
+- Use **Selection Formatting** to adjust only specific parts without affecting the rest of the file
+- Configure **.editorconfig** in your project to maintain consistency between tools
+- Combine with other formatting extensions for a complete workflow
 
-## 📝 Licença
+## 📝 License
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
