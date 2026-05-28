@@ -7,7 +7,7 @@
 Uma extensão robusta de formatação para **scripts Shell** (sh, bash, zsh e outros) no **Visual Studio Code**.  
 Mantenha seus scripts formatados de forma consistente com configuração flexível e integração opcional com o **shfmt**.
 
-🌍 **Idiomas:** [**English**](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/shell/README.md) | **Português (PT-BR)** (este arquivo)
+🌍 **Idiomas:** [**English**](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/README.md) | **Português (PT-BR)** (este arquivo)
 
 ---
 

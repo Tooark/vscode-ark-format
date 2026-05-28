@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão documentadas aqui.
 
+## 1.0.6 - 2026-05-27
+
+- Ajuste de documentação bilíngue: links de idioma do README migrados de `raw.githubusercontent.com` para `github.com/.../blob/...`.
+- Versão do pacote atualizada de `1.0.5` para `1.0.6`.
+- Endurecimento de segurança no workspace de build/publicação: override de `tmp` para `>=0.2.6` no lockfile do monorepo.
+- Detalhes: [notes/pack1.0.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.6.md)
+
 ## 1.0.5 - 2026-05-27
 
 - Reestruturação completa do README do extension pack para o novo padrão de documentação.
@@ -12,7 +19,6 @@ Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão doc
 - Detalhes: [notes/pack1.0.5.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.5.md)
 
 ## 1.0.4 - 2026-05-23
-
 - Alinhamento da versão do extension pack com as releases de Shell e PowerShell.
 - Atualização de dependência do workspace (`qs` para `6.15.2`).
 - Versão do pacote atualizada de `1.0.3` para `1.0.4`.

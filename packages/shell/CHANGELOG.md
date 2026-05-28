@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.6 - 2026-05-27
+
+- Ajuste de documentação bilíngue: links de idioma do README migrados de `raw.githubusercontent.com` para `github.com/.../blob/...`.
+- Versão do pacote atualizada de `1.0.5` para `1.0.6`.
+- Endurecimento de segurança no workspace de build/publicação: override de `tmp` para `>=0.2.6` no lockfile do monorepo.
+- Detalhes: [notes/shell1.0.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.6.md)
+
 ## 1.0.5 - 2026-05-27
 
 - Reestruturação completa do README para o novo padrão de documentação.
