@@ -2,6 +2,12 @@
 
 Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão documentadas aqui.
 
+## 1.0.7 - 2026-05-31
+
+- Versão do pacote atualizada de `1.0.6` para `1.0.7`.
+- Ajuste no pipeline de publicação para remover passagem explícita de token nas chamadas de `vsce` e `ovsx`, reduzindo exposição de segredos em linha de comando.
+- Detalhes: [notes/pack1.0.7.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.7.md)
+
 ## 1.0.6 - 2026-05-27
 
 - Ajuste de documentação bilíngue: links de idioma do README migrados de `raw.githubusercontent.com` para `github.com/.../blob/...`.

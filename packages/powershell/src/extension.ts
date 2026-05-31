@@ -15,8 +15,6 @@ let diagnosticCollection: vscode.DiagnosticCollection;
  * @param context O contexto de extensão fornecido pelo VS Code, usado para registrar os provedores e gerenciar suas assinaturas.
  */
 export function activate (context: vscode.ExtensionContext) {
-  console.log(vscode.l10n.t('ark.active'));
-
   diagnosticCollection = vscode.languages.createDiagnosticCollection('ark-format-powershell');
   context.subscriptions.push(diagnosticCollection);
 

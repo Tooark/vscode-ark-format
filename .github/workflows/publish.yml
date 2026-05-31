@@ -216,7 +216,7 @@ jobs:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
         run: |
           cd packages/${{ matrix.pkg }}
-          pnpm exec vsce publish --no-dependencies -p $VSCE_PAT
+          pnpm exec vsce publish --no-dependencies
 
       - name: Publish to Open VSX Registry
         if: steps.check.outputs.skip != 'true'
@@ -226,7 +226,7 @@ jobs:
           npm install -g ovsx
           cd packages/${{ matrix.pkg }}
           VSIX_FILE=$(ls *.vsix | head -n 1)
-          ovsx publish "$VSIX_FILE" -p $OVSX_PAT
+          ovsx publish "$VSIX_FILE"
 
       - name: Create and push version tag
         if: steps.check.outputs.skip != 'true'

@@ -16,8 +16,6 @@ let diagnosticCollection: vscode.DiagnosticCollection;
  * @param context O contexto de extensão fornecido pelo VS Code, usado para registrar os provedores e gerenciar suas assinaturas.
  */
 export function activate (context: vscode.ExtensionContext) {
-  console.log(vscode.l10n.t('ark.active'));
-
   diagnosticCollection = vscode.languages.createDiagnosticCollection('ark-format-shell');
   context.subscriptions.push(diagnosticCollection);
 
@@ -182,9 +180,9 @@ function buildFormatterOptions (cfg: vscode.WorkspaceConfiguration, editorOption
  * retorna um array vazio para evitar edições desnecessárias.
  */
 async function formatWithShfmt (document: vscode.TextDocument, cfg: vscode.WorkspaceConfiguration): Promise<vscode.TextEdit[]> {
-  // Carrega o caminho e as flags do shfmt a partir da configuração
-  const shfmtPath = cfg.get<string>(shellConfigKeys.shfmtPath) ?? 'shfmt';
-  const shfmtFlags = cfg.get<string>(shellConfigKeys.shfmtFlags) ?? '';
+  // Ignora valores de workspace/workspaceFolder para reduzir risco em repositórios não confiáveis.
+  const shfmtPath = getUserLevelConfigValue(cfg, shellConfigKeys.shfmtPath, 'shfmt');
+  const shfmtFlags = getUserLevelConfigValue(cfg, shellConfigKeys.shfmtFlags, '');
 
   // Carrega o conteúdo do documento e executa o shfmt para formatar o texto
   const original = document.getText();
@@ -225,6 +223,51 @@ async function formatWithShfmt (document: vscode.TextDocument, cfg: vscode.Works
   }
 
   return [];
+}
+
+/**
+ * Função para ler chave de configuração privilegiando escopos de usuário e ignorando escopos de workspace.
+ * @param cfg Configuração do VS Code para a extensão, usada para ler as opções de formatação.
+ * @param key A chave de configuração a ser lida.
+ * @param fallback O valor de fallback a ser retornado caso a chave não esteja definida em nenhum escopo de usuário.
+ * @returns O valor da configuração lido do escopo de usuário, ou o valor de fallback se não estiver definido.
+ * @remarks Esta função é útil para configurações que afetam a execução de binários externos, onde valores definidos
+ * em escopos de workspace podem representar riscos de segurança em repositórios não confiáveis. Ela garante que
+ * apenas valores definidos em escopos de usuário (global ou globalLanguage) sejam considerados, ignorando quaisquer
+ * valores definidos em escopos de workspace ou workspaceFolder.
+ */
+function getUserLevelConfigValue<T> (cfg: vscode.WorkspaceConfiguration, key: string, fallback: T): T {
+  const inspected = cfg.inspect<T>(key);
+  // Se a configuração não estiver definida em nenhum escopo, retorna o fallback
+  if (!inspected) {
+    return fallback;
+  }
+
+  // Verifica se há alguma configuração definida em escopo de workspace ou workspaceFolder
+  const hasWorkspaceOverride = inspected.workspaceValue !== undefined
+    || inspected.workspaceLanguageValue !== undefined
+    || inspected.workspaceFolderValue !== undefined
+    || inspected.workspaceFolderLanguageValue !== undefined;
+
+  // Se houver qualquer configuração definida em escopo de workspace, ignora os valores de workspace e retorna apenas os valores de usuário
+  if (hasWorkspaceOverride) {
+    return inspected.globalLanguageValue
+      ?? inspected.globalValue
+      ?? inspected.defaultLanguageValue
+      ?? inspected.defaultValue
+      ?? fallback;
+  }
+
+  // Se não houver configuração definida em escopo de workspace
+  return inspected.workspaceFolderLanguageValue
+    ?? inspected.workspaceFolderValue
+    ?? inspected.workspaceLanguageValue
+    ?? inspected.workspaceValue
+    ?? inspected.globalLanguageValue
+    ?? inspected.globalValue
+    ?? inspected.defaultLanguageValue
+    ?? inspected.defaultValue
+    ?? fallback;
 }
 
 /**
