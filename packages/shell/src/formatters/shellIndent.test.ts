@@ -225,6 +225,20 @@ describe('indentAfterLine', () => {
     expect(st.inCasePatternBody).toBe(false);
   });
 
+  it('dedents after inline fi when line does not start with fi', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    indentAfterLine('return; fi', st);
+    expect(st.indent).toBe(0);
+  });
+
+  it('does not dedent one-line if that opens and closes on the same line', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    indentAfterLine('if [ "$ok" = "true" ]; then echo "ok"; fi', st);
+    expect(st.indent).toBe(1);
+  });
+
   it('indents after do', () => {
     const st = createInitialState();
     indentAfterLine('for i in 1 2 3; do', st);

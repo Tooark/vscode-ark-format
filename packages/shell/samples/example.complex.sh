@@ -101,6 +101,81 @@ esac
 done
 }
 
+# Cenario de regressao: case aninhado dentro de outro case.
+# Esta funcao existe como amostra para validar a indentacao do formatter.
+parse_args_nested_case_demo(){
+while [ "$#" -gt 0 ]; do
+case "$1" in
+  -e|--env)
+    case "${2:-}" in
+      -e|--env)
+        ENVIRONMENT="${2:-}"
+        shift 2
+        ;;
+      -t|--timeout)
+        TIMEOUT="${2:-}"
+        shift 2
+        ;;
+      -r|--retries)
+        RETRIES="${2:-}"
+        shift 2
+        ;;
+      -w|--workdir)
+        WORKDIR="${2:-}"
+        shift 2
+        ;;
+      -v|--verbose)
+        VERBOSE=1
+        shift
+        ;;
+      -n|--dry-run)
+        DRY_RUN=1
+        shift
+        ;;
+      -h|--help)
+        print_help
+        exit 0
+        ;;
+      *)
+        log ERROR "Parametro invalido: $2"
+        print_help
+        exit 2
+        ;;
+    esac
+    ;;
+  -t|--timeout)
+    TIMEOUT="${2:-}"
+    shift 2
+    ;;
+  -r|--retries)
+    RETRIES="${2:-}"
+    shift 2
+    ;;
+  -w|--workdir)
+    WORKDIR="${2:-}"
+    shift 2
+    ;;
+  -v|--verbose)
+    VERBOSE=1
+    shift
+    ;;
+  -n|--dry-run)
+    DRY_RUN=1
+    shift
+    ;;
+  -h|--help)
+    print_help
+    exit 0
+    ;;
+  *)
+    log ERROR "Parametro invalido: $1"
+    print_help
+    exit 2
+    ;;
+esac
+done
+}
+
 validate_inputs(){
 case "$ENVIRONMENT" in
   dev|hml|prod) ;;

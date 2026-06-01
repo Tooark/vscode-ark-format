@@ -163,4 +163,54 @@ describe('PowerShellFormatter.formatText', () => {
     const result = format('$x  =  1\n', { collapseSpaces: false });
     expect(result).toBe('$x  =  1\n');
   });
+
+  it('mantém indentação correta em switch aninhado', () => {
+    const input = [
+      'switch ($mode) {',
+      'default {',
+      'switch ($submode) {',
+      '"A" {',
+      'Write-Host "A"',
+      '}',
+      'default {',
+      'Write-Host "default"',
+      '}',
+      '}',
+      '}',
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      'switch ($mode) {',
+      '  default {',
+      '    switch ($submode) {',
+      '      "A" {',
+      '        Write-Host "A"',
+      '      }',
+      '      default {',
+      '        Write-Host "default"',
+      '      }',
+      '    }',
+      '  }',
+      '}',
+      ''
+    ].join('\n'));
+  });
+
+  it('não gera drift após if/else em uma linha', () => {
+    const input = [
+      'if ($ok) { Write-Host "ok" } else { Write-Host "fail" }',
+      'Write-Host "next"',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      'if ($ok) { Write-Host "ok" } else { Write-Host "fail" }',
+      'Write-Host "next"',
+      ''
+    ].join('\n'));
+  });
 });

@@ -322,6 +322,90 @@ describe('ShellFormatter.formatText', () => {
     expect(format(input)).toBe(expected);
   });
 
+  it('dedents following sibling if after inline fi terminator', () => {
+    const input = [
+      'auto_detect_path() {',
+      'if [[ -n "${CI_PROJECT_DIR:-}" ]]; then',
+      'echo "$CI_PROJECT_DIR";',
+      'return; fi',
+      'if [[ -n "${GITHUB_WORKSPACE:-}" ]]; then',
+      'echo "$GITHUB_WORKSPACE";',
+      'return; fi',
+      'echo "$PWD"',
+      '}',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'auto_detect_path() {',
+      '  if [[ -n "${CI_PROJECT_DIR:-}" ]]; then',
+      '    echo "$CI_PROJECT_DIR";',
+      '    return; fi',
+      '  if [[ -n "${GITHUB_WORKSPACE:-}" ]]; then',
+      '    echo "$GITHUB_WORKSPACE";',
+      '    return; fi',
+      '  echo "$PWD"',
+      '}',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
+  it('keeps outer case structure after nested case closes', () => {
+    const input = [
+      'parse_args() {',
+      'while [ "$#" -gt 0 ]; do',
+      'case "$1" in',
+      '-e|--env)',
+      'case "$2" in',
+      '-e|--env)',
+      'ENVIRONMENT="${2:-}"',
+      'shift 2',
+      ';;',
+      '*)',
+      'echo "invalid"',
+      ';;',
+      'esac',
+      ';;',
+      '-t|--timeout)',
+      'TIMEOUT="${2:-}"',
+      'shift 2',
+      ';;',
+      'esac',
+      'done',
+      '}',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'parse_args() {',
+      '  while [ "$#" -gt 0 ]; do',
+      '    case "$1" in',
+      '      -e|--env)',
+      '        case "$2" in',
+      '          -e|--env)',
+      '            ENVIRONMENT="${2:-}"',
+      '            shift 2',
+      '          ;;',
+      '          *)',
+      '            echo "invalid"',
+      '          ;;',
+      '        esac',
+      '      ;;',
+      '      -t|--timeout)',
+      '        TIMEOUT="${2:-}"',
+      '        shift 2',
+      '      ;;',
+      '    esac',
+      '  done',
+      '}',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
   it('preserves indentation inside multiline jq filter string', () => {
     const input = [
       'for sev in "${fail_sev_array[@]}"; do',
