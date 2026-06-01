@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão documentadas aqui.
 
+## 1.0.8 - 2026-05-31
+
+- Versão do pacote atualizada de `1.0.7` para `1.0.8`.
+- Alinhamento do extension pack com a release de manutenção dos formatadores:
+	- Shell com correções de `fi` inline e `case` aninhado.
+	- PowerShell com reforço de cobertura de regressão para cenários análogos.
+- Sem mudanças funcionais adicionais no extension pack além do alinhamento de release.
+- Detalhes: [notes/pack1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.8.md)
+
 ## 1.0.7 - 2026-05-31
 
 - Versão do pacote atualizada de `1.0.6` para `1.0.7`.

@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.0.8 - 2026-05-31
+
+- Versão do pacote atualizada de `1.0.7` para `1.0.8`.
+- Auditoria dos cenários equivalentes às regressões corrigidas no Shell (`inline blocks` e blocos aninhados) sem identificação de impacto funcional no formatter de PowerShell.
+- Inclusão de cobertura de regressão para `switch` aninhado e `if/else` em uma linha, evitando drift de indentação em futuras mudanças.
+- Detalhes: [notes/powershell1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.0.8.md)
+
 ## 1.0.7 - 2026-05-31
 
 - Versão do pacote atualizada de `1.0.6` para `1.0.7`.

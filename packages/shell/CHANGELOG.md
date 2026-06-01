@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.8 - 2026-05-31
+
+- Versão do pacote atualizada de `1.0.7` para `1.0.8`.
+- Correção de indentação para fechamento inline de `if` com `fi`/`endif` na mesma linha (ex.: `return; fi`), evitando drift no próximo bloco irmão.
+- Correção de contexto para `case` aninhado, preservando corretamente labels e terminadores `;;` no `case` externo após `esac` interno.
+- Inclusão de testes de regressão para cenários de `fi` inline e `case` aninhado.
+- Atualização de amostra complexa com cenário dedicado de `case` aninhado para validação manual.
+- Detalhes: [notes/shell1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.8.md)
+
 ## 1.0.7 - 2026-05-31
 
 - Versão do pacote atualizada de `1.0.6` para `1.0.7`.
