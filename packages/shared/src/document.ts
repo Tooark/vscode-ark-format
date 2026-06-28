@@ -265,7 +265,11 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
     detectHeredocInCode,
     getCodePartsOnly,
     getQuoteModeAfterLine,
-    applySpacing
+    applySpacing,
+    detectBlockCommentStart,
+    isBlockCommentEnd,
+    isBlockCommentKeyword,
+    formatBlockComments
   } = params;
 
   // Normaliza os finais de linha do texto original para LF e divide o texto em linhas.
@@ -279,7 +283,61 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
   let quoteIndentOffset = 0;
   let quoteBlockIndentLevel = 0;
   let quoteBuffer: string[] = [];
+  let inBlockComment = false;
+  let blockCommentBuffer: string[] = [];
+  let blockCommentIndentLevel = 0;
   const out: string[] = [];
+
+  // Função auxiliar para descarregar o buffer de um bloco de comentário (<# ... #>) na saída.
+  // Quando `formatBlockComments` está desabilitado, o bloco é preservado sem alterações;
+  // caso contrário, o conteúdo é reindentado com base no tamanho de indentação configurado.
+  const flushBlockComment = (): void => {
+    // Preserva o bloco de comentário literalmente quando a reformatação está desabilitada.
+    if (!formatBlockComments) {
+      for (const bline of blockCommentBuffer) {
+        out.push(bline);
+      }
+
+      blockCommentBuffer = [];
+
+      return;
+    }
+
+    const baseIndent = indentUnit.repeat(Math.max(0, blockCommentIndentLevel));
+    const lastIndex = blockCommentBuffer.length - 1;
+    let sawKeyword = false;
+
+    // Itera sobre cada linha do bloco aplicando a indentação adequada.
+    for (let idx = 0; idx < blockCommentBuffer.length; idx++) {
+      const btrim = blockCommentBuffer[idx].trim();
+
+      // Delimitadores <# e #> ficam alinhados ao nível do código ao redor.
+      if (idx === 0 || idx === lastIndex) {
+        out.push(baseIndent + btrim);
+
+        continue;
+      }
+
+      // Linhas vazias permanecem vazias.
+      if (btrim === '') {
+        out.push('');
+
+        continue;
+      }
+
+      // Palavras-chave da comment-based help recebem um nível; o conteúdo abaixo delas recebe dois.
+      if (isBlockCommentKeyword?.(btrim)) {
+        sawKeyword = true;
+        out.push(baseIndent + indentUnit + btrim);
+
+        continue;
+      }
+
+      out.push(baseIndent + indentUnit.repeat(sawKeyword ? 2 : 1) + btrim);
+    }
+
+    blockCommentBuffer = [];
+  };
 
   // Itera sobre cada linha do texto original, aplicando a formatação conforme as regras configuradas.
   for (const raw of rawLines) {
@@ -297,6 +355,19 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
       if (rawTrimmed === st.heredocEnd) {
         st.inHeredoc = false;
         st.heredocEnd = '';
+      }
+
+      continue;
+    }
+
+    // Bloco de comentário multilinha (<# ... #>) tratado como bloco opaco.
+    if (inBlockComment) {
+      blockCommentBuffer.push(raw);
+
+      // Verifica se a linha atual encerra o bloco de comentário para descarregar o buffer.
+      if (isBlockCommentEnd?.(rawTrimmed)) {
+        flushBlockComment();
+        inBlockComment = false;
       }
 
       continue;
@@ -348,6 +419,16 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
       continue;
     }
 
+    // Início de um bloco de comentário multilinha (<# ... #>). O bloco não altera o estado de indentação do código.
+    if (detectBlockCommentStart?.(rawTrimmed)) {
+      inBlockComment = true;
+      blockCommentIndentLevel = st.indent;
+      blockCommentBuffer = [raw];
+      quoteMode = nextQuoteMode;
+
+      continue;
+    }
+
     // Aplica dedent antes de processar a linha atual.
     dedentBeforeLine(controlText, st);
 
@@ -377,6 +458,12 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
     }
 
     quoteMode = nextQuoteMode;
+  }
+
+  // Descarrega um bloco de comentário não terminado ao final do texto.
+  if (inBlockComment) {
+    flushBlockComment();
+    inBlockComment = false;
   }
 
   // Aplica as transformações finais de formatação

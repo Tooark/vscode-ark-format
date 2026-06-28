@@ -82,6 +82,7 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
   "arkFormatPowerShell.insertFinalNewline": true,
   "arkFormatPowerShell.lineEnding": "CRLF",
   "arkFormatPowerShell.collapseSpaces": true,
+  "arkFormatPowerShell.formatBlockComments": false,
   "arkFormatPowerShell.rangeFormatting.enabled": true,
   "arkFormatPowerShell.rangeFormatting.reindent": false,
   "arkFormatPowerShell.rangeFormatting.useDocumentContext": true
@@ -101,6 +102,7 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
 | `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo                     |
 | `lineEnding`                         | `CRLF`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`)            |
 | `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um                          |
+| `formatBlockComments`                | `false` | Reindenta comentários `<# ... #>`; off = sem alteração    |
 | `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo                          |
 | `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado                         |
 | `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação                   |

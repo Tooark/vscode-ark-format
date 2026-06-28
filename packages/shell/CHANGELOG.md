@@ -2,6 +2,13 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.9 - 2026-06-27
+
+- Versão do pacote atualizada de `1.0.8` para `1.0.9`.
+- Rodada de manutenção de segurança nas dependências (avisos do Dependabot) aplicada via `overrides` no workspace.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.9.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.9.md)
+
 ## 1.0.8 - 2026-05-31
 
 - Versão do pacote atualizada de `1.0.7` para `1.0.8`.

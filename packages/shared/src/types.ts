@@ -180,6 +180,10 @@ export interface RangeFormattingSettings {
  * - `getCodePartsOnly`: Função para extrair apenas as partes de código de uma linha, ignorando strings e comentários, com base no modo de aspas atual.
  * - `getQuoteModeAfterLine`: Função para determinar o modo de aspas após processar uma linha, para manter o estado correto ao lidar com strings multilinha.
  * - `applySpacing`: Função para aplicar regras de espaçamento específicas à linha de código, de acordo com as opções configuradas.
+ * - `detectBlockCommentStart`: Função opcional para detectar o início de um bloco de comentário multilinha (ex.: `<#` no PowerShell).
+ * - `isBlockCommentEnd`: Função opcional para detectar o fim de um bloco de comentário multilinha (ex.: `#>` no PowerShell).
+ * - `isBlockCommentKeyword`: Função opcional para identificar palavras-chave dentro do bloco de comentário (ex.: `.SYNOPSIS`), usada ao reindentar o bloco.
+ * - `formatBlockComments`: Se habilitado, reindenta o conteúdo do bloco de comentário usando o tamanho de indentação configurado; caso contrário, preserva o bloco sem alterações.
  */
 export interface FormatTextGenericParams<State extends FormatTextState, QuoteKind extends string, Opts extends FormatterOptions> {
   originalText: string;
@@ -192,6 +196,10 @@ export interface FormatTextGenericParams<State extends FormatTextState, QuoteKin
   getCodePartsOnly: (line: string, quoteMode: QuoteKind) => string;
   getQuoteModeAfterLine: (line: string, quoteMode: QuoteKind) => QuoteKind;
   applySpacing: (line: string, opts: Opts) => string;
+  detectBlockCommentStart?: (trimmed: string) => boolean;
+  isBlockCommentEnd?: (trimmed: string) => boolean;
+  isBlockCommentKeyword?: (trimmed: string) => boolean;
+  formatBlockComments?: boolean;
 }
 
 /**

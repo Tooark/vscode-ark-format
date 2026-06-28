@@ -10,6 +10,7 @@
   "config.lineEnding.description": "Estilo de quebra de linha (LF, CRLF, ou Auto-detectar)",
   "config.maxConsecutiveBlankLines.description": "Número máximo de linhas em branco consecutivas",
   "config.collapseSpaces.description": "Colapsar múltiplos espaços em um (fora de strings e contextos de alinhamento)",
+  "config.formatBlockComments.description": "Reindentar o conteúdo de comentários de bloco (<# ... #>) usando o tamanho de indentação configurado. Quando desabilitado, os comentários de bloco são mantidos sem alteração",
   "config.rangeFormatting.enabled.description": "Habilitar formatação de intervalo (seleção)",
   "config.rangeFormatting.reindent.description": "Re-indentar intervalo selecionado (usa contexto do documento para calcular indentação base)",
   "config.rangeFormatting.useDocumentContext.description": "Ao re-indentar um intervalo, faz pré-varredura das linhas anteriores à seleção para calcular o nível de indentação base correto",

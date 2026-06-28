@@ -135,23 +135,76 @@ describe('PowerShellFormatter.formatText', () => {
     expect(result).toBe('Write-Host `#naoComentario\n');
   });
 
-  it('preserva fechamento de comentário em bloco (#>)', () => {
+  it('mantém comentário em bloco sem alteração por padrão (formatBlockComments desabilitado)', () => {
     const input = [
       '<#',
-      '  .SYNOPSIS',
-      '  Exemplo',
+      '    .SYNOPSIS',
+      '        Exemplo de script.',
+      '',
+      '    .DESCRIPTION',
+      '        Descrição detalhada.',
       '#>',
       ''
     ].join('\n');
 
     const result = format(input);
+    expect(result).toBe(input);
+  });
+
+  it('reindenta comentário em bloco quando formatBlockComments está habilitado', () => {
+    const input = [
+      '<#',
+      '        .SYNOPSIS',
+      '    Exemplo de script.',
+      '',
+      '            .DESCRIPTION',
+      '  Descrição detalhada.',
+      '#>',
+      ''
+    ].join('\n');
+
+    const result = format(input, { formatBlockComments: true });
     expect(result).toBe([
       '<#',
-      '.SYNOPSIS',
-      'Exemplo',
+      '  .SYNOPSIS',
+      '    Exemplo de script.',
+      '',
+      '  .DESCRIPTION',
+      '    Descrição detalhada.',
       '#>',
       ''
     ].join('\n'));
+  });
+
+  it('reindenta comentário em bloco respeitando a indentação do código ao redor', () => {
+    const input = [
+      'function Test {',
+      '<#',
+      '.SYNOPSIS',
+      'Resumo.',
+      '#>',
+      'Write-Host "ok"',
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input, { formatBlockComments: true });
+    expect(result).toBe([
+      'function Test {',
+      '  <#',
+      '    .SYNOPSIS',
+      '      Resumo.',
+      '  #>',
+      '  Write-Host "ok"',
+      '}',
+      ''
+    ].join('\n'));
+  });
+
+  it('não trata comentário de bloco em linha única (<# ... #>) como bloco multilinha', () => {
+    const input = 'Write-Host "ok" <# inline #>\n';
+    const result = format(input, { formatBlockComments: true });
+    expect(result).toBe('Write-Host "ok" <# inline #>\n');
   });
 
   it('aplica CRLF quando configurado', () => {

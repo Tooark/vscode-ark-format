@@ -2,6 +2,38 @@ import { QuoteKind } from './types';
 import { hasOddTrailingExplicitMarker } from '@tooark/ark-format-shared/indent';
 export { isShebang, isFullLineComment } from '@tooark/ark-format-shared/lex';
 
+// Palavras-chave de comment-based help (ex.: .SYNOPSIS, .DESCRIPTION, .EXAMPLE) começam com ponto seguido de letra.
+const COMMENT_HELP_KEYWORD_RE = /^\.[A-Za-z]/;
+
+/**
+ * Verifica se a linha inicia um bloco de comentário PowerShell (`<# ... #>`) que se estende por múltiplas linhas.
+ * Comentários de bloco completos em uma única linha (`<# ... #>`) não são considerados início de bloco.
+ * @param trimmed - A linha já trimada (sem espaços no início ou no final).
+ * @returns `true` se a linha abre um bloco de comentário multilinha, `false` caso contrário.
+ */
+export function isBlockCommentStart (trimmed: string): boolean {
+  return trimmed.startsWith('<#') && !trimmed.slice(2).includes('#>');
+}
+
+/**
+ * Verifica se a linha encerra um bloco de comentário PowerShell (`#>`).
+ * @param trimmed - A linha já trimada (sem espaços no início ou no final).
+ * @returns `true` se a linha contém o fechamento do bloco de comentário, `false` caso contrário.
+ */
+export function isBlockCommentEnd (trimmed: string): boolean {
+  return trimmed.includes('#>');
+}
+
+/**
+ * Verifica se a linha é uma palavra-chave de comment-based help (ex.: `.SYNOPSIS`, `.DESCRIPTION`).
+ * Usada para definir o nível de indentação ao reformatar blocos de comentário.
+ * @param trimmed - A linha já trimada (sem espaços no início ou no final).
+ * @returns `true` se a linha for uma palavra-chave de comment-based help, `false` caso contrário.
+ */
+export function isCommentHelpKeyword (trimmed: string): boolean {
+  return COMMENT_HELP_KEYWORD_RE.test(trimmed);
+}
+
 /**
  * Função para dividir uma linha de código PowerShell em partes, preservando o tipo de cada parte
  * (código, aspas simples, aspas duplas, here-strings ou crases).

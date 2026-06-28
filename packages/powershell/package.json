@@ -2,7 +2,7 @@
   "name": "ark-format-powershell",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
@@ -120,22 +120,28 @@
           "order": 17,
           "description": "%config.collapseSpaces.description%"
         },
+        "arkFormatPowerShell.formatBlockComments": {
+          "type": "boolean",
+          "default": false,
+          "order": 18,
+          "description": "%config.formatBlockComments.description%"
+        },
         "arkFormatPowerShell.rangeFormatting.enabled": {
           "type": "boolean",
           "default": true,
-          "order": 20,
+          "order": 19,
           "description": "%config.rangeFormatting.enabled.description%"
         },
         "arkFormatPowerShell.rangeFormatting.reindent": {
           "type": "boolean",
           "default": false,
-          "order": 21,
+          "order": 20,
           "description": "%config.rangeFormatting.reindent.description%"
         },
         "arkFormatPowerShell.rangeFormatting.useDocumentContext": {
           "type": "boolean",
           "default": true,
-          "order": 22,
+          "order": 21,
           "description": "%config.rangeFormatting.useDocumentContext.description%"
         }
       }

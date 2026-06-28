@@ -3,7 +3,7 @@ import { QuoteKind, PowerShellFormatterOptions } from './types';
 import { applyPowerShellSpacing } from './powerShellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './powerShellIndent';
 import { isShebang } from '@tooark/ark-format-shared/lex';
-import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine } from './powerShellLex';
+import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isBlockCommentStart, isBlockCommentEnd, isCommentHelpKeyword } from './powerShellLex';
 import { formatTextGeneric } from './utils';
 
 /**
@@ -58,7 +58,11 @@ export class PowerShellFormatter {
       applySpacing: (line: string, opts: PowerShellFormatterOptions) => applyPowerShellSpacing(line, {
         spaceBeforeFunctionBrace: true,
         collapseSpaces: opts.collapseSpaces ?? true
-      })
+      }),
+      detectBlockCommentStart: isBlockCommentStart,
+      isBlockCommentEnd,
+      isBlockCommentKeyword: isCommentHelpKeyword,
+      formatBlockComments: this.opts.formatBlockComments ?? false
     });
   }
 }

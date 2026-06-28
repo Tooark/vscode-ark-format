@@ -2,6 +2,24 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.1.0 - 2026-06-27
+
+- Nova opção `arkFormatPowerShell.formatBlockComments` (padrão `false`) para controlar a formatação de comentários de bloco (`<# ... #>`).
+  - Desabilitada: o comentário de bloco é preservado sem alteração na indentação interna.
+  - Habilitada: o conteúdo é reindentado com base no `indentSize` (delimitadores no nível do código, palavras-chave da comment-based help com um nível e o conteúdo abaixo com dois).
+- Comentários de bloco passam a ser tratados como bloco opaco no motor de formatação, evitando que a indentação interna seja achatada.
+- Inclusão de testes de regressão para os modos habilitado/desabilitado, indentação aninhada e comentário de bloco em linha única.
+- Versão do pacote atualizada de `1.0.9` para `1.1.0`.
+- Detalhes: [notes/powershell1.1.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.1.0.md)
+
+## 1.0.9 - 2026-06-27
+
+- Versão do pacote atualizada de `1.0.8` para `1.0.9`.
+- Rodada de manutenção de segurança nas dependências (avisos do Dependabot) aplicada via `overrides` no workspace.
+- Atualização dos GIFs de demonstração (`media/powershell-settings.gif` e `media/powershell-using.gif`).
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/powershell1.0.9.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.0.9.md)
+
 ## 1.0.8 - 2026-05-31
 
 - Versão do pacote atualizada de `1.0.7` para `1.0.8`.

@@ -45,8 +45,12 @@ export interface IndentState {
 /**
  * Interface para opções de formatação de PowerShell.
  * Estende as opções gerais de formatação (`FormatterOptions`).
+ * - `formatBlockComments`: Se habilitado, reindenta o conteúdo de blocos de comentário (`<# ... #>`)
+ *   usando o tamanho de indentação configurado; caso contrário, preserva o bloco sem alterações.
  */
-export interface PowerShellFormatterOptions extends FormatterOptions { }
+export interface PowerShellFormatterOptions extends FormatterOptions {
+  formatBlockComments?: boolean;
+}
 
 /**
  * Interface para opções específicas do formatador de intervalo de PowerShell.

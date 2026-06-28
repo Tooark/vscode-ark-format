@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { applyEditorConfigOverrides, formatterConfigKeys, getConfig, parseEditorConfig } from './formatters/editorConfigReader';
+import { applyEditorConfigOverrides, formatterConfigKeys, getConfig, parseEditorConfig, powerShellConfigKeys } from './formatters/editorConfigReader';
 import { PowerShellFormatter } from './formatters/powerShellFormatter';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './formatters/powerShellIndent';
 import { getCodePartsOnly, getQuoteModeAfterLine, isShebang, isFullLineComment } from './formatters/powerShellLex';
@@ -129,7 +129,8 @@ function buildFormatterOptions (cfg: vscode.WorkspaceConfiguration, editorOption
     maxConsecutiveBlankLines: cfg.get<number>(formatterConfigKeys.maxConsecutiveBlankLines) ?? 1,
     removeLeadingBlankLines: cfg.get<boolean>(formatterConfigKeys.removeLeadingBlankLines) ?? true,
     insertFinalNewline: cfg.get<boolean>(formatterConfigKeys.insertFinalNewline) ?? true,
-    collapseSpaces: cfg.get<boolean>(formatterConfigKeys.collapseSpaces) ?? true
+    collapseSpaces: cfg.get<boolean>(formatterConfigKeys.collapseSpaces) ?? true,
+    formatBlockComments: cfg.get<boolean>(powerShellConfigKeys.formatBlockComments) ?? false
   };
 }
 
