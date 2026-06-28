@@ -2,7 +2,7 @@
   "name": "ark-format",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
