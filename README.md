@@ -1,53 +1,59 @@
-# ARK Format
+# Ark Format
 
-Monorepo oficial das extensões **Ark Format** para Visual Studio Code.
-O projeto reúne formatadores para **Shell** e **PowerShell**, além de um pacote agregador e bibliotecas compartilhadas.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+Official monorepo for the **Ark Format** extensions for Visual Studio Code.
+It brings together formatters for **Shell** and **PowerShell**, plus an extension pack and shared libraries.
+
+🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/README.pt-BR.md)
+
+---
 
 <img src="https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/packages/pack/assets/image.png" width="480" alt="Ark Format extension pack preview" />
 
 ---
 
-## ✨ Visão Geral
+## ✨ Overview
 
-- 🎯 **Formatação consistente** para Shell e PowerShell
-- 📦 **Pacotes separados por responsabilidade** (formatadores, pack e código compartilhado)
-- 🧩 **Monorepo com pnpm workspace** para build, teste e lint unificados
-- ⚡ **Fluxo de desenvolvimento rápido** com tasks e debug no VS Code
-
----
-
-## 📦 Pacotes
-
-| Pacote                                               | Descrição                                                                                           |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [packages/shell](packages/shell/README.md)           | Extensão de formatação para Shell (`.sh`, `.bash`, `.zsh`, `.ksh`, `.tcsh`, `.azcli`, `.bats`)      |
-| [packages/powershell](packages/powershell/README.md) | Extensão de formatação para PowerShell (`.ps1`, `.psm1`, `.psd1`)                                   |
-| [packages/pack](packages/pack/README.md)             | Extension Pack que instala Shell + PowerShell em conjunto                                           |
-| [packages/shared](packages/shared)                   | Código compartilhado entre os pacotes (lexer, indentação, utilitários e processamento de documento) |
+- 🎯 **Consistent formatting** for Shell and PowerShell
+- 📦 **Packages split by responsibility** (formatters, pack, and shared code)
+- 🧩 **Monorepo with pnpm workspaces** for unified build, test, and lint
+- ⚡ **Fast development workflow** with VS Code tasks and debugging
 
 ---
 
-## 🚀 Primeiros Passos
+## 📦 Packages
 
-Instale as dependências na raiz do repositório:
+| Package                                              | Description                                                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [packages/shell](packages/shell/README.md)           | Formatting extension for Shell (`.sh`, `.bash`, `.zsh`, `.ksh`, `.tcsh`, `.azcli`, `.bats`) |
+| [packages/powershell](packages/powershell/README.md) | Formatting extension for PowerShell (`.ps1`, `.psm1`, `.psd1`)                              |
+| [packages/pack](packages/pack/README.md)             | Extension Pack that installs Shell + PowerShell together                                    |
+| [packages/shared](packages/shared)                   | Shared code across packages (lexer, indentation, utilities, and document processing)        |
+
+---
+
+## 🚀 Getting Started
+
+Install dependencies at the repository root:
 
 ```bash
 pnpm install
 ```
 
-Build do monorepo:
+Build the monorepo:
 
 ```bash
 pnpm run build
 ```
 
-Watch mode para desenvolvimento:
+Watch mode for development:
 
 ```bash
 pnpm run watch
 ```
 
-Lint em todos os pacotes que possuem script:
+Lint every package that provides the script:
 
 ```bash
 pnpm run lint
@@ -55,22 +61,22 @@ pnpm run lint
 
 ---
 
-## 🧪 Testes
+## 🧪 Tests
 
-Executar testes de todo o monorepo:
+Run the tests across the whole monorepo:
 
 ```bash
 pnpm run test
 ```
 
-Executar testes de um pacote específico (exemplo: PowerShell):
+Run the tests for a specific package (example: PowerShell):
 
 ```bash
 cd packages/powershell
 pnpm test
 ```
 
-Gerar cobertura de um pacote específico (exemplo: PowerShell):
+Generate coverage for a specific package (example: PowerShell):
 
 ```bash
 cd packages/powershell
@@ -79,24 +85,34 @@ pnpm exec vitest run --coverage
 
 ---
 
-## 🧩 Desenvolvimento no VS Code
+## 📦 Packaging
 
-O diretório `.vscode/` contém configurações de tasks e debug para facilitar o desenvolvimento local.
+Build the `.vsix` for every package that provides the script:
 
-Fluxo recomendado:
-
-1. Abra o workspace no VS Code
-2. Execute a task `pnpm: watch shell` ou `pnpm: watch powershell`
-3. Pressione `F5` para abrir o Extension Host e validar a extensão localmente
+```bash
+pnpm run package
+```
 
 ---
 
-## 🤝 Contribuição
+## 🧩 Developing in VS Code
 
-- Leia o README de cada pacote antes de abrir PR
-- Siga as regras de lint compartilhadas em `configs/eslint.base.mjs`
-- Rode build e testes localmente antes de enviar alterações
+The `.vscode/` directory contains task and debug configurations to ease local development.
 
-## 📝 Licença
+Recommended workflow:
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+1. Open the workspace in VS Code
+2. Run the task `pnpm: watch shell` or `pnpm: watch powershell`
+3. Press `F5` to launch the Extension Host and validate the extension locally
+
+---
+
+## 🤝 Contributing
+
+- Read each package's README before opening a PR
+- Follow the shared lint rules in `configs/eslint.base.mjs`
+- Run build and tests locally before submitting changes
+
+## 📝 License
+
+This project is licensed under the [MIT License](LICENSE).

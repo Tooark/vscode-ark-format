@@ -7,7 +7,7 @@
 A powerful formatting extension for **PowerShell** files in **Visual Studio Code** (`.ps1`, `.psm1`, `.psd1`).  
 Automate consistent formatting across your scripts with flexible settings and optional `.editorconfig` support.
 
-🌍 **Languages:** **English** (this file) | [**Português (PT-BR)**](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/README.pt-BR.md)
+🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/README.pt-BR.md)
 
 ---
 

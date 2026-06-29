@@ -7,7 +7,7 @@
 An extension pack that bundles the complete **Ark Format** family in a single install.
 Format both **Shell** and **PowerShell** scripts consistently in Visual Studio Code.
 
-🌍 **Languages:** **English** (this file) | [**Português (PT-BR)**](https://github.com/Tooark/vscode-ark-format/blob/main/packages/pack/README.pt-BR.md)
+🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/packages/pack/README.pt-BR.md)
 
 ---
 
