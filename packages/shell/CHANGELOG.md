@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.10 - 2026-07-05
+
+- Versão do pacote atualizada de `1.0.9` para `1.0.10`.
+- Atualização da descrição da extensão para refletir suporte a scripts Shell (`.sh`, `.bash`, `.bats`, `.zsh`).
+- Descrição ajustada para explicitar suporte aos engines `internal` e `shfmt`.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.10.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.10.md)
+
 ## 1.0.9 - 2026-06-27
 
 - Versão do pacote atualizada de `1.0.8` para `1.0.9`.

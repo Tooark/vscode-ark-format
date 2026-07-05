@@ -1,6 +1,6 @@
 {
   "displayName": "Ark Format: Shell",
-  "description": "VS Code formatter extension scaffold (TypeScript + esbuild + pnpm) with pnpm/vsce packaging workaround.",
+  "description": "Format Shell scripts (.sh, .bash, .bats, .zsh) with comprehensive code formatting options using the built-in engine or shfmt",
   "configuration.title": "Ark Format: Shell",
   "config.enabled.description": "Enable Ark Format for Shell Script files",
   "config.indentSize.description": "Number of spaces per indentation level",

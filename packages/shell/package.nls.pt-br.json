@@ -1,6 +1,6 @@
 {
   "displayName": "Ark Format: Shell",
-  "description": "Extensão de formatação para VS Code (TypeScript + esbuild + pnpm) com solução para empacotamento pnpm/vsce.",
+  "description": "Formate scripts Shell (.sh, .bash, .bats, .zsh) com opções abrangentes de formatação de código usando o mecanismo embutido ou o shfmt",
   "configuration.title": "Ark Format: Shell",
   "config.collapseSpaces.description": "Colapsar múltiplos espaços em um (fora de strings e contextos de alinhamento)",
   "config.effectLanguages.description": "IDs de linguagem para os quais o formatador está ativo (ex: 'shellscript', 'bats', 'azcli')",
