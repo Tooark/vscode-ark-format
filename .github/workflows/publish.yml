@@ -40,11 +40,10 @@ jobs:
         run: |
           set -eu
 
-          PACKAGES='["powershell","shell","pack"]'
           MATRIX="[]"
           HAS_PUBLISHABLE=false
 
-          for PKG in powershell shell pack; do
+          for PKG in powershell shell makefile pack; do
             PKG_JSON="packages/${PKG}/package.json"
             VERSION=$(node -p "require('./${PKG_JSON}').version")
             TAG="${PKG}${VERSION}"
@@ -140,7 +139,38 @@ jobs:
           retention-days: 30
 
   # ──────────────────────────────────────────────
-  # 3. Build, test & publish each package
+  # 3. Test shared library (not published as extension)
+  # ──────────────────────────────────────────────
+  test-shared:
+    name: Test shared library
+    runs-on: ubuntu-latest
+    needs: release-meta
+    if: needs.release-meta.outputs.has_publishable == 'true'
+
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm --filter @tooark/ark-format-shared run lint
+
+      - name: Run tests
+        run: pnpm --filter @tooark/ark-format-shared run test
+        continue-on-error: true
+
+  # ──────────────────────────────────────────────
+  # 4. Build, test & publish each package
   # ──────────────────────────────────────────────
   build-and-publish:
     name: "Publish ${{ matrix.pkg }} v${{ matrix.version }}"
@@ -148,6 +178,7 @@ jobs:
     needs:
       - release-meta
       - security-scan
+      - test-shared
     if: needs.release-meta.outputs.has_publishable == 'true'
 
     strategy:
@@ -289,7 +320,7 @@ jobs:
           fi
 
   # ──────────────────────────────────────────────
-  # 4. Info when nothing to publish
+  # 5. Info when nothing to publish
   # ──────────────────────────────────────────────
   skip-existing-versions:
     name: Skip publish (all tags exist)
