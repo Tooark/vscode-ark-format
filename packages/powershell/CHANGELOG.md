@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.2.1 - 2026-07-06
+
+- Versão do pacote atualizada de `1.2.0` para `1.2.1`.
+- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
+- GIFs de demonstração do README regenerados (`powershell-settings.gif` e `powershell-using.gif`) com capturas atualizadas e maior qualidade.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/powershell1.2.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.1.md)
+
 ## 1.2.0 - 2026-07-05
 
 - Nova opção `arkFormatPowerShell.alignAssignments` (padrão `false`) para alinhamento vertical dos operadores de atribuição (`=`, `+=`, `-=`, `*=`, `/=`, `%=`, `??=`) em blocos contíguos de atribuições de variáveis (`$var = ...`) e entradas de hashtable (`Chave = valor`).

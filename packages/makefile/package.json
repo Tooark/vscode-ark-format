@@ -2,7 +2,7 @@
   "name": "ark-format-makefile",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
@@ -13,6 +13,9 @@
   "homepage": "https://github.com/Tooark/vscode-ark-format/tree/main/packages/makefile",
   "bugs": {
     "url": "https://github.com/Tooark/vscode-ark-format/issues"
+  },
+  "sponsor": {
+    "url": "https://github.com/sponsors/paulosfjunior"
   },
   "engines": {
     "vscode": "^1.85.0"

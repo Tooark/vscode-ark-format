@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão documentadas aqui.
 
+## 1.1.1 - 2026-07-06
+
+- Versão do pacote atualizada de `1.1.0` para `1.1.1`.
+- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
+- Alinhamento do extension pack com a rodada de atualização das extensões (`shell1.0.12`, `powershell1.2.1`, `makefile1.0.1`): link de sponsor nos manifests e GIFs de demonstração regenerados.
+- Sem alterações funcionais no extension pack.
+- Detalhes: [notes/pack1.1.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.1.md)
+
 ## 1.1.0 - 2026-07-05
 
 - Versão do pacote atualizada de `1.0.9` para `1.1.0`.

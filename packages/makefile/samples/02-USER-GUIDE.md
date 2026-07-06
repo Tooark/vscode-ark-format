@@ -21,12 +21,12 @@
 
 Propriedades lidas do `.editorconfig` (aplicadas sobre as configurações da extensão):
 
-| Propriedade | Efeito |
-| --- | --- |
+| Propriedade                    | Efeito                                                            |
+| ------------------------------ | ----------------------------------------------------------------- |
 | `indent_style` / `indent_size` | Tamanho da indentação de blocos condicionais (sempre com espaços) |
-| `end_of_line` | Estilo de fim de linha (`lf` → LF, `crlf` → CRLF) |
-| `insert_final_newline` | Nova linha ao final do arquivo |
-| `trim_trailing_whitespace` | Remoção de espaços finais |
+| `end_of_line`                  | Estilo de fim de linha (`lf` → LF, `crlf` → CRLF)                 |
+| `insert_final_newline`         | Nova linha ao final do arquivo                                    |
+| `trim_trailing_whitespace`     | Remoção de espaços finais                                         |
 
 > Nota: recipes SEMPRE usam TAB — é regra do `make`, não do formatador. O
 > `indent_style`/`indent_size` do EditorConfig afeta apenas condicionais.
@@ -46,18 +46,18 @@ Propriedades lidas do `.editorconfig` (aplicadas sobre as configurações da ext
 
 ## 🔧 Principais Funcionalidades
 
-| Funcionalidade | Configuração | Padrão |
-| --- | --- | --- |
-| Espaço em torno de atribuições | `spacing.spaceAroundAssignment` | `true` |
-| Espaço após `:` em alvos | `spacing.spaceAfterTargetColon` | `true` |
-| Espaço após `#` em comentários | `spacing.spaceAfterCommentMarker` | `true` |
-| Indentação de condicionais | `indentConditionals` + `indentSize` | `true` / `2` |
-| Normalização do prefixo de recipe | `normalizeRecipePrefix` | `true` |
-| Alinhamento vertical de atribuições (opt-in) | `alignAssignments` | `false` |
-| Colapso de espaços múltiplos | `collapseSpaces` | `true` |
-| Limpeza de linhas em branco | `maxConsecutiveBlankLines`, `removeLeadingBlankLines` | `1` / `true` |
-| Fim de linha e newline final | `lineEnding`, `insertFinalNewline` | `LF` / `true` |
-| Formatação de seleção | `rangeFormatting.*` | habilitada |
+| Funcionalidade                               | Configuração                                          | Padrão        |
+| -------------------------------------------- | ----------------------------------------------------- | ------------- |
+| Espaço em torno de atribuições               | `spacing.spaceAroundAssignment`                       | `true`        |
+| Espaço após `:` em alvos                     | `spacing.spaceAfterTargetColon`                       | `true`        |
+| Espaço após `#` em comentários               | `spacing.spaceAfterCommentMarker`                     | `true`        |
+| Indentação de condicionais                   | `indentConditionals` + `indentSize`                   | `true` / `2`  |
+| Normalização do prefixo de recipe            | `normalizeRecipePrefix`                               | `true`        |
+| Alinhamento vertical de atribuições (opt-in) | `alignAssignments`                                    | `false`       |
+| Colapso de espaços múltiplos                 | `collapseSpaces`                                      | `true`        |
+| Limpeza de linhas em branco                  | `maxConsecutiveBlankLines`, `removeLeadingBlankLines` | `1` / `true`  |
+| Fim de linha e newline final                 | `lineEnding`, `insertFinalNewline`                    | `LF` / `true` |
+| Formatação de seleção                        | `rangeFormatting.*`                                   | habilitada    |
 
 ## 📝 Dicas de Formatação
 
@@ -84,13 +84,13 @@ indentada com espaços, por exemplo, é preservada como atribuição).
 
 ## ❓ Troubleshooting
 
-| Sintoma | Causa provável | Ação |
-| --- | --- | --- |
-| Nada acontece ao formatar | Formatador desabilitado ou arquivo já formatado | Verifique `arkFormatMakefile.enabled` |
-| Linguagem errada | Arquivo aberto como `plaintext` | Selecione `Makefile` na barra de status |
-| Condicionais não indentam | `indentConditionals: false` | Habilite a opção |
-| EditorConfig ignorado | `useEditorConfig: false` ou arquivo `untitled` | Habilite a opção e salve o arquivo em disco |
-| Arquivo inteiro preservado | `.RECIPEPREFIX` redefinido | Comportamento intencional de segurança |
+| Sintoma                    | Causa provável                                  | Ação                                        |
+| -------------------------- | ----------------------------------------------- | ------------------------------------------- |
+| Nada acontece ao formatar  | Formatador desabilitado ou arquivo já formatado | Verifique `arkFormatMakefile.enabled`       |
+| Linguagem errada           | Arquivo aberto como `plaintext`                 | Selecione `Makefile` na barra de status     |
+| Condicionais não indentam  | `indentConditionals: false`                     | Habilite a opção                            |
+| EditorConfig ignorado      | `useEditorConfig: false` ou arquivo `untitled`  | Habilite a opção e salve o arquivo em disco |
+| Arquivo inteiro preservado | `.RECIPEPREFIX` redefinido                      | Comportamento intencional de segurança      |
 
 ## 📚 Recursos
 

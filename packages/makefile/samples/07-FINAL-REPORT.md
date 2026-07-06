@@ -26,12 +26,12 @@ seguindo a mesma estrutura dos pacotes Shell e PowerShell.
 
 ## 📊 Estatísticas Gerais
 
-| Métrica | Valor |
-| --- | --- |
-| Arquivos totais | 14 |
-| Exemplos formatáveis | 4 |
+| Métrica                           | Valor                                  |
+| --------------------------------- | -------------------------------------- |
+| Arquivos totais                   | 14                                     |
+| Exemplos formatáveis              | 4                                      |
 | Operadores de atribuição cobertos | 6 (`=`, `:=`, `::=`, `?=`, `+=`, `!=`) |
-| Níveis de condicional aninhado | 3 |
+| Níveis de condicional aninhado    | 3                                      |
 
 ## 🗺️ Localização
 

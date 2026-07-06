@@ -39,12 +39,12 @@ samples/
 
 ## 📊 Matriz de Exemplos
 
-| Arquivo | Complexidade | Formatável | Objetivo |
-| --- | --- | --- | --- |
-| `example.mk` | Básica | ✅ (mude e compare) | Antes/depois |
-| `Makefile` | Básica | ✅ (recipes sem TAB) | Convergência com example.mk |
-| `GNUmakefile` | Média | ✅ | Funções GNU |
-| `example.complex.mk` | Alta | ✅ | Estressar o formatador |
+| Arquivo              | Complexidade | Formatável           | Objetivo                    |
+| -------------------- | ------------ | -------------------- | --------------------------- |
+| `example.mk`         | Básica       | ✅ (mude e compare)  | Antes/depois                |
+| `Makefile`           | Básica       | ✅ (recipes sem TAB) | Convergência com example.mk |
+| `GNUmakefile`        | Média        | ✅                   | Funções GNU                 |
+| `example.complex.mk` | Alta         | ✅                   | Estressar o formatador      |
 
 ## 🚀 Caminhos de Uso
 

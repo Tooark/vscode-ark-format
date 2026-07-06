@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format-makefile` estão documentadas aqui.
 
+## 1.0.1 - 2026-07-06
+
+- Versão do pacote atualizada de `1.0.0` para `1.0.1`.
+- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
+- GIFs de demonstração do README regenerados (`makefile-settings.gif` e `makefile-using.gif`) com capturas atualizadas e maior qualidade.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/makefile1.0.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/makefile1.0.1.md)
+
 ## 1.0.0 - 2026-07-05
 
 - Versão inicial do formatador de Makefile, seguindo a estrutura das extensões Shell e PowerShell.

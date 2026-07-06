@@ -4,22 +4,22 @@
 
 ### Por Nível de Complexidade
 
-| Nível | Arquivo | Conteúdo |
-| --- | --- | --- |
-| Básico | `example.mk` | Atribuições, alvos, condicionais simples, define, recipes |
-| Básico | `Makefile` | Mesmo conteúdo de `example.mk` com bom espaçamento, mas recipes sem TAB (convergência) |
-| Intermediário | `GNUmakefile` | Funções GNU (`wildcard`, `patsubst`, `shell`), recipes com continuação |
-| Avançado | `example.complex.mk` | Condicionais aninhados, variáveis por alvo, regras de padrão, include/export |
+| Nível         | Arquivo              | Conteúdo                                                                               |
+| ------------- | -------------------- | -------------------------------------------------------------------------------------- |
+| Básico        | `example.mk`         | Atribuições, alvos, condicionais simples, define, recipes                              |
+| Básico        | `Makefile`           | Mesmo conteúdo de `example.mk` com bom espaçamento, mas recipes sem TAB (convergência) |
+| Intermediário | `GNUmakefile`        | Funções GNU (`wildcard`, `patsubst`, `shell`), recipes com continuação                 |
+| Avançado      | `example.complex.mk` | Condicionais aninhados, variáveis por alvo, regras de padrão, include/export           |
 
 ### Por Caso de Uso
 
-| Quero ver... | Abra |
-| --- | --- |
-| Recuperação de recipes sem TAB | `example.mk` e `Makefile` (formate ambos: convergem) |
-| Condicionais aninhados indentados | `example.complex.mk` |
-| Recipes preservadas com continuação `\` | `GNUmakefile` |
-| Bloco `define` preservado | `example.mk` ou `example.complex.mk` |
-| Configuração de projeto | `.editorconfig` e `settings.example.json` |
+| Quero ver...                            | Abra                                                 |
+| --------------------------------------- | ---------------------------------------------------- |
+| Recuperação de recipes sem TAB          | `example.mk` e `Makefile` (formate ambos: convergem) |
+| Condicionais aninhados indentados       | `example.complex.mk`                                 |
+| Recipes preservadas com continuação `\` | `GNUmakefile`                                        |
+| Bloco `define` preservado               | `example.mk` ou `example.complex.mk`                 |
+| Configuração de projeto                 | `.editorconfig` e `settings.example.json`            |
 
 ## ✨ Features Demonstradas
 

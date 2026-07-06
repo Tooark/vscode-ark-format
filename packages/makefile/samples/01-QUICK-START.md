@@ -86,12 +86,12 @@ Formatar não muda o que o `make` executa.
 
 ## ❓ Troubleshooting Rápido
 
-| Problema | Solução |
-| --- | --- |
-| Formatador não ativa | Verifique se o arquivo está com a linguagem `makefile` na barra de status |
-| Nada muda ao formatar | O arquivo pode já estar formatado, ou `arkFormatMakefile.enabled` está `false` |
-| Recipe não vira TAB | A linha é interpretável como sintaxe de make (comportamento intencional de segurança) |
-| Arquivo inteiro ignorado | O arquivo redefine `.RECIPEPREFIX` (preservação intencional) |
+| Problema                 | Solução                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| Formatador não ativa     | Verifique se o arquivo está com a linguagem `makefile` na barra de status             |
+| Nada muda ao formatar    | O arquivo pode já estar formatado, ou `arkFormatMakefile.enabled` está `false`        |
+| Recipe não vira TAB      | A linha é interpretável como sintaxe de make (comportamento intencional de segurança) |
+| Arquivo inteiro ignorado | O arquivo redefine `.RECIPEPREFIX` (preservação intencional)                          |
 
 ## 🎓 Aprenda Mais
 
@@ -100,11 +100,11 @@ Formatar não muda o que o `make` executa.
 
 ## ⏱️ Tempos Estimados
 
-| Atividade | Tempo |
-| --- | --- |
-| Instalar e formatar o primeiro arquivo | 2 min |
-| Configurar format on save | 3 min |
-| Explorar todos os exemplos | 15 min |
+| Atividade                              | Tempo  |
+| -------------------------------------- | ------ |
+| Instalar e formatar o primeiro arquivo | 2 min  |
+| Configurar format on save              | 3 min  |
+| Explorar todos os exemplos             | 15 min |
 
 ## 🎯 Próximo Passo
 

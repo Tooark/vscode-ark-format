@@ -4,15 +4,15 @@
 
 ### 📋 Lista Completa
 
-| Arquivo | Tipo | Propósito |
-| --- | --- | --- |
-| `Makefile` | Exemplo | Resultado esperado da formatação de `example.mk` |
-| `GNUmakefile` | Exemplo | Funções GNU e recipes com continuação |
-| `example.mk` | Exemplo | Entrada "bagunçada" para testar o formatador |
-| `example.complex.mk` | Exemplo | Cenário avançado com condicionais aninhados |
-| `.editorconfig` | Configuração | Regras de projeto para `useEditorConfig` |
-| `settings.example.json` | Configuração | Settings recomendados da extensão |
-| `00-START-HERE.md` … `07-FINAL-REPORT.md` | Documentação | Guias de uso dos samples |
+| Arquivo                                   | Tipo         | Propósito                                        |
+| ----------------------------------------- | ------------ | ------------------------------------------------ |
+| `Makefile`                                | Exemplo      | Resultado esperado da formatação de `example.mk` |
+| `GNUmakefile`                             | Exemplo      | Funções GNU e recipes com continuação            |
+| `example.mk`                              | Exemplo      | Entrada "bagunçada" para testar o formatador     |
+| `example.complex.mk`                      | Exemplo      | Cenário avançado com condicionais aninhados      |
+| `.editorconfig`                           | Configuração | Regras de projeto para `useEditorConfig`         |
+| `settings.example.json`                   | Configuração | Settings recomendados da extensão                |
+| `00-START-HERE.md` … `07-FINAL-REPORT.md` | Documentação | Guias de uso dos samples                         |
 
 ## 🦾 Formatos Suportados Documentados
 
@@ -76,17 +76,17 @@ linguagem e format on save.
 
 ## 📊 Features Demonstradas
 
-| Feature | example.mk | Makefile | GNUmakefile | example.complex.mk |
-| --- | :-: | :-: | :-: | :-: |
-| Espaçamento de atribuição | ✅ | ✅ | ✅ | ✅ |
-| Espaçamento de alvo | ✅ | ✅ | ✅ | ✅ |
-| Indentação de condicionais | ✅ | ✅ | — | ✅ |
-| Condicional em recipe | ✅ | ✅ | — | ✅ |
-| Bloco define | ✅ | ✅ | — | ✅ |
-| Continuação de linha | ✅ | ✅ | ✅ | ✅ |
-| Normalização recipe→TAB | ✅ | — | — | ✅ |
-| Variável por alvo | — | — | — | ✅ |
-| Regra de padrão | — | — | ✅ | ✅ |
+| Feature                    | example.mk | Makefile | GNUmakefile | example.complex.mk |
+| -------------------------- | :--------: | :------: | :---------: | :----------------: |
+| Espaçamento de atribuição  |     ✅     |    ✅    |     ✅      |         ✅         |
+| Espaçamento de alvo        |     ✅     |    ✅    |     ✅      |         ✅         |
+| Indentação de condicionais |     ✅     |    ✅    |      —      |         ✅         |
+| Condicional em recipe      |     ✅     |    ✅    |      —      |         ✅         |
+| Bloco define               |     ✅     |    ✅    |      —      |         ✅         |
+| Continuação de linha       |     ✅     |    ✅    |     ✅      |         ✅         |
+| Normalização recipe→TAB    |     ✅     |    —     |      —      |         ✅         |
+| Variável por alvo          |     —      |    —     |      —      |         ✅         |
+| Regra de padrão            |     —      |    —     |     ✅      |         ✅         |
 
 ## 🚀 Como Usar Nos Exemplos
 

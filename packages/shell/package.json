@@ -2,7 +2,7 @@
   "name": "ark-format-shell",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
@@ -13,6 +13,9 @@
   "homepage": "https://github.com/Tooark/vscode-ark-format/tree/main/packages/shell",
   "bugs": {
     "url": "https://github.com/Tooark/vscode-ark-format/issues"
+  },
+  "sponsor": {
+    "url": "https://github.com/sponsors/paulosfjunior"
   },
   "engines": {
     "vscode": "^1.85.0"

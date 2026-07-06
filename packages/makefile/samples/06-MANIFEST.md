@@ -4,41 +4,41 @@
 
 ### 🛠️ Exemplos de Código (4 arquivos)
 
-| Arquivo | Descrição |
-| --- | --- |
-| `example.mk` | Entrada "bagunçada" com erros comuns de formatação |
-| `Makefile` | Mesmo conteúdo de `example.mk` com bom espaçamento, mas recipes sem TAB |
-| `GNUmakefile` | Funções GNU make e recipes com continuação |
-| `example.complex.mk` | Cenário avançado (condicionais aninhados, target-specific vars) |
+| Arquivo              | Descrição                                                               |
+| -------------------- | ----------------------------------------------------------------------- |
+| `example.mk`         | Entrada "bagunçada" com erros comuns de formatação                      |
+| `Makefile`           | Mesmo conteúdo de `example.mk` com bom espaçamento, mas recipes sem TAB |
+| `GNUmakefile`        | Funções GNU make e recipes com continuação                              |
+| `example.complex.mk` | Cenário avançado (condicionais aninhados, target-specific vars)         |
 
 ### ⚙️ Configuração (2 arquivos)
 
-| Arquivo | Descrição |
-| --- | --- |
-| `.editorconfig` | Regras de projeto para `useEditorConfig` |
+| Arquivo                 | Descrição                                   |
+| ----------------------- | ------------------------------------------- |
+| `.editorconfig`         | Regras de projeto para `useEditorConfig`    |
 | `settings.example.json` | Configuração completa comentada da extensão |
 
 ### 📖 Documentação (8 arquivos)
 
-| Arquivo | Descrição |
-| --- | --- |
-| `00-START-HERE.md` | Ponto de partida e ordem de leitura |
-| `01-QUICK-START.md` | Setup em 5 minutos |
-| `02-USER-GUIDE.md` | Guia completo de configuração e uso |
-| `03-FEATURE-INDEX.md` | Índice por feature e caso de uso |
-| `04-TECHNICAL-SUMMARY.md` | Visão técnica dos exemplos |
-| `05-STRUCTURE.md` | Mapa visual e fluxos de navegação |
-| `06-MANIFEST.md` | Este arquivo |
-| `07-FINAL-REPORT.md` | Relatório conclusivo |
+| Arquivo                   | Descrição                           |
+| ------------------------- | ----------------------------------- |
+| `00-START-HERE.md`        | Ponto de partida e ordem de leitura |
+| `01-QUICK-START.md`       | Setup em 5 minutos                  |
+| `02-USER-GUIDE.md`        | Guia completo de configuração e uso |
+| `03-FEATURE-INDEX.md`     | Índice por feature e caso de uso    |
+| `04-TECHNICAL-SUMMARY.md` | Visão técnica dos exemplos          |
+| `05-STRUCTURE.md`         | Mapa visual e fluxos de navegação   |
+| `06-MANIFEST.md`          | Este arquivo                        |
+| `07-FINAL-REPORT.md`      | Relatório conclusivo                |
 
 ## 📊 Estatísticas
 
-| Métrica | Valor |
-| --- | --- |
-| Exemplos de código | 4 |
-| Arquivos de configuração | 2 |
-| Documentos | 8 |
-| Total | 14 |
+| Métrica                  | Valor |
+| ------------------------ | ----- |
+| Exemplos de código       | 4     |
+| Arquivos de configuração | 2     |
+| Documentos               | 8     |
+| Total                    | 14    |
 
 ## 🎯 Casos de Uso por Arquivo
 

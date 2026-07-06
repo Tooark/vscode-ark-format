@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.12 - 2026-07-06
+
+- Versão do pacote atualizada de `1.0.11` para `1.0.12`.
+- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
+- GIFs de demonstração do README regenerados (`shell-settings.gif` e `shell-using.gif`) com capturas atualizadas e maior qualidade.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.12.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.12.md)
+
 ## 1.0.11 - 2026-07-05
 
 - Correção na formatação de seleção (range formatting): strings multilinha passam a ser rastreadas como no formatador de documento — o conteúdo literal é preservado sem reprocessamento e palavras-chave dentro de strings (ex.: `do`, `then`) não alteram mais a indentação das linhas seguintes.
