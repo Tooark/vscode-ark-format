@@ -1,0 +1,5 @@
+{
+  "ark.active": "Ark Format: Makefile está ativo!",
+  "ark.failed.format": "Falha ao formatar documento Makefile: {0}",
+  "ark.error.format": "Erro fatal ao formatar Makefile: {0}"
+}

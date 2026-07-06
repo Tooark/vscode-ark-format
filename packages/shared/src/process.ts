@@ -1,6 +1,5 @@
 import * as childProcess from 'child_process';
 import { ExecOptions, ExecResult } from './types';
-import { isWindows } from './path';
 
 /**
  * Função para dividir uma linha de comando em argumentos, respeitando aspas e caracteres de escape.
@@ -69,30 +68,6 @@ export function splitCommandLine (value: string): string[] {
   }
 
   return args;
-}
-
-/**
- * Função para escapar um argumento de linha de comando, adicionando aspas se necessário.
- * @param value O argumento a ser escapado.
- * @returns O argumento escapado, pronto para ser usado em uma linha de comando.
- */
-export function quoteCliArg (value: string): string {
-  // Verifica se o valor é uma string vazia
-  if (value.length === 0) {
-    return '""';
-  }
-
-  // Verifica se o valor contém espaços em branco ou aspas
-  if (!/\s|"|'/.test(value)) {
-    return value;
-  }
-
-  // Verifica o sistema operacional
-  if (isWindows) {
-    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
-  }
-
-  return `'${value.replace(/'/g, `'\\''`)}'`;
 }
 
 /**

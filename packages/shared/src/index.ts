@@ -1,10 +1,11 @@
+export * from './align';
 export * from './config';
 export * from './document';
+export * from './edits';
 export { parseEditorConfig, applyEditorConfigOverrides } from './editorConfig';
 export * from './errors';
 export * from './indent';
 export * from './lex';
-export * from './logger';
-export * from './path';
 export * from './process';
+export * from './spacing';
 export * from './types';

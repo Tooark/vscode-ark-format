@@ -8,6 +8,8 @@
   "arkFormatPowerShell.insertFinalNewline": true,
   "arkFormatPowerShell.lineEnding": "Auto",
   "arkFormatPowerShell.collapseSpaces": true,
+  "arkFormatPowerShell.formatBlockComments": false,
+  "arkFormatPowerShell.alignAssignments": false,
   "arkFormatPowerShell.rangeFormatting.enabled": true,
   "arkFormatPowerShell.rangeFormatting.reindent": false,
   "arkFormatPowerShell.rangeFormatting.useDocumentContext": true,

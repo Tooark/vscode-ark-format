@@ -1,0 +1,28 @@
+# EditorConfig para Makefiles
+# Veja https://editorconfig.org para documentação
+#
+# Para o formatador aplicar estas regras, habilite:
+#   "arkFormatMakefile.useEditorConfig": true
+
+# Marca este arquivo como raiz
+root = true
+
+# Todos os arquivos
+[*]
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+
+# Makefiles: recipes SEMPRE usam TAB (regra do make, não configurável).
+# O indent_size abaixo afeta apenas a indentação de blocos condicionais
+# (ifeq/else/endif), que o formatador sempre faz com espaços.
+[{Makefile,makefile,GNUmakefile,*.mk}]
+indent_style = space
+indent_size = 2
+
+# Documentação Markdown
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2

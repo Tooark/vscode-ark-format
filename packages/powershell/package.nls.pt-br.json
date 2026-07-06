@@ -9,6 +9,7 @@
   "config.insertFinalNewline.description": "Inserir uma nova linha ao final do arquivo",
   "config.lineEnding.description": "Estilo de quebra de linha (LF, CRLF, ou Auto-detectar)",
   "config.maxConsecutiveBlankLines.description": "Número máximo de linhas em branco consecutivas",
+  "config.alignAssignments.description": "Alinhar verticalmente os operadores de atribuição (=, +=, -=, *=, /=, %=, ??=) em blocos contíguos de atribuições de variáveis e entradas de hashtable. Desligado por padrão: o alinhamento gera ruído de diff quando um nome mais longo é adicionado ao bloco",
   "config.collapseSpaces.description": "Colapsar múltiplos espaços em um (fora de strings e contextos de alinhamento)",
   "config.formatBlockComments.description": "Reindentar o conteúdo de comentários de bloco (<# ... #>) usando o tamanho de indentação configurado. Quando desabilitado, os comentários de bloco são mantidos sem alteração",
   "config.rangeFormatting.enabled.description": "Habilitar formatação de intervalo (seleção)",

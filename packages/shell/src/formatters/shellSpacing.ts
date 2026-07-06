@@ -1,5 +1,18 @@
+import { collapseDoubleSpaces, normalizeCommentSpacing } from '@tooark/ark-format-shared/spacing';
 import { splitByQuotesPreserve } from './shellLex';
-import { ShellSpacingConfig } from './types';
+import { ShellFormatterOptions, ShellSpacingConfig } from './types';
+
+/**
+ * Função para construir a configuração de espaçamento efetiva a partir das opções do formatador.
+ * @param opts As opções de formatação de shell (documento ou intervalo).
+ * @returns A configuração de espaçamento a ser aplicada às linhas de código.
+ */
+export function toShellSpacingConfig (opts: ShellFormatterOptions): ShellSpacingConfig {
+  return {
+    ...opts.spacing,
+    collapseSpaces: opts.collapseSpaces
+  };
+}
 
 /**
  * Função para aplicar espaçamento consistente em código shell, de acordo com as opções fornecidas.
@@ -11,42 +24,6 @@ export function applyShellSpacing (trimmedLine: string, cfg: ShellSpacingConfig)
   const parts = splitByQuotesPreserve(trimmedLine);
 
   return parts.map(p => (p.kind === 'code' ? transformCode(p.text, cfg) : p.text)).join('');
-}
-
-/**
- * Função para normalizar o espaçamento em comentários, garantindo que haja um espaço
- * entre o marcador de comentário (`#`) e o texto do comentário, exceto para shebangs
- * e casos onde o `#` é seguido por outro `#` (comentários com múltiplos marcadores).
- * @param code O trecho de código shell a ser normalizado.
- * @returns O trecho de código shell com o espaçamento normalizado em comentários.
- */
-function normalizeCommentSpacing (code: string): string {
-  const commentStart = findCommentStart(code);
-
-  // Se não houver comentário, retorna o código original
-  if (commentStart === -1) {
-    return code;
-  }
-
-  // Preserva shebang.
-  if (commentStart === 0 && code[1] === '!') {
-    return code;
-  }
-
-  let markerEnd = commentStart;
-
-  // Itera a partir do marcador de comentário para encontrar o final dos caracteres `#` consecutivos
-  while (markerEnd < code.length && code[markerEnd] === '#') {
-    markerEnd++;
-  }
-
-  // Se o marcador de comentário for seguido por um espaço ou estiver no final da linha, não adiciona espaço extra
-  if (markerEnd >= code.length || /\s/.test(code[markerEnd])) {
-    return code;
-  }
-
-  // Insere um espaço entre o marcador de comentário e o texto do comentário
-  return code.slice(0, markerEnd) + ' ' + code.slice(markerEnd);
 }
 
 /**
@@ -86,13 +63,11 @@ function transformCode (code: string, cfg: ShellSpacingConfig): string {
 
   // Colapsa múltiplos espaços em um único espaço, mas preserva os espaços iniciais (que são tratados pela indentação)
   if (cfg.collapseSpaces) {
-    // Colapsa espaços internos duplicados entre caracteres não-espaço.
-    // Isso evita mexer na indentação inicial e não remove espaço final.
-    s = s.replace(/(\S) {2,}(?=\S)/g, '$1 ');
+    s = collapseDoubleSpaces(s);
   }
 
   // Normaliza o espaçamento em comentários
-  s = normalizeCommentSpacing(s);
+  s = normalizeCommentSpacing(s, findCommentStart);
 
   return s;
 }

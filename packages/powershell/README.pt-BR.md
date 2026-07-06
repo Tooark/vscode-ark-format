@@ -67,6 +67,8 @@ Ou pelo VS Code:
 - `.psm1` — PowerShell Module
 - `.psd1` — PowerShell Module Manifest
 
+---
+
 ## ⚙️ Configuração
 
 Customize o comportamento no `settings.json`. Opções disponíveis:
@@ -83,6 +85,7 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
   "arkFormatPowerShell.lineEnding": "CRLF",
   "arkFormatPowerShell.collapseSpaces": true,
   "arkFormatPowerShell.formatBlockComments": false,
+  "arkFormatPowerShell.alignAssignments": false,
   "arkFormatPowerShell.rangeFormatting.enabled": true,
   "arkFormatPowerShell.rangeFormatting.reindent": false,
   "arkFormatPowerShell.rangeFormatting.useDocumentContext": true
@@ -91,28 +94,52 @@ Customize o comportamento no `settings.json`. Opções disponíveis:
 
 ### Descrição das Configurações
 
-| Opção                                | Padrão  | Descrição                                                 |
-| ------------------------------------ | ------- | --------------------------------------------------------- |
-| `enabled`                            | `true`  | Ativa ou desativa a extensão                              |
-| `indentStyle`                        | `space` | Tipo de indentação (`space` ou `tab`)                     |
-| `indentSize`                         | `2`     | Número de espaços por nível de indentação                 |
-| `trimTrailingWhitespace`             | `true`  | Remove espaços em branco no final das linhas              |
-| `maxConsecutiveBlankLines`           | `1`     | Máximo de linhas em branco consecutivas                   |
-| `removeLeadingBlankLines`            | `true`  | Remove linhas em branco no início do arquivo              |
-| `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo                     |
-| `lineEnding`                         | `CRLF`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`)            |
-| `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um                          |
-| `formatBlockComments`                | `false` | Reindenta comentários `<# ... #>`; off = sem alteração    |
-| `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo                          |
-| `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado                         |
-| `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação                   |
-| `useEditorConfig`                    | `false` | Usa contexto do arquivo `.editorconfig` para configuração |
+| Opção                                | Padrão  | Descrição                                                         |
+| ------------------------------------ | ------- | ----------------------------------------------------------------- |
+| `enabled`                            | `true`  | Ativa ou desativa a extensão                                      |
+| `indentStyle`                        | `space` | Tipo de indentação (`space` ou `tab`)                             |
+| `indentSize`                         | `2`     | Número de espaços por nível de indentação                         |
+| `trimTrailingWhitespace`             | `true`  | Remove espaços em branco no final das linhas                      |
+| `maxConsecutiveBlankLines`           | `1`     | Máximo de linhas em branco consecutivas                           |
+| `removeLeadingBlankLines`            | `true`  | Remove linhas em branco no início do arquivo                      |
+| `insertFinalNewline`                 | `true`  | Insere nova linha ao final do arquivo                             |
+| `lineEnding`                         | `CRLF`  | Tipo de quebra de linha (`Auto`, `LF`, `CRLF`)                    |
+| `collapseSpaces`                     | `true`  | Converte múltiplos espaços em um                                  |
+| `formatBlockComments`                | `false` | Reindenta comentários `<# ... #>`; off = sem alteração            |
+| `alignAssignments`                   | `false` | Alinha operadores de atribuição em blocos de variáveis/hashtables |
+| `rangeFormatting.enabled`            | `true`  | Habilita formatação de intervalo                                  |
+| `rangeFormatting.reindent`           | `false` | Reindenta o intervalo selecionado                                 |
+| `rangeFormatting.useDocumentContext` | `true`  | Usa contexto do documento na formatação                           |
+| `useEditorConfig`                    | `false` | Usa contexto do arquivo `.editorconfig` para configuração         |
+
+---
 
 ## 💡 Dicas & Boas Práticas
 
 - Use **Formatação de Seleção** para ajustar apenas partes específicas sem afetar o resto do arquivo
 - Configure **.editorconfig** no seu projeto para manter consistência entre ferramentas
 - Combine com outras extensões formatadoras para um workflow completo
+
+---
+
+## 🤝 Contribuindo
+
+- Abra uma issue: [Tooark/vscode-ark-format/issues](https://github.com/Tooark/vscode-ark-format/issues)
+- Sugira melhorias ou reporte bugs com exemplos para facilitar a reprodução
+
+---
+
+## 💖 Apoie
+
+Se esta extensão ajuda no seu dia a dia, considere apoiar o desenvolvimento:
+
+- 💙 [GitHub Sponsors](https://github.com/sponsors/paulosfjunior)
+- ☕ [Ko-fi](https://ko-fi.com/paulosfjunior)
+- 💸 [PayPal](https://www.paypal.com/donate/?business=62KETU4PXBWZC&no_recurring=0&item_name=Ol%C3%A1%21+Sou+o+fundador+e+mantenedor+da+Tooark+%28tooark.com%29+%E2%80%94%0Aum+ecossistema+de+projetos+open+source.%0AObrigado+pelo+apoio%21+%F0%9F%92%9A&currency_code=BRL)
+
+Cada contribuição ajuda a manter o projeto ativo e em evolução. Obrigado! 🙏
+
+---
 
 ## 📝 Licença
 

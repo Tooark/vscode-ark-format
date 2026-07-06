@@ -1,0 +1,9 @@
+# Build outputs
+dist/
+
+# Test artifacts
+coverage/
+.vscode-test/
+
+# Package artifacts
+*.vsix

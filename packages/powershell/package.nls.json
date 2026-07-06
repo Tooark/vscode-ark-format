@@ -12,6 +12,7 @@
   "config.lineEnding.description": "Line ending style (LF, CRLF, or Auto-detect)",
   "config.collapseSpaces.description": "Collapse multiple spaces into one (outside of strings and alignment contexts)",
   "config.formatBlockComments.description": "Re-indent the content of block comments (<# ... #>) using the configured indent size. When disabled, block comments are kept unchanged",
+  "config.alignAssignments.description": "Vertically align assignment operators (=, +=, -=, *=, /=, %=, ??=) within contiguous blocks of variable assignments and hashtable entries. Off by default: alignment causes diff churn when a longer name is added to a block",
   "config.effectLanguages.description": "Languages to apply formatting to",
   "config.useEditorConfig.description": "Use .editorconfig file for formatting options",
   "config.rangeFormatting.enabled.description": "Enable range (selection) formatting",

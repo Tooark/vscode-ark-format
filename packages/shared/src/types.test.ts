@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import {
+  MAKEFILE_LANGUAGE_IDS,
   POWERSHELL_LANGUAGE_IDS,
   SHELL_LANGUAGE_IDS,
   SUPPORTED_DOCUMENT_SCHEMES
@@ -8,11 +9,8 @@ import type {
   ExecOptions,
   ExecResult,
   ExplicitLineContinuationMarker,
-  FormatResult,
   ImplicitLineContinuationOperator,
-  LineEnding,
-  SettingsBase,
-  ToolError
+  LineEnding
 } from './types';
 
 describe('types contracts', () => {
@@ -22,6 +20,7 @@ describe('types contracts', () => {
   });
 
   it('exposes supported language and scheme constants', () => {
+    expect(MAKEFILE_LANGUAGE_IDS).toEqual(['makefile']);
     expect(POWERSHELL_LANGUAGE_IDS).toEqual(['powershell']);
     expect(SHELL_LANGUAGE_IDS).toContain('shellscript');
     expect(SUPPORTED_DOCUMENT_SCHEMES).toEqual(['file', 'untitled']);
@@ -45,17 +44,11 @@ describe('types contracts', () => {
       exitCode: 0,
       timedOut: false
     };
-    const error: ToolError = { message: 'failed', exitCode: 1 };
-    const format: FormatResult = { success: false, error };
-    const settings: SettingsBase = { enabled: true, any: 'value' };
 
     expect(options.command).toBe('echo');
     expect(result.exitCode).toBe(0);
-    expect(format.error?.message).toBe('failed');
-    expect(settings.enabled).toBe(true);
 
     expectTypeOf(options.args).toEqualTypeOf<string[] | undefined>();
     expectTypeOf(result.timedOut).toEqualTypeOf<boolean>();
-    expectTypeOf(format.success).toEqualTypeOf<boolean>();
   });
 });

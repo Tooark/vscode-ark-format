@@ -30,6 +30,15 @@ state.createOutputChannel.mockImplementation(() => ({
 }));
 
 vi.mock('vscode', () => ({
+  Range: class {
+    constructor (public start: unknown, public end: unknown) { }
+  },
+  TextEdit: {
+    replace: (range: unknown, newText: string) => ({ range, newText })
+  },
+  Position: class {
+    constructor (public line: number, public character: number) { }
+  },
   workspace: {
     getConfiguration: (...args: unknown[]) => state.getConfiguration(...args),
     get workspaceFolders () {

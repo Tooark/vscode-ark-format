@@ -1,0 +1,30 @@
+# Source files
+src/
+**/*.ts
+**/*.map
+
+# Test artifacts
+coverage/
+
+# Samples
+samples/
+
+# Build configuration
+esbuild.mjs
+*.config.ts
+*.config.mjs
+tsconfig.json
+
+# Dependencies & lock files
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+
+# Editor & VCS
+.vscode/
+.git/
+.gitignore
+.editorconfig
+
+# Media files
+media/

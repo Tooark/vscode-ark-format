@@ -1,0 +1,52 @@
+{
+  "description": "Example VS Code settings for ark-format-makefile extension",
+  "comments": "Copy these settings to your .vscode/settings.json file",
+
+  // Enable the formatter for Makefile files
+  "arkFormatMakefile.enabled": true,
+
+  // Language IDs the formatter is active for
+  "arkFormatMakefile.effectLanguages": [
+    "makefile"          // Makefile, GNUmakefile, *.mk
+  ],
+
+  // Apply EditorConfig rules from .editorconfig file
+  "arkFormatMakefile.useEditorConfig": true,
+
+  // Indent conditional bodies (ifeq/ifneq/ifdef/ifndef ... else ... endif)
+  // Always uses spaces: TAB has its own meaning in Makefiles (recipe prefix)
+  "arkFormatMakefile.indentConditionals": true,
+  "arkFormatMakefile.indentSize": 2,
+
+  // Convert recipe lines mistakenly indented with spaces to the TAB prefix
+  // (only when the line cannot be parsed as Makefile syntax)
+  "arkFormatMakefile.normalizeRecipePrefix": true,
+
+  // Vertically align assignment operators within contiguous variable blocks
+  // Off by default: alignment causes diff churn when a longer name is added
+  "arkFormatMakefile.alignAssignments": false,
+
+  // Cleanup options
+  "arkFormatMakefile.lineEnding": "LF",
+  "arkFormatMakefile.trimTrailingWhitespace": true,
+  "arkFormatMakefile.insertFinalNewline": true,
+  "arkFormatMakefile.removeLeadingBlankLines": true,
+  "arkFormatMakefile.maxConsecutiveBlankLines": 1,
+  "arkFormatMakefile.collapseSpaces": true,
+
+  // Spacing rules
+  "arkFormatMakefile.spacing.spaceAroundAssignment": true,
+  "arkFormatMakefile.spacing.spaceAfterTargetColon": true,
+  "arkFormatMakefile.spacing.spaceAfterCommentMarker": true,
+
+  // Range (selection) formatting
+  "arkFormatMakefile.rangeFormatting.enabled": true,
+  "arkFormatMakefile.rangeFormatting.reindent": false,
+  "arkFormatMakefile.rangeFormatting.useDocumentContext": true,
+
+  // Set Ark Format as the default formatter for Makefile files
+  "[makefile]": {
+    "editor.defaultFormatter": "tooark.ark-format-makefile",
+    "editor.formatOnSave": true
+  }
+}

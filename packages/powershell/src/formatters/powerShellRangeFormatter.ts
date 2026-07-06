@@ -1,7 +1,9 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { PowerShellRangeFormatterOptions, QuoteKind } from './types';
+import { buildRangeEdits } from '@tooark/ark-format-shared/edits';
 import { normalizeToLf, trimTrailingWhitespace, reduceBlankLines } from './utils';
-import { applyPowerShellSpacing } from './powerShellSpacing';
+import { alignPowerShellAssignments } from './powerShellAlign';
+import { applyPowerShellSpacing, toPowerShellSpacingConfig } from './powerShellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './powerShellIndent';
 import { getCodePartsOnly, getQuoteModeAfterLine } from './powerShellLex';
 
@@ -22,15 +24,7 @@ export class PowerShellRangeFormatter {
    * @returns Um array de TextEdit contendo as edições necessárias para formatar o intervalo de texto.
    */
   public formatRange (document: vscode.TextDocument, range: vscode.Range): vscode.TextEdit[] {
-    const selected = document.getText(range);
-    const formatted = this.formatSelectedText(selected);
-
-    // Verifica se o texto formatado é igual ao texto selecionado.
-    if (formatted === selected) {
-      return [];
-    }
-
-    return [vscode.TextEdit.replace(range, formatted)];
+    return buildRangeEdits(document, range, (selected) => this.formatSelectedText(selected));
   }
 
   /**
@@ -75,10 +69,7 @@ export class PowerShellRangeFormatter {
         }
 
         // Aplica o espaçamento de acordo com as opções fornecidas.
-        const spaced = applyPowerShellSpacing(trimmedRest, {
-          spaceBeforeFunctionBrace: true,
-          collapseSpaces: this.opts.collapseSpaces ?? true
-        });
+        const spaced = applyPowerShellSpacing(trimmedRest, toPowerShellSpacingConfig(this.opts));
 
         out.push(leading + spaced);
         quoteMode = nextQuoteMode;
@@ -89,7 +80,7 @@ export class PowerShellRangeFormatter {
       lines = trimTrailingWhitespace(lines, this.opts.trimTrailingWhitespace);
       lines = reduceBlankLines(lines, this.opts.maxConsecutiveBlankLines);
 
-      return lines.join('\n');
+      return this.maybeAlignAssignments(lines.join('\n'));
     }
 
     // Cria um estado inicial para o processo de formatação, incorporando o baseIndent calculado do contexto do documento
@@ -123,10 +114,7 @@ export class PowerShellRangeFormatter {
       // Aplica a dedentação antes de processar a linha
       dedentBeforeLine(controlText, st);
 
-      const spaced = applyPowerShellSpacing(lineForFormatting, {
-        spaceBeforeFunctionBrace: true,
-        collapseSpaces: this.opts.collapseSpaces ?? true
-      });
+      const spaced = applyPowerShellSpacing(lineForFormatting, toPowerShellSpacingConfig(this.opts));
 
       // Aplica a indentação de acordo com o estado atual
       const indentStr = indentUnit.repeat(Math.max(0, st.indent));
@@ -142,6 +130,15 @@ export class PowerShellRangeFormatter {
     lines = trimTrailingWhitespace(lines, this.opts.trimTrailingWhitespace);
     lines = reduceBlankLines(lines, this.opts.maxConsecutiveBlankLines);
 
-    return lines.join('\n');
+    return this.maybeAlignAssignments(lines.join('\n'));
+  }
+
+  /**
+   * Função para aplicar o alinhamento vertical de atribuições ao texto formatado, se a opção estiver habilitada.
+   * @param formatted O texto já formatado do intervalo.
+   * @returns O texto com as atribuições alinhadas, se a opção estiver habilitada; caso contrário, o texto original.
+   */
+  private maybeAlignAssignments (formatted: string): string {
+    return this.opts.alignAssignments === true ? alignPowerShellAssignments(formatted) : formatted;
   }
 }

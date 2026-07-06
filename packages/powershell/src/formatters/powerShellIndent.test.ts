@@ -16,13 +16,19 @@ describe('isLineContinuation', () => {
 });
 
 describe('dedentBeforeLine', () => {
-  it('dedents on closing parenthesis of param block', () => {
+  it('dedents on closing parenthesis with pending multiline paren', () => {
     const st = createInitialState();
     st.indent = 1;
-    st.inParamBlock = true;
+    st.parenDepth = 1;
     dedentBeforeLine(')', st);
     expect(st.indent).toBe(0);
-    expect(st.inParamBlock).toBe(false);
+  });
+
+  it('does not dedent on closing parenthesis without pending multiline paren', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    dedentBeforeLine(')', st);
+    expect(st.indent).toBe(1);
   });
 
   it('dedents on closing brace', () => {
@@ -47,6 +53,21 @@ describe('dedentBeforeLine', () => {
 
     dedentBeforeLine('CATCH {', st);
     expect(st.indent).toBe(0);
+  });
+
+  it('não dedenta cláusula em linha própria quando a linha anterior foi um } isolado', () => {
+    const st = createInitialState();
+    st.indent = 2;
+    dedentBeforeLine('}', st);
+    indentAfterLine('}', st);
+    expect(st.indent).toBe(1);
+    expect(st.afterCloseBrace).toBe(true);
+
+    dedentBeforeLine('catch {', st);
+    expect(st.indent).toBe(1);
+    indentAfterLine('catch {', st);
+    expect(st.indent).toBe(2);
+    expect(st.afterCloseBrace).toBe(false);
   });
 
   it('does not dedent on prefix words', () => {
@@ -99,14 +120,44 @@ describe('indentAfterLine', () => {
     const st = createInitialState();
     indentAfterLine('param (', st);
     expect(st.indent).toBe(1);
-    expect(st.inParamBlock).toBe(true);
+    expect(st.parenDepth).toBe(1);
   });
 
   it('does not indent for single-line param declaration', () => {
     const st = createInitialState();
     indentAfterLine('param ([string]$Name)', st);
     expect(st.indent).toBe(0);
-    expect(st.inParamBlock).toBe(false);
+    expect(st.parenDepth).toBe(0);
+  });
+
+  it('indents after multiline array open @(', () => {
+    const st = createInitialState();
+    indentAfterLine('$lista = @(', st);
+    expect(st.indent).toBe(1);
+    expect(st.parenDepth).toBe(1);
+  });
+
+  it('indents after multiline subexpression open $(', () => {
+    const st = createInitialState();
+    indentAfterLine('$x = $(', st);
+    expect(st.indent).toBe(1);
+    expect(st.parenDepth).toBe(1);
+  });
+
+  it('does not indent for single-line array', () => {
+    const st = createInitialState();
+    indentAfterLine("Tags = @('a', 'b')", st);
+    expect(st.indent).toBe(0);
+    expect(st.parenDepth).toBe(0);
+  });
+
+  it('closing parenthesis at line start does not dedent twice (dedent happens before line)', () => {
+    const st = createInitialState();
+    indentAfterLine('$lista = @(', st);
+    dedentBeforeLine(')', st);
+    indentAfterLine(')', st);
+    expect(st.indent).toBe(0);
+    expect(st.parenDepth).toBe(0);
   });
 
   it('indents after opening brace', () => {

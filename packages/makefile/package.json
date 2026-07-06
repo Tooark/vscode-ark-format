@@ -1,0 +1,183 @@
+{
+  "name": "ark-format-makefile",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "1.0.0",
+  "publisher": "tooark",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tooark/vscode-ark-format.git",
+    "directory": "packages/makefile"
+  },
+  "homepage": "https://github.com/Tooark/vscode-ark-format/tree/main/packages/makefile",
+  "bugs": {
+    "url": "https://github.com/Tooark/vscode-ark-format/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "icon": "assets/icon.png",
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "formatter",
+    "makefile",
+    "make",
+    "gnumake",
+    "tooark"
+  ],
+  "activationEvents": [
+    "onLanguage:makefile"
+  ],
+  "l10n": "./l10n",
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "%configuration.title%",
+      "properties": {
+        "arkFormatMakefile.enabled": {
+          "type": "boolean",
+          "default": true,
+          "order": 1,
+          "description": "%config.enabled.description%"
+        },
+        "arkFormatMakefile.effectLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "makefile"
+          ],
+          "order": 2,
+          "description": "%config.effectLanguages.description%"
+        },
+        "arkFormatMakefile.useEditorConfig": {
+          "type": "boolean",
+          "default": false,
+          "order": 3,
+          "description": "%config.useEditorConfig.description%"
+        },
+        "arkFormatMakefile.indentConditionals": {
+          "type": "boolean",
+          "default": true,
+          "order": 10,
+          "description": "%config.indentConditionals.description%"
+        },
+        "arkFormatMakefile.normalizeRecipePrefix": {
+          "type": "boolean",
+          "default": true,
+          "order": 11,
+          "description": "%config.normalizeRecipePrefix.description%"
+        },
+        "arkFormatMakefile.alignAssignments": {
+          "type": "boolean",
+          "default": false,
+          "order": 12,
+          "description": "%config.alignAssignments.description%"
+        },
+        "arkFormatMakefile.indentSize": {
+          "type": "number",
+          "default": 2,
+          "minimum": 0,
+          "order": 21,
+          "description": "%config.indentSize.description%"
+        },
+        "arkFormatMakefile.lineEnding": {
+          "type": "string",
+          "default": "LF",
+          "enum": [
+            "LF",
+            "CRLF",
+            "Auto"
+          ],
+          "order": 22,
+          "description": "%config.lineEnding.description%"
+        },
+        "arkFormatMakefile.trimTrailingWhitespace": {
+          "type": "boolean",
+          "default": true,
+          "order": 23,
+          "description": "%config.trimTrailingWhitespace.description%"
+        },
+        "arkFormatMakefile.maxConsecutiveBlankLines": {
+          "type": "number",
+          "default": 1,
+          "minimum": 0,
+          "order": 24,
+          "description": "%config.maxConsecutiveBlankLines.description%"
+        },
+        "arkFormatMakefile.removeLeadingBlankLines": {
+          "type": "boolean",
+          "default": true,
+          "order": 25,
+          "description": "%config.removeLeadingBlankLines.description%"
+        },
+        "arkFormatMakefile.insertFinalNewline": {
+          "type": "boolean",
+          "default": true,
+          "order": 26,
+          "description": "%config.insertFinalNewline.description%"
+        },
+        "arkFormatMakefile.collapseSpaces": {
+          "type": "boolean",
+          "default": true,
+          "order": 27,
+          "description": "%config.collapseSpaces.description%"
+        },
+        "arkFormatMakefile.spacing.spaceAroundAssignment": {
+          "type": "boolean",
+          "default": true,
+          "order": 30,
+          "description": "%config.spacing.spaceAroundAssignment.description%"
+        },
+        "arkFormatMakefile.spacing.spaceAfterTargetColon": {
+          "type": "boolean",
+          "default": true,
+          "order": 31,
+          "description": "%config.spacing.spaceAfterTargetColon.description%"
+        },
+        "arkFormatMakefile.spacing.spaceAfterCommentMarker": {
+          "type": "boolean",
+          "default": true,
+          "order": 32,
+          "description": "%config.spacing.spaceAfterCommentMarker.description%"
+        },
+        "arkFormatMakefile.rangeFormatting.enabled": {
+          "type": "boolean",
+          "default": true,
+          "order": 40,
+          "description": "%config.rangeFormatting.enabled.description%"
+        },
+        "arkFormatMakefile.rangeFormatting.reindent": {
+          "type": "boolean",
+          "default": false,
+          "order": 41,
+          "description": "%config.rangeFormatting.reindent.description%"
+        },
+        "arkFormatMakefile.rangeFormatting.useDocumentContext": {
+          "type": "boolean",
+          "default": true,
+          "order": 42,
+          "description": "%config.rangeFormatting.useDocumentContext.description%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs --production",
+    "watch": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs --watch",
+    "compile": "pnpm --filter @tooark/ark-format-shared build && node ./esbuild.mjs",
+    "lint": "pnpm exec eslint src",
+    "vscode:prepublish": "pnpm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "pnpm exec vsce package --no-dependencies",
+    "publish": "pnpm exec vsce publish --no-dependencies"
+  },
+  "dependencies": {
+    "@tooark/ark-format-shared": "workspace:*"
+  }
+}

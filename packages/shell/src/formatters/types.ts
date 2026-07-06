@@ -1,13 +1,8 @@
 import type { FormatterOptions } from '@tooark/ark-format-shared/types';
 export type {
-  EditorConfigProperties,
-  ExecResult,
-  FormatResult,
   IndentStyle,
   LineEnding,
-  ShellLanguageId,
-  SettingsBase,
-  ToolError
+  ShellLanguageId
 } from '@tooark/ark-format-shared/types';
 
 export { SHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from '@tooark/ark-format-shared/types';
@@ -74,16 +69,11 @@ export interface ShellRangeFormatterOptions extends ShellFormatterOptions {
 }
 
 /**
- * Interface para configurações de espaçamento para o formatador de shell. Permite configurar:
- * - `spaceBeforeThenDo`: Se deve adicionar um espaço antes de `then` e `do` em comandos como `if` e `while`.
- * - `spaceAfterKeywords`: Se deve adicionar um espaço após palavras-chave como `if`, `while`, `until` antes de colchetes ou parênteses.
- * - `spaceBeforeFunctionBrace`: Se deve adicionar um espaço antes da chave de abertura em definições de função.
+ * Interface para a configuração de espaçamento efetiva aplicada a uma linha.
+ * Estende as opções de espaçamento (`SpacingOptions`) com:
  * - `collapseSpaces`: Se deve colapsar múltiplos espaços em um único espaço, exceto para espaços iniciais (indentação) e espaços em comentários.
  */
-export interface ShellSpacingConfig {
-  spaceBeforeThenDo: boolean;
-  spaceAfterKeywords: boolean;
-  spaceBeforeFunctionBrace: boolean;
+export interface ShellSpacingConfig extends SpacingOptions {
   collapseSpaces: boolean;
 }
 

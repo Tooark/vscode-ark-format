@@ -2,7 +2,7 @@
   "name": "ark-format",
   "displayName": "%displayName%",
   "description": "%description%",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "publisher": "tooark",
   "license": "MIT",
   "repository": {
@@ -24,12 +24,14 @@
   ],
   "extensionPack": [
     "tooark.ark-format-shell",
-    "tooark.ark-format-powershell"
+    "tooark.ark-format-powershell",
+    "tooark.ark-format-makefile"
   ],
   "keywords": [
     "formatter",
     "powershell",
     "shell",
+    "makefile",
     "tooark"
   ],
   "scripts": {

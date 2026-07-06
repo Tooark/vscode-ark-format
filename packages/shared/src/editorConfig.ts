@@ -7,7 +7,7 @@ import { EditorConfigProperties, FormatterOptions, LineEnding } from './types';
  * Percorre os diretórios de baixo para cima procurando por arquivos `.editorconfig` e mesclando
  * as propriedades encontradas. Suporta globs simples para determinar se as seções do EditorConfig
  * se aplicam ao arquivo.
- * Suporta globs simples: `*`, `[ext]` e `[ext1|ext2]` (sem negação avançada). * 
+ * Suporta globs simples: `*`, `?` e alternação `{ext1,ext2}` (sem negação avançada; colchetes são tratados literalmente).
  * @param filePath Caminho absoluto do arquivo para o qual as configurações do EditorConfig devem ser lidas.
  * @returns Um objeto contendo as propriedades do EditorConfig que se aplicam ao arquivo.
  */
@@ -93,16 +93,6 @@ export function applyEditorConfigOverrides<T extends FormatterOptions> (baseOpts
     opts.trimTrailingWhitespace = ecProps.trim_trailing_whitespace;
   }
 
-  // Verifica se a propriedade max_consecutive_blank_lines está definida para aplicar a configuração de redução de linhas em branco consecutivas
-  if (ecProps.max_consecutive_blank_lines !== undefined) {
-    opts.maxConsecutiveBlankLines = ecProps.max_consecutive_blank_lines;
-  }
-
-  // Verifica se a propriedade remove_leading_blank_lines está definida para aplicar a configuração de remoção de linhas em branco no início do arquivo
-  if (ecProps.remove_leading_blank_lines !== undefined) {
-    opts.removeLeadingBlankLines = ecProps.remove_leading_blank_lines;
-  }
-
   // Verifica se a propriedade insert_final_newline está definida para aplicar a configuração de inserção de nova linha no final do arquivo
   if (ecProps.insert_final_newline !== undefined) {
     opts.insertFinalNewline = ecProps.insert_final_newline;
@@ -112,11 +102,6 @@ export function applyEditorConfigOverrides<T extends FormatterOptions> (baseOpts
   if (ecProps.end_of_line !== undefined) {
     const map: Record<string, LineEnding> = { lf: 'LF', crlf: 'CRLF', cr: 'LF' };
     opts.lineEnding = map[ecProps.end_of_line] ?? opts.lineEnding;
-  }
-
-  // Verifica se a propriedade collapse_spaces está definida para aplicar a configuração de colapsar múltiplos espaços em um único espaço
-  if (ecProps.collapse_spaces !== undefined) {
-    opts.collapseSpaces = ecProps.collapse_spaces;
   }
 
   return opts;
@@ -217,7 +202,7 @@ export function parseEditorConfigContent (content: string, fileName: string): { 
 
 /**
  * Função para verificar se um nome de arquivo corresponde a um glob simplificado de editorconfig.
- * Suporta `*`, `*.ext`, `{ext1,ext2}`, `[ext]` simples.
+ * Suporta `*`, `?`, `*.ext` e alternação `{ext1,ext2}`. Colchetes (`[...]`) são tratados como caracteres literais.
  * @param pattern O padrão glob do EditorConfig.
  * @param fileName O nome do arquivo a ser verificado.
  * @returns Verdadeiro se o nome do arquivo corresponder ao padrão, falso caso contrário.

@@ -118,6 +118,40 @@ describe('ShellRangeFormatter with baseIndent (Feature 5)', () => {
   });
 });
 
+describe('ShellRangeFormatter multiline strings and heredocs', () => {
+  it('preserves multiline string content when reindenting', () => {
+    const input = 'msg="line one\n  raw   content\nlast line"\necho done';
+    const result = formatRange(input, { reindent: true, baseIndent: 0 });
+    const lines = result.split('\n');
+    expect(lines[0]).toBe('msg="line one');
+    expect(lines[1]).toBe('  raw   content');
+    expect(lines[2]).toBe('last line"');
+    expect(lines[3]).toBe('echo done');
+  });
+
+  it('does not let keywords inside multiline strings affect indentation', () => {
+    const input = 'cmd="line1\ndo\n"\necho next';
+    const result = formatRange(input, { reindent: true, baseIndent: 0 });
+    const lines = result.split('\n');
+    expect(lines[1]).toBe('do');
+    expect(lines[3]).toBe('echo next');
+  });
+
+  it('does not apply spacing inside multiline strings when reindent is false', () => {
+    const input = 'msg="a\ncmd  x\nb"';
+    const result = formatRange(input, { reindent: false });
+    expect(result.split('\n')[1]).toBe('cmd  x');
+  });
+
+  it('preserves heredoc content when reindent is false', () => {
+    const input = 'cat <<EOF\n  spaced   body\nEOF\necho  done';
+    const result = formatRange(input, { reindent: false });
+    const lines = result.split('\n');
+    expect(lines[1]).toBe('  spaced   body');
+    expect(lines[3]).toBe('echo done');
+  });
+});
+
 describe('ShellRangeFormatter.formatRange', () => {
   it('returns edits when formatting changes the selection', () => {
     const formatter = new ShellRangeFormatter(defaultOpts);

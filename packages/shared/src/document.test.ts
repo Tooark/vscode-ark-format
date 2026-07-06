@@ -1,12 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   applyLineEnding,
-  detectIndent,
   ensureFinalNewline,
   formatTextGeneric,
   getMinimumLeadingWhitespace,
   normalizeToLf,
-  parseRange,
   reduceBlankLines,
   removeLeadingBlankLines,
   trimTrailingWhitespace,
@@ -24,16 +22,6 @@ describe('document helpers', () => {
     expect(applyLineEnding('a\nb', 'CRLF', 'a\nb')).toBe('a\r\nb');
     expect(applyLineEnding('a\nb', 'Auto', 'a\r\nb')).toBe('a\r\nb');
     expect(applyLineEnding('a\nb', 'Auto', 'a\rb')).toBe('a\nb');
-  });
-
-  it('detectIndent detects tabs and smallest space indentation', () => {
-    expect(detectIndent('\tfoo\n\tbar\n  baz')).toEqual({ useTabs: true, size: 1 });
-    expect(detectIndent('    one\n  two\nno-indent')).toEqual({ useTabs: false, size: 2 });
-    expect(detectIndent('plain\ntext')).toEqual({ useTabs: false, size: 2 });
-  });
-
-  it('detectIndent skips blank lines and whitespace-only lines', () => {
-    expect(detectIndent('  foo\n\n  \n  bar')).toEqual({ useTabs: false, size: 2 });
   });
 
   it('trimTrailingWhitespace removes trailing spaces when enabled', () => {
@@ -57,28 +45,6 @@ describe('document helpers', () => {
     expect(ensureFinalNewline('a', false)).toBe('a');
   });
 
-  it('parseRange returns full range by default and requested range when provided', () => {
-    const text = 'hello world';
-    const document = {
-      getText: (range?: { start: number; end: number }) => {
-        if (!range) {
-          return text;
-        }
-
-        return text.slice(range.start, range.end);
-      },
-      positionAt: (offset: number) => offset
-    } as any;
-
-    const full = parseRange(document);
-    expect(full.range).toEqual({ start: 0, end: 11 });
-    expect(full.text).toBe('hello world');
-
-    const partialRange = { start: 1, end: 5 } as any;
-    const partial = parseRange(document, partialRange);
-    expect(partial.range).toBe(partialRange);
-    expect(partial.text).toBe('ello');
-  });
 });
 
 describe('getMinimumLeadingWhitespace', () => {

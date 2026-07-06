@@ -1,6 +1,6 @@
 {
   "name": "vscode-ark-format",
-  "description": "Monorepo das extensões VS Code Ark Format (Shell e PowerShell).",
+  "description": "Monorepo das extensões VS Code Ark Format (Shell, PowerShell e Makefile).",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
     "watch": "pnpm -r --parallel --if-present watch",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "pnpm -r --parallel --if-present test:watch",
     "package": "pnpm -r --if-present package"
   },

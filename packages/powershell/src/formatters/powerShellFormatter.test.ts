@@ -108,6 +108,179 @@ describe('PowerShellFormatter.formatText', () => {
     ].join('\n'));
   });
 
+  it('não dedenta duas vezes catch/finally em linha própria após } isolado', () => {
+    const input = [
+      'function Invoke-X {',
+      '  try {',
+      '    $a = 1',
+      '  }',
+      'catch {',
+      '  Write-Warning "x"',
+      '}',
+      'finally {',
+      '  Write-Host "y"',
+      '}',
+      '}',
+      ''
+    ].join('\n');
+
+    const expected = [
+      'function Invoke-X {',
+      '  try {',
+      '    $a = 1',
+      '  }',
+      '  catch {',
+      '    Write-Warning "x"',
+      '  }',
+      '  finally {',
+      '    Write-Host "y"',
+      '  }',
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+    expect(format(result)).toBe(expected);
+  });
+
+  it('não dedenta duas vezes else em linha própria após } isolado', () => {
+    const input = [
+      'if ($x) {',
+      '  Write-Host "a"',
+      '}',
+      'else {',
+      '  Write-Host "b"',
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(input);
+  });
+
+  it('indenta conteúdo de array @( ) multilinha dentro de hashtable', () => {
+    const input = [
+      '@{',
+      '  FunctionsToExport = @(',
+      "  'Get-EnvironmentInfo'",
+      "  'Invoke-Backup'",
+      '  )',
+      '}',
+      ''
+    ].join('\n');
+
+    const expected = [
+      '@{',
+      '  FunctionsToExport = @(',
+      "    'Get-EnvironmentInfo'",
+      "    'Invoke-Backup'",
+      '  )',
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+    expect(format(result)).toBe(expected);
+  });
+
+  it('indenta conteúdo de array @( ) multilinha no nível raiz', () => {
+    const input = [
+      '$lista = @(',
+      "'item1'",
+      "'item2'",
+      ')',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      '$lista = @(',
+      "  'item1'",
+      "  'item2'",
+      ')',
+      ''
+    ].join('\n'));
+  });
+
+  it('indenta hashtable dentro de array multilinha acumulando níveis', () => {
+    const input = [
+      '$itens = @(',
+      '@{',
+      "Nome = 'a'",
+      'Valor = 1',
+      '}',
+      '@{',
+      "Nome = 'b'",
+      'Valor = 2',
+      '}',
+      ')',
+      ''
+    ].join('\n');
+
+    const expected = [
+      '$itens = @(',
+      '  @{',
+      "    Nome = 'a'",
+      '    Valor = 1',
+      '  }',
+      '  @{',
+      "    Nome = 'b'",
+      '    Valor = 2',
+      '  }',
+      ')',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(expected);
+    expect(format(result)).toBe(expected);
+  });
+
+  it('indenta subexpressão $( ) e chamada com argumentos quebrados em várias linhas', () => {
+    const input = [
+      '$x = $(',
+      'Get-Date',
+      ')',
+      'Write-Host (',
+      '"a"',
+      ')',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      '$x = $(',
+      '  Get-Date',
+      ')',
+      'Write-Host (',
+      '  "a"',
+      ')',
+      ''
+    ].join('\n'));
+  });
+
+  it('não altera array @( ) em linha única', () => {
+    const input = "$tags = @('a', 'b')\n";
+
+    expect(format(input)).toBe(input);
+  });
+
+  it('preserva here-string contendo @( e ) no texto', () => {
+    const input = [
+      '$texto = @"',
+      'exemplo com @(',
+      'e fechamento )',
+      '"@',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe(input);
+    expect(format(result)).toBe(input);
+  });
+
   it('preserva conteúdo de here-string', () => {
     const input = [
       '$text = @"',

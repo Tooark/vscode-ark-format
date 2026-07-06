@@ -2,6 +2,17 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.11 - 2026-07-05
+
+- Correção na formatação de seleção (range formatting): strings multilinha passam a ser rastreadas como no formatador de documento — o conteúdo literal é preservado sem reprocessamento e palavras-chave dentro de strings (ex.: `do`, `then`) não alteram mais a indentação das linhas seguintes.
+- Correção na formatação de seleção: conteúdo de heredocs preservado também no modo sem reindentação (antes sofria colapso de espaços).
+- Correção no cálculo do nível base de contexto (`rangeFormatting.useDocumentContext`): as linhas anteriores à seleção passam a ser analisadas apenas pelas partes de código, ignorando conteúdo de strings.
+- Refatoração interna sem mudança de comportamento: helpers de edição e espaçamento promovidos ao pacote compartilhado (`@tooark/ark-format-shared/edits` e `/spacing`) e remoção de código sem uso.
+- Novos testes: regressões da formatação de seleção e testes da camada de extensão (ativação, providers, engine `shfmt` e proteção de `shfmt.path`/`shfmt.flags` contra escopos de workspace).
+- Seção de apoio (Support) adicionada aos READMEs (EN/PT-BR).
+- Versão do pacote atualizada de `1.0.10` para `1.0.11`.
+- Detalhes: [notes/shell1.0.11.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.11.md)
+
 ## 1.0.10 - 2026-07-05
 
 - Versão do pacote atualizada de `1.0.9` para `1.0.10`.

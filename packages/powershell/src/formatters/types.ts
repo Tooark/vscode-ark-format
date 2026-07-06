@@ -1,13 +1,8 @@
 import type { FormatterOptions } from '@tooark/ark-format-shared/types';
 export type {
-  EditorConfigProperties,
-  ExecResult,
-  FormatResult,
   IndentStyle,
   LineEnding,
-  PowerShellLanguageId,
-  SettingsBase,
-  ToolError
+  PowerShellLanguageId
 } from '@tooark/ark-format-shared/types';
 
 export { POWERSHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from '@tooark/ark-format-shared/types';
@@ -33,13 +28,18 @@ export type QuoteKind =
 
 /**
  * Estado de indentação para o formatador PowerShell.
+ * - `parenDepth`: Profundidade de parênteses multilinha pendentes (`(`, `@(`, `$(`, `param (`),
+ *   usada para indentar o conteúdo interno e alinhar o `)` de fechamento com a linha que abriu.
+ * - `afterCloseBrace`: Indica se a última linha de código foi um `}` isolado (que já dedentou),
+ *   evitando que uma cláusula `else`/`elseif`/`catch`/`finally` em linha própria dedentar de novo.
  */
 export interface IndentState {
   indent: number;
   inHeredoc: boolean;
   heredocEnd: string;
   continuation: boolean;
-  inParamBlock: boolean;
+  parenDepth: number;
+  afterCloseBrace: boolean;
 }
 
 /**
@@ -47,9 +47,13 @@ export interface IndentState {
  * Estende as opções gerais de formatação (`FormatterOptions`).
  * - `formatBlockComments`: Se habilitado, reindenta o conteúdo de blocos de comentário (`<# ... #>`)
  *   usando o tamanho de indentação configurado; caso contrário, preserva o bloco sem alterações.
+ * - `alignAssignments`: Se habilitado, alinha verticalmente os operadores de atribuição em blocos
+ *   contíguos de variáveis (`$var = ...`) e entradas de hashtable (`Chave = valor`).
+ *   Desligado por padrão: o alinhamento gera ruído de diff quando um nome mais longo é adicionado ao bloco.
  */
 export interface PowerShellFormatterOptions extends FormatterOptions {
   formatBlockComments?: boolean;
+  alignAssignments?: boolean;
 }
 
 /**

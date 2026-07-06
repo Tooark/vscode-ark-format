@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão documentadas aqui.
 
+## 1.1.0 - 2026-07-05
+
+- Versão do pacote atualizada de `1.0.9` para `1.1.0`.
+- Inclusão da extensão `tooark.ark-format-makefile` (versão inicial `1.0.0`) no extension pack.
+- O pack agora instala os formatadores de Shell, PowerShell e Makefile em conjunto.
+- Atualização de READMEs (EN/PT-BR) e keywords para refletir o suporte a Makefile.
+- Seção de apoio (Support) adicionada aos READMEs (EN/PT-BR).
+- Detalhes: [notes/pack1.1.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.0.md)
+
 ## 1.0.9 - 2026-06-27
 
 - Versão do pacote atualizada de `1.0.8` para `1.0.9`.
@@ -13,8 +22,8 @@ Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão doc
 
 - Versão do pacote atualizada de `1.0.7` para `1.0.8`.
 - Alinhamento do extension pack com a release de manutenção dos formatadores:
-	- Shell com correções de `fi` inline e `case` aninhado.
-	- PowerShell com reforço de cobertura de regressão para cenários análogos.
+  - Shell com correções de `fi` inline e `case` aninhado.
+  - PowerShell com reforço de cobertura de regressão para cenários análogos.
 - Sem mudanças funcionais adicionais no extension pack além do alinhamento de release.
 - Detalhes: [notes/pack1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.8.md)
 
@@ -41,6 +50,7 @@ Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão doc
 - Detalhes: [notes/pack1.0.5.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.5.md)
 
 ## 1.0.4 - 2026-05-23
+
 - Alinhamento da versão do extension pack com as releases de Shell e PowerShell.
 - Atualização de dependência do workspace (`qs` para `6.15.2`).
 - Versão do pacote atualizada de `1.0.3` para `1.0.4`.

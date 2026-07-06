@@ -1,23 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { isWindows } from './path';
-import { execProcess, quoteCliArg, splitCommandLine } from './process';
+import { execProcess, splitCommandLine } from './process';
 
 describe('process helpers', () => {
   it('splitCommandLine handles spaces, quotes and escapes', () => {
     const input = 'cmd "arg one" \'arg two\' a\\ b';
 
     expect(splitCommandLine(input)).toEqual(['cmd', 'arg one', 'arg two', 'a b']);
-  });
-
-  it('quoteCliArg keeps simple args and escapes quoted args', () => {
-    expect(quoteCliArg('abc')).toBe('abc');
-    expect(quoteCliArg('')).toBe('""');
-
-    if (isWindows) {
-      expect(quoteCliArg('a "b" c')).toBe('"a \\"b\\" c"');
-    } else {
-      expect(quoteCliArg("a 'b' c")).toBe("'a '\\''b'\\'' c'");
-    }
   });
 
   it('execProcess captures stdout, stderr and exit code', async () => {

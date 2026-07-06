@@ -2,6 +2,24 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.2.0 - 2026-07-05
+
+- Nova opção `arkFormatPowerShell.alignAssignments` (padrão `false`) para alinhamento vertical dos operadores de atribuição (`=`, `+=`, `-=`, `*=`, `/=`, `%=`, `??=`) em blocos contíguos de atribuições de variáveis (`$var = ...`) e entradas de hashtable (`Chave = valor`).
+  - Alinhamento pelo caractere `=` final do operador, calculado por linha (a linha mais larga define a coluna do bloco).
+  - Blocos encerram em linha em branco, comentário ou outra instrução; níveis de indentação diferentes alinham separadamente.
+  - Conteúdo de here-strings (`@' '@`, `@" "@`) e blocos de comentário (`<# #>`) nunca é alterado; continuações com crase/pipe não quebram o bloco.
+  - Compatível com todos os fins de linha (`LF`, `CRLF` e `Auto`), preservando o fim de linha configurado.
+  - Desligado (padrão), o `collapseSpaces` normaliza alinhamentos existentes para 1 espaço.
+- Correção de indentação: cláusulas `else`/`elseif`/`catch`/`finally` em linha própria (após um `}` isolado) não são mais dedentadas duas vezes; passam a alinhar no mesmo nível do bloco anterior, como no estilo `} catch {`.
+- Correção de indentação: conteúdo de parênteses multilinha (`@(...)`, `$(...)`, `(...)` de chamadas com argumentos quebrados) passa a receber um nível de indentação, com o `)` de fechamento alinhado à linha que abriu; aninhamentos (array em hashtable, hashtable em array) acumulam níveis corretamente. Arrays em linha única e conteúdo de here-strings permanecem intocados.
+- Limpeza de localização: remoção da chave não utilizada `ark.incompatible.flag` dos bundles l10n (EN e pt-BR); ela só é consumida pelo formatador de Shell (shfmt).
+- Motor de alinhamento promovido ao pacote compartilhado (`@tooark/ark-format-shared/align`), reutilizado pelos formatadores de Makefile e PowerShell.
+- Refatoração interna sem mudança de comportamento: helpers de edição e espaçamento promovidos ao pacote compartilhado (`@tooark/ark-format-shared/edits` e `/spacing`), remoção de código sem uso (coleção de diagnósticos inerte e re-exports órfãos) e guards do provider de intervalo alinhados ao padrão das demais extensões.
+- Novos testes da camada de extensão: ativação, providers de documento/intervalo (padrão `CRLF`), reindentação de seleção com contexto e here-strings ignoradas no cálculo do contexto.
+- Seção de apoio (Support) adicionada aos READMEs (EN/PT-BR).
+- Versão do pacote atualizada de `1.1.0` para `1.2.0`.
+- Detalhes: [notes/powershell1.2.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.0.md)
+
 ## 1.1.0 - 2026-06-27
 
 - Nova opção `arkFormatPowerShell.formatBlockComments` (padrão `false`) para controlar a formatação de comentários de bloco (`<# ... #>`).

@@ -5,19 +5,13 @@ import { createInitialState, dedentBeforeLine, indentAfterLine } from './formatt
 import { getCodePartsOnly, getQuoteModeAfterLine, isShebang, isFullLineComment } from './formatters/powerShellLex';
 import { PowerShellRangeFormatter } from './formatters/powerShellRangeFormatter';
 import { POWERSHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from './formatters/types';
-import { IndentStyle, LineEnding, PowerShellFormatterOptions, PowerShellLanguageId, QuoteKind } from './formatters/types';
-
-/** DiagnosticCollection compartilhada para erros de formatação */
-let diagnosticCollection: vscode.DiagnosticCollection;
+import type { IndentStyle, LineEnding, PowerShellFormatterOptions, PowerShellLanguageId, QuoteKind } from './formatters/types';
 
 /**
  * Função de ativação da extensão. Registra os provedores de formatação para documentos e intervalos.
  * @param context O contexto de extensão fornecido pelo VS Code, usado para registrar os provedores e gerenciar suas assinaturas.
  */
 export function activate (context: vscode.ExtensionContext) {
-  diagnosticCollection = vscode.languages.createDiagnosticCollection('ark-format-powershell');
-  context.subscriptions.push(diagnosticCollection);
-
   // Escopo de linguagens configurável
   const config = getConfig('arkFormatPowerShell');
   const effectLanguages = config.get<PowerShellLanguageId[]>(formatterConfigKeys.effectLanguages) ?? [...POWERSHELL_LANGUAGE_IDS];
@@ -47,16 +41,19 @@ export function activate (context: vscode.ExtensionContext) {
         return [];
       }
 
+      // Constrói as opções do formatador interno a partir da configuração do VS Code e do EditorConfig
       let formatterOptions = buildFormatterOptions(cfg, options);
 
+      // Suporte EditorConfig
       if (cfg.get<boolean>(formatterConfigKeys.useEditorConfig) === true && document.uri.scheme === 'file') {
         const ecProps = parseEditorConfig(document.uri.fsPath);
         formatterOptions = applyEditorConfigOverrides(formatterOptions, ecProps);
       }
 
+      // Cria o formatador interno com as opções construídas
       const formatter = new PowerShellFormatter(formatterOptions);
-      diagnosticCollection.delete(document.uri);
 
+      // Formata o documento usando o formatador interno e retorna as edições necessárias
       return formatter.formatDocument(document);
     }
   });
@@ -69,14 +66,11 @@ export function activate (context: vscode.ExtensionContext) {
       options: vscode.FormattingOptions,
       token: vscode.CancellationToken
     ): vscode.ProviderResult<vscode.TextEdit[]> {
-      // Verifica se a operação de formatação foi cancelada
-      if (token.isCancellationRequested) {
-        return [];
-      }
-
-      // Obter configurações
+      // Carrega a configuração para a extensão
       const cfg = getConfig('arkFormatPowerShell');
-      if (!cfg.get<boolean>(formatterConfigKeys.enabled, true)) {
+
+      // Verifica se a formatação está habilitada globalmente
+      if (cfg.get<boolean>(formatterConfigKeys.enabled) === false) {
         return [];
       }
 
@@ -85,18 +79,27 @@ export function activate (context: vscode.ExtensionContext) {
         return [];
       }
 
+      // Verifica se a operação de formatação foi cancelada
+      if (token.isCancellationRequested) {
+        return [];
+      }
+
       const reindent = cfg.get<boolean>(formatterConfigKeys.rangeFormattingReindent) ?? false;
       const useDocumentContext = cfg.get<boolean>(formatterConfigKeys.rangeFormattingUseDocumentContext) ?? true;
 
-      // Construir opções de formatação, aplicando EditorConfig se configurado
+      // Constrói as opções do formatador interno a partir da configuração do VS Code e do EditorConfig
       let formatterOptions = buildFormatterOptions(cfg, options);
+
+      // Verifica se o uso do EditorConfig está habilitado e se o documento é um arquivo
       if (cfg.get<boolean>(formatterConfigKeys.useEditorConfig) === true && document.uri.scheme === 'file') {
         const ecProps = parseEditorConfig(document.uri.fsPath);
         formatterOptions = applyEditorConfigOverrides(formatterOptions, ecProps);
       }
 
+      // Calcula baseIndent (profundidade de condicionais) a partir das linhas anteriores à seleção
       const baseIndent = reindent && useDocumentContext ? computeBaseIndent(document, range.start.line) : 0;
 
+      // Cria o formatador de intervalo com as opções construídas, incluindo baseIndent
       const formatter = new PowerShellRangeFormatter({
         ...formatterOptions,
         removeLeadingBlankLines: false,
@@ -110,6 +113,7 @@ export function activate (context: vscode.ExtensionContext) {
     }
   });
 
+  // Adiciona os provedores de formatação às assinaturas do contexto para gerenciamento de ciclo de vida
   context.subscriptions.push(docProvider, rangeProvider);
 }
 
@@ -130,7 +134,8 @@ function buildFormatterOptions (cfg: vscode.WorkspaceConfiguration, editorOption
     removeLeadingBlankLines: cfg.get<boolean>(formatterConfigKeys.removeLeadingBlankLines) ?? true,
     insertFinalNewline: cfg.get<boolean>(formatterConfigKeys.insertFinalNewline) ?? true,
     collapseSpaces: cfg.get<boolean>(formatterConfigKeys.collapseSpaces) ?? true,
-    formatBlockComments: cfg.get<boolean>(powerShellConfigKeys.formatBlockComments) ?? false
+    formatBlockComments: cfg.get<boolean>(powerShellConfigKeys.formatBlockComments) ?? false,
+    alignAssignments: cfg.get<boolean>(powerShellConfigKeys.alignAssignments) ?? false
   };
 }
 

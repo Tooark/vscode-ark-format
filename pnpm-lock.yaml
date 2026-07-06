@@ -47,6 +47,12 @@ importers:
         specifier: ^4.1.7
         version: 4.1.9(@types/node@20.19.43)(@vitest/coverage-v8@4.1.9)(vite@8.1.0(@types/node@20.19.43)(esbuild@0.28.1))
 
+  packages/makefile:
+    dependencies:
+      '@tooark/ark-format-shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/pack: {}
 
   packages/powershell:

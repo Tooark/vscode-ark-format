@@ -21,3 +21,6 @@ coverage/
 # OS artifacts
 .DS_Store
 *.log
+
+# Other
+.claude/

@@ -1,4 +1,3 @@
-import type * as vscode from 'vscode';
 import { ContinuationIndentState, FormatterOptions, FormatTextGenericParams, FormatTextState, LineEnding } from './types';
 
 const CR_RE = /\r/g;
@@ -115,76 +114,6 @@ export function ensureFinalNewline (text: string, enabled = true): string {
   }
 
   return text.endsWith('\n') ? text : `${text}\n`;
-}
-
-/**
- * Função para detectar o estilo de indentação (tabs ou espaços) e o tamanho da indentação em um texto.
- * @param text O texto a ser analisado para detectar o estilo de indentação.
- * @returns Um objeto contendo uma propriedade useTabs (boolean) indicando se o estilo de indentação é tabs,
- * e uma propriedade size (number) indicando o tamanho da indentação em espaços (ou 1 se for tabs).
- */
-export function detectIndent (text: string): { useTabs: boolean; size: number } {
-  const lines = normalizeToLf(text).split('\n');
-  let tabIndented = 0;
-  const spacedIndents: number[] = [];
-
-  // Itera sobre cada linha do texto para detectar o estilo de indentação.
-  for (const line of lines) {
-    // Verifica se a linha é vazia ou contém apenas espaços em branco.
-    if (line.trim().length === 0) {
-      continue;
-    }
-
-    const match = /^(\s+)/.exec(line);
-
-    // Verifica se a linha tem indentação (espaços ou tabs) e, se tiver, determina o tipo de indentação.
-    if (!match) {
-      continue;
-    }
-
-    const indent = match[1];
-
-    // Verifica se a linha contém tabs na indentação.
-    if (indent.includes('\t')) {
-      tabIndented++;
-
-      continue;
-    }
-
-    spacedIndents.push(indent.length);
-  }
-
-  // Verifica se o número de linhas com indentação por tabs é maior do que o número de linhas com indentação por espaços.
-  if (tabIndented > spacedIndents.length) {
-    return { useTabs: true, size: 1 };
-  }
-
-  // Calcula o menor tamanho de indentação em espaços encontrado nas linhas do texto.
-  const size = spacedIndents
-    .filter(value => value > 0)
-    .reduce((smallest, value) => {
-      return smallest === 0 ? value : Math.min(smallest, value);
-    }, 0);
-
-  return { useTabs: false, size: size || 2 };
-}
-
-/**
- * Função para obter o texto de um documento do VS Code com base em um intervalo opcional, retornando o intervalo efetivo e o texto correspondente.
- * @param document O documento do VS Code do qual o texto deve ser obtido.
- * @param range Um intervalo opcional que especifica a parte do documento a ser obtida. Se não for fornecido, o intervalo abrangerá todo o documento.
- * @returns Um objeto contendo o intervalo efetivo e o texto correspondente ao intervalo no documento.
- */
-export function parseRange (document: vscode.TextDocument, range?: vscode.Range): { range: vscode.Range; text: string } {
-  const effectiveRange = range ?? ({
-    start: document.positionAt(0),
-    end: document.positionAt(document.getText().length)
-  } as vscode.Range);
-
-  return {
-    range: effectiveRange,
-    text: document.getText(effectiveRange)
-  };
 }
 
 /**

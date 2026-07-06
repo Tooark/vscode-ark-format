@@ -1,4 +1,4 @@
 {
   "displayName": "Ark Format",
-  "description": "Extension pack for Ark Format family"
+  "description": "Ark Format extension pack that bundles Shell, PowerShell, and Makefile formatters for VS Code"
 }

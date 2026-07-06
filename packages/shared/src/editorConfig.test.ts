@@ -174,21 +174,6 @@ describe('applyEditorConfigOverrides', () => {
     expect(baseOpts.indentSize).toBe(2);
   });
 
-  it('overrides maxConsecutiveBlankLines', () => {
-    const result = applyEditorConfigOverrides(baseOpts, { max_consecutive_blank_lines: 3 });
-    expect(result.maxConsecutiveBlankLines).toBe(3);
-  });
-
-  it('overrides removeLeadingBlankLines', () => {
-    const result = applyEditorConfigOverrides(baseOpts, { remove_leading_blank_lines: false });
-    expect(result.removeLeadingBlankLines).toBe(false);
-  });
-
-  it('overrides collapseSpaces', () => {
-    const result = applyEditorConfigOverrides(baseOpts, { collapse_spaces: false });
-    expect(result.collapseSpaces).toBe(false);
-  });
-
   it('maps end_of_line cr to LF', () => {
     const result = applyEditorConfigOverrides(baseOpts, { end_of_line: 'cr' });
     expect(result.lineEnding).toBe('LF');

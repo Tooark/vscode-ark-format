@@ -1,13 +1,6 @@
 export {
-  applyLineEnding,
-  detectIndent,
-  ensureFinalNewline,
   formatTextGeneric,
-  getMinimumLeadingWhitespace,
   normalizeToLf,
-  parseRange,
   reduceBlankLines,
-  removeLeadingBlankLines,
-  trimTrailingWhitespace,
-  updateIndentAfterLineWithContinuation
+  trimTrailingWhitespace
 } from '@tooark/ark-format-shared/document';

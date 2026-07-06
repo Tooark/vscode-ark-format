@@ -6,8 +6,8 @@ describe('index exports', () => {
     expect(typeof shared.getConfig).toBe('function');
     expect(typeof shared.normalizeToLf).toBe('function');
     expect(typeof shared.toUserMessage).toBe('function');
-    expect(typeof shared.createLogger).toBe('function');
-    expect(typeof shared.which).toBe('function');
+    expect(typeof shared.buildFullDocumentEdits).toBe('function');
+    expect(typeof shared.collapseDoubleSpaces).toBe('function');
     expect(typeof shared.splitCommandLine).toBe('function');
   });
 });

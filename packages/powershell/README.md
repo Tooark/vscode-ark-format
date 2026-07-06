@@ -85,6 +85,7 @@ Customize the formatter in `settings.json`:
   "arkFormatPowerShell.lineEnding": "CRLF",
   "arkFormatPowerShell.collapseSpaces": true,
   "arkFormatPowerShell.formatBlockComments": false,
+  "arkFormatPowerShell.alignAssignments": false,
   "arkFormatPowerShell.rangeFormatting.enabled": true,
   "arkFormatPowerShell.rangeFormatting.reindent": false,
   "arkFormatPowerShell.rangeFormatting.useDocumentContext": true
@@ -93,28 +94,52 @@ Customize the formatter in `settings.json`:
 
 ### Description of Settings
 
-| Option                               | Default | Description                                         |
-| ------------------------------------ | ------- | --------------------------------------------------- |
-| `enabled`                            | `true`  | Enables or disables the extension                   |
-| `indentStyle`                        | `space` | Indentation type (`space` or `tab`)                 |
-| `indentSize`                         | `2`     | Number of spaces per indentation level              |
-| `trimTrailingWhitespace`             | `true`  | Removes trailing whitespace                         |
-| `maxConsecutiveBlankLines`           | `1`     | Maximum number of consecutive blank lines           |
-| `removeLeadingBlankLines`            | `true`  | Removes blank lines at the beginning of the file    |
-| `insertFinalNewline`                 | `true`  | Inserts a new line at the end of the file           |
-| `lineEnding`                         | `CRLF`  | Line break type (`Auto`, `LF`, `CRLF`)              |
-| `collapseSpaces`                     | `true`  | Converts multiple spaces into one                   |
-| `formatBlockComments`                | `false` | Re-indents `<# ... #>` comments; off = unchanged    |
-| `rangeFormatting.enabled`            | `true`  | Enables range formatting                            |
-| `rangeFormatting.reindent`           | `false` | Reindents the selected range                        |
-| `rangeFormatting.useDocumentContext` | `true`  | Uses document context for formatting                |
-| `useEditorConfig`                    | `false` | Uses `.editorconfig` file context for configuration |
+| Option                               | Default | Description                                              |
+| ------------------------------------ | ------- | -------------------------------------------------------- |
+| `enabled`                            | `true`  | Enables or disables the extension                        |
+| `indentStyle`                        | `space` | Indentation type (`space` or `tab`)                      |
+| `indentSize`                         | `2`     | Number of spaces per indentation level                   |
+| `trimTrailingWhitespace`             | `true`  | Removes trailing whitespace                              |
+| `maxConsecutiveBlankLines`           | `1`     | Maximum number of consecutive blank lines                |
+| `removeLeadingBlankLines`            | `true`  | Removes blank lines at the beginning of the file         |
+| `insertFinalNewline`                 | `true`  | Inserts a new line at the end of the file                |
+| `lineEnding`                         | `CRLF`  | Line break type (`Auto`, `LF`, `CRLF`)                   |
+| `collapseSpaces`                     | `true`  | Converts multiple spaces into one                        |
+| `formatBlockComments`                | `false` | Re-indents `<# ... #>` comments; off = unchanged         |
+| `alignAssignments`                   | `false` | Aligns assignment operators in variable/hashtable blocks |
+| `rangeFormatting.enabled`            | `true`  | Enables range formatting                                 |
+| `rangeFormatting.reindent`           | `false` | Reindents the selected range                             |
+| `rangeFormatting.useDocumentContext` | `true`  | Uses document context for formatting                     |
+| `useEditorConfig`                    | `false` | Uses `.editorconfig` file context for configuration      |
+
+---
 
 ## 💡 Tips & Best Practices
 
 - Use **Selection Formatting** to adjust only specific parts without affecting the rest of the file
 - Configure **.editorconfig** in your project to maintain consistency between tools
 - Combine with other formatting extensions for a complete workflow
+
+---
+
+## 🤝 Contributing
+
+- Open an issue: [Tooark/vscode-ark-format/issues](https://github.com/Tooark/vscode-ark-format/issues)
+- Suggest improvements or report bugs with examples to help reproduction
+
+---
+
+## 💖 Support
+
+If this extension helps your workflow, consider supporting its development:
+
+- 💙 [GitHub Sponsors](https://github.com/sponsors/paulosfjunior)
+- ☕ [Ko-fi](https://ko-fi.com/paulosfjunior)
+- 💸 [PayPal](https://www.paypal.com/donate/?business=62KETU4PXBWZC&no_recurring=0&item_name=Ol%C3%A1%21+Sou+o+fundador+e+mantenedor+da+Tooark+%28tooark.com%29+%E2%80%94%0Aum+ecossistema+de+projetos+open+source.%0AObrigado+pelo+apoio%21+%F0%9F%92%9A&currency_code=BRL)
+
+Every contribution helps keep the project maintained and improving. Thank you! 🙏
+
+---
 
 ## 📝 License
 

@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 import { applyEditorConfigOverrides, formatterConfigKeys, getConfig, parseEditorConfig, shellConfigKeys } from './formatters/editorConfigReader';
 import { ShellFormatter } from './formatters/shellFormatter';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './formatters/shellIndent';
-import { detectHeredocInCode, isShebang, isFullLineComment } from './formatters/shellLex';
+import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isShebang, isFullLineComment } from './formatters/shellLex';
 import { ShellRangeFormatter } from './formatters/shellRangeFormatter';
 import { runShfmt } from './formatters/shfmtRunner';
-import { SHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES, type IndentStyle, type LineEnding, type ShellLanguageId } from './formatters/types';
-import { ShellFormatterOptions, FormatterEngine } from './formatters/types';
+import { SHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from './formatters/types';
+import type { FormatterEngine, IndentStyle, LineEnding, QuoteKind, ShellFormatterOptions, ShellLanguageId } from './formatters/types';
 
 /** DiagnosticCollection compartilhada para erros de formatação */
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -56,7 +56,7 @@ export function activate (context: vscode.ExtensionContext) {
         return formatWithShfmt(document, cfg);
       }
 
-      // Engine interna
+      // Constrói as opções do formatador interno a partir da configuração do VS Code e do EditorConfig
       let formatterOptions = buildFormatterOptions(cfg, options);
 
       // Suporte EditorConfig
@@ -92,7 +92,7 @@ export function activate (context: vscode.ExtensionContext) {
         return [];
       }
 
-      // Verifica se a formatação de intervalo está habilitada  
+      // Verifica se a formatação de intervalo está habilitada
       if (cfg.get<boolean>(formatterConfigKeys.rangeFormattingEnabled) === false) {
         return [];
       }
@@ -105,20 +105,20 @@ export function activate (context: vscode.ExtensionContext) {
       const reindent = cfg.get<boolean>(formatterConfigKeys.rangeFormattingReindent) ?? false;
       const useDocumentContext = cfg.get<boolean>(formatterConfigKeys.rangeFormattingUseDocumentContext) ?? true;
 
-      let opts = buildFormatterOptions(cfg, options);
+      let formatterOptions = buildFormatterOptions(cfg, options);
 
-      // EditorConfig no range também
+      // Verifica se o uso do EditorConfig está habilitado e se o documento é um arquivo
       if (cfg.get<boolean>(formatterConfigKeys.useEditorConfig) === true && document.uri.scheme === 'file') {
         const ecProps = parseEditorConfig(document.uri.fsPath);
-        opts = applyEditorConfigOverrides(opts, ecProps);
+        formatterOptions = applyEditorConfigOverrides(formatterOptions, ecProps);
       }
 
-      // Calcula baseIndent a partir das linhas anteriores à seleção
+      // Calcula baseIndent (profundidade de condicionais) a partir das linhas anteriores à seleção
       const baseIndent = reindent && useDocumentContext ? computeBaseIndent(document, range.start.line) : 0;
 
       // Cria o formatador de intervalo com as opções construídas, incluindo baseIndent
       const formatter = new ShellRangeFormatter({
-        ...opts,
+        ...formatterOptions,
         removeLeadingBlankLines: false,
         insertFinalNewline: false,
         lineEnding: 'Auto' as LineEnding,
@@ -279,6 +279,7 @@ function getUserLevelConfigValue<T> (cfg: vscode.WorkspaceConfiguration, key: st
  */
 function computeBaseIndent (document: vscode.TextDocument, startLine: number): number {
   const st = createInitialState();
+  let quoteMode: QuoteKind = 'code';
 
   // Itera sobre as linhas anteriores à seleção para calcular o estado de indentação
   for (let i = 0; i < startLine; i++) {
@@ -296,6 +297,19 @@ function computeBaseIndent (document: vscode.TextDocument, startLine: number): n
       continue;
     }
 
+    // Determina o modo de aspas após a linha atual para manter o contexto correto.
+    const nextQuoteMode = getQuoteModeAfterLine(raw, quoteMode);
+
+    // Ignora conteúdo interno de strings multilinha para cálculo de contexto.
+    if (quoteMode !== 'code') {
+      quoteMode = nextQuoteMode;
+
+      continue;
+    }
+
+    // Texto de controle da linha: apenas as partes de código (fora de aspas), para que
+    // caracteres literais em strings não abram/fechem blocos no cálculo de contexto
+    const controlText = getCodePartsOnly(raw, quoteMode).trim();
     const heredocEnd = detectHeredocInCode(trimmed);
 
     // Verifica se a linha é vazia, um shebang ou um comentário de linha inteira
@@ -306,18 +320,22 @@ function computeBaseIndent (document: vscode.TextDocument, startLine: number): n
         st.heredocEnd = heredocEnd;
       }
 
+      quoteMode = nextQuoteMode;
+
       continue;
     }
 
     // Aplica a dedentação antes de processar a linha
-    dedentBeforeLine(trimmed, st);
-    indentAfterLine(trimmed, st);
+    dedentBeforeLine(controlText, st);
+    indentAfterLine(controlText, st);
 
     // Verifica se há um heredoc na linha atual
     if (heredocEnd) {
       st.inHeredoc = true;
       st.heredocEnd = heredocEnd;
     }
+
+    quoteMode = nextQuoteMode;
   }
 
   // O nível de indentação base é o nível atual após processar as linhas anteriores

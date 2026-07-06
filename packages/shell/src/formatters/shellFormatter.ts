@@ -1,7 +1,8 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { QuoteKind, ShellFormatterOptions } from './types';
-import { applyShellSpacing } from './shellSpacing';
+import { applyShellSpacing, toShellSpacingConfig } from './shellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine, isLineContinuation } from './shellIndent';
+import { buildFullDocumentEdits } from '@tooark/ark-format-shared/edits';
 import { isShebang } from '@tooark/ark-format-shared/lex';
 import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine } from './shellLex';
 import { formatTextGeneric } from './utils';
@@ -23,20 +24,7 @@ export class ShellFormatter {
    * @returns Um array de edições de texto que representam as mudanças necessárias para aplicar o formato ao documento.
    */
   public formatDocument (document: vscode.TextDocument): vscode.TextEdit[] {
-    // Carrega o texto original do documento e formata-o usando o método formatText
-    const original = document.getText();
-    const formatted = this.formatText(original);
-
-    // Verifica se o texto formatado é diferente do original. Se for igual, não há edições a serem feitas.
-    if (formatted === original) {
-      return [];
-    }
-
-    // Cria um intervalo que abrange todo o documento para substituir o conteúdo inteiro pelo texto formatado
-    const fullRange = new vscode.Range(document.positionAt(0), document.positionAt(original.length));
-
-    // Retorna uma edição de texto que substitui o conteúdo inteiro do documento pelo texto formatado
-    return [vscode.TextEdit.replace(fullRange, formatted)];
+    return buildFullDocumentEdits(document, (original) => this.formatText(original));
   }
 
   /**
@@ -65,12 +53,7 @@ export class ShellFormatter {
         return codeParts;
       },
       getQuoteModeAfterLine,
-      applySpacing: (line: string, opts: ShellFormatterOptions) => applyShellSpacing(line, {
-        spaceBeforeThenDo: opts.spacing.spaceBeforeThenDo,
-        spaceAfterKeywords: opts.spacing.spaceAfterKeywords,
-        spaceBeforeFunctionBrace: opts.spacing.spaceBeforeFunctionBrace,
-        collapseSpaces: opts.collapseSpaces
-      })
+      applySpacing: (line: string, opts: ShellFormatterOptions) => applyShellSpacing(line, toShellSpacingConfig(opts))
     });
   }
 }
