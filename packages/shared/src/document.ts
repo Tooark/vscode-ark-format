@@ -338,7 +338,10 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
 
     // Detecta heredoc
     const heredocEnd = detectHeredocInCode(rawTrimmed);
-    const entersMultilineQuote = quoteMode === 'code' && nextQuoteMode !== 'code';
+    // Quando a linha abre um heredoc/here-string, o corpo é consumido verbatim pelo ramo de
+    // heredoc (st.inHeredoc) e o terminador precisa permanecer na coluna 0. Portanto não entramos
+    // também no modo de aspas multilinha para o mesmo bloco, que reindentaria o conteúdo literal.
+    const entersMultilineQuote = !heredocEnd && quoteMode === 'code' && nextQuoteMode !== 'code';
     const nextQuoteIndentOffset = st.continuation ? 1 : 0;
 
     // Linhas vazias ou contendo apenas espaços em branco são tratadas como linhas vazias, sem aplicar formatação ou indentação.
@@ -386,7 +389,9 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
       quoteBlockIndentLevel = st.indent + quoteIndentOffset;
     }
 
-    quoteMode = nextQuoteMode;
+    // Se a linha abriu um heredoc/here-string, o estado de aspas permanece em 'code': o corpo é
+    // tratado pelo ramo de heredoc. Caso contrário, adota o modo de aspas calculado para a linha.
+    quoteMode = heredocEnd ? ('code' as QuoteKind) : nextQuoteMode;
   }
 
   // Descarrega um bloco de comentário não terminado ao final do texto.

@@ -302,6 +302,62 @@ describe('PowerShellFormatter.formatText', () => {
     ].join('\n'));
   });
 
+  it('preserva here-string @\' indentada dentro de bloco (terminador na coluna 0)', () => {
+    const input = [
+      "if (-not ('Win32Job' -as [type])) {",
+      "  Add-Type -TypeDefinition @'",
+      'using System;',
+      'public static class Win32Job {',
+      '    static extern IntPtr CreateJobObject(IntPtr a, string n);',
+      '}',
+      "'@",
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    // O corpo e o terminador '@ devem permanecer verbatim (sem reindentação).
+    expect(result).toBe([
+      "if (-not ('Win32Job' -as [type])) {",
+      "  Add-Type -TypeDefinition @'",
+      'using System;',
+      'public static class Win32Job {',
+      '    static extern IntPtr CreateJobObject(IntPtr a, string n);',
+      '}',
+      "'@",
+      '}',
+      ''
+    ].join('\n'));
+    // Idempotência: formatar de novo não altera nada.
+    expect(format(result)).toBe(result);
+  });
+
+  it('preserva here-string @" indentada dentro de bloco (terminador na coluna 0)', () => {
+    const input = [
+      'function Get-Report {',
+      '  $body = @"',
+      '  conteúdo literal',
+      '    com indentação própria',
+      '"@',
+      '  return $body',
+      '}',
+      ''
+    ].join('\n');
+
+    const result = format(input);
+    expect(result).toBe([
+      'function Get-Report {',
+      '  $body = @"',
+      '  conteúdo literal',
+      '    com indentação própria',
+      '"@',
+      '  return $body',
+      '}',
+      ''
+    ].join('\n'));
+    expect(format(result)).toBe(result);
+  });
+
   it('não trata # escapado com crase como comentário', () => {
     const input = 'Write-Host `#naoComentario\n';
     const result = format(input);

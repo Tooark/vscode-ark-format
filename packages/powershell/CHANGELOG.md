@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.2.2 - 2026-07-20
+
+- Versão do pacote atualizada de `1.2.1` para `1.2.2`.
+- Correção: here-strings (`@' ... '@` e `@" ... "@`) declaradas indentadas (dentro de `if`, `function`, `try` etc.) deixavam de ser preservadas — a indentação do bloco era aplicada ao corpo e ao terminador (`'@`/`"@`), que precisa ficar na coluna 0. O resultado quebrava o script e corrompia o conteúdo literal (ex.: C# em `Add-Type -TypeDefinition`).
+- Here-strings passam a ser tratadas pelo mecanismo de heredoc e preservadas verbatim: corpo mantido byte a byte e terminador na coluna 0, qualquer que seja a indentação da linha de abertura.
+- Detecção de here-string reescrita sobre `getQuoteModeAfterLine`, reconhecendo corretamente as aberturas `@'`/`@"`. Correção específica do PowerShell; o formatador de Shell permanece inalterado.
+- Novos testes de regressão para here-string indentada (conteúdo verbatim, terminador na coluna 0 e idempotência).
+- Detalhes: [notes/powershell1.2.2.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.2.md)
+
 ## 1.2.1 - 2026-07-06
 
 - Versão do pacote atualizada de `1.2.0` para `1.2.1`.

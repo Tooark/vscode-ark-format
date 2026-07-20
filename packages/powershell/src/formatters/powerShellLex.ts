@@ -335,32 +335,28 @@ export function getQuoteModeAfterLine (input: string, initialMode: QuoteKind = '
 }
 
 /**
- * Função para detectar início de here-string do PowerShell na parte de código da linha
- * (ou seja, não dentro de aspas ou comentários).
- * Lida com os seguintes casos: `@'` e `@"` no fim da linha.
+ * Função para detectar o início de uma here-string do PowerShell na parte de código da linha
+ * (ou seja, não dentro de aspas ou comentários). Uma here-string sempre abre com `@'`/`@"` no fim
+ * da linha e só encerra numa linha própria cujo conteúdo trimado seja o terminador. Assim, se a
+ * linha termina em modo `hereSq`/`hereDq`, ela abriu uma here-string.
+ *
+ * O corpo de uma here-string é literal e o terminador (`'@`/`"@`) precisa ficar na coluna 0, por
+ * isso o bloco é tratado pelo mecanismo de heredoc (preservação verbatim), e não pelo caminho de
+ * reindentação de aspas multilinha.
  * @param trimmed - A linha de código já trimada (sem espaços no início ou no final).
- * @returns O identificador do heredoc se encontrado, ou null caso contrário.
+ * @returns O terminador da here-string (`'@` ou `"@`) se a linha a abre, ou null caso contrário.
  */
 export function detectHeredocInCode (trimmed: string): string | null {
-  const parts = splitByQuotesPreserve(trimmed);
+  const mode = getQuoteModeAfterLine(trimmed, 'code');
 
-  // Iterar por cada parte da linha, procurando por operadores de heredoc na parte de código
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
+  // Here-string verbatim `@' ... '@`: encerra com uma linha cujo trim seja `'@`.
+  if (mode === 'hereSq') {
+    return "'@";
+  }
 
-    // Verificar apenas a parte de código, ignorando aspas e comentários
-    if (p.kind !== 'code') {
-      continue;
-    }
-
-    // Here-string PowerShell: início com @' ou @" (tipicamente ao final da linha).
-    if (/@'\s*$/.test(p.text)) {
-      return "'@";
-    }
-
-    if (/@"\s*$/.test(p.text)) {
-      return '"@';
-    }
+  // Here-string expansível `@" ... "@`: encerra com uma linha cujo trim seja `"@`.
+  if (mode === 'hereDq') {
+    return '"@';
   }
 
   return null;

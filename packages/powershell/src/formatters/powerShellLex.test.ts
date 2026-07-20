@@ -173,13 +173,16 @@ describe('getQuoteModeAfterLine', () => {
 });
 
 describe('detectHeredocInCode', () => {
-  it('retorna null para here-string PowerShell (handled by getQuoteModeAfterLine)', () => {
-    // splitByQuotesPreserve trata o quote após @ como abertura de string,
-    // então detectHeredocInCode não encontra o padrão. Isso é correto porque
-    // here-strings PS são tratadas pelo path de multiline quote via getQuoteModeAfterLine.
-    expect(detectHeredocInCode("$text = @'")).toBeNull();
-    expect(detectHeredocInCode('$text = @"')).toBeNull();
-    expect(detectHeredocInCode('$x = "prefix" + @"')).toBeNull();
+  it("detecta abertura de here-string verbatim @' e retorna o terminador '@", () => {
+    expect(detectHeredocInCode("$text = @'")).toBe("'@");
+  });
+
+  it('detecta abertura de here-string expansível @" e retorna o terminador "@', () => {
+    expect(detectHeredocInCode('$text = @"')).toBe('"@');
+  });
+
+  it('detecta here-string mesmo com string comum antes na mesma linha', () => {
+    expect(detectHeredocInCode('$x = "prefix" + @"')).toBe('"@');
   });
 
   it('retorna null quando não há heredoc', () => {
