@@ -16,7 +16,7 @@
   "private": true,
   "packageManager": "pnpm@11.2.2",
   "scripts": {
-    "build": "pnpm -r --if-present build",
+    "build": "pnpm -r --if-present --workspace-concurrency=1 build",
     "watch": "pnpm -r --parallel --if-present watch",
     "lint": "pnpm -r --if-present lint",
     "test": "pnpm -r --if-present test",

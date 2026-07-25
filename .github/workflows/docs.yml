@@ -1,0 +1,81 @@
+# ==============================================================================
+# Ark Format — Documentation checks
+# ==============================================================================
+# Runs on PRs touching Markdown (READMEs, notes/, package docs). Enforces:
+#   - Markdown style consistency (markdownlint)
+#   - No broken links (lychee)
+#
+# Config files:
+#   .markdownlint.json  — style rules (relaxed for tables and long lines)
+#   .lycheeignore       — hosts/paths we intentionally skip
+# ==============================================================================
+
+name: Docs
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/*.md"
+      - ".markdownlint.json"
+      - ".lycheeignore"
+      - ".github/workflows/docs.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**/*.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdownlint:
+    name: markdownlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run markdownlint-cli2
+        uses: DavidAnson/markdownlint-cli2-action@v20
+        with:
+          globs: |
+            **/*.md
+            !node_modules
+            !**/dist/**
+            !**/out/**
+            !**/coverage/**
+            !**/CHANGELOG.md
+
+  lychee:
+    name: Link check (lychee)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore lychee cache
+        uses: actions/cache@v4
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+      - name: Run lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --cache
+            --max-cache-age 1d
+            --no-progress
+            --exclude-mail
+            --exclude-path node_modules
+            --exclude-loopback
+            --accept 200,206,301,302,304,403,429
+            './**/*.md'
+          fail: true
+          jobSummary: true

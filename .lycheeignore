@@ -1,0 +1,12 @@
+# Hosts and paths lychee should skip (one regex per line).
+
+# Marketplace / badge endpoints that rate-limit or block bots.
+https://marketplace\.visualstudio\.com/.*
+https://open-vsx\.org/.*
+https://img\.shields\.io/.*
+https://flagcdn\.com/.*
+
+# Local build/test output.
+.*/dist/.*
+.*/out/.*
+.*/coverage/.*

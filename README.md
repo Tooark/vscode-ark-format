@@ -103,16 +103,32 @@ The `.vscode/` directory contains task and debug configurations to ease local de
 Recommended workflow:
 
 1. Open the workspace in VS Code
-2. Run the task `pnpm: watch shell` or `pnpm: watch powershell`
+2. Run the task `pnpm: watch shell`, `pnpm: watch powershell` or `pnpm: watch makefile` to start the watch mode for the desired package
 3. Press `F5` to launch the Extension Host and validate the extension locally
 
 ---
 
 ## 🤝 Contributing
 
+Contributions are welcome! Start with [CONTRIBUTING.md](CONTRIBUTING.md) — it covers
+the repository layout, the development workflow, the commit convention, the DCO
+sign-off requirement, and the release process.
+
+Quick notes:
+
 - Read each package's README before opening a PR
 - Follow the shared lint rules in `configs/eslint.base.mjs`
 - Run build and tests locally before submitting changes
+- Sign off every commit (`git commit -s`) — a CI check enforces it
+
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+## 🆘 Help & Security
+
+- ❓ **Questions, bugs, feature ideas** — see [SUPPORT.md](SUPPORT.md) for the right channel
+- 🔒 **Security vulnerabilities** — do **not** open a public issue; follow [SECURITY.md](SECURITY.md)
 
 ---
 

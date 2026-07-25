@@ -26,8 +26,8 @@ Formate arquivos **Shell**, **PowerShell** e **Makefile** com consistência no V
 
 ### Instalação
 
-- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format
-- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format
+- **Open VSX:** <https://open-vsx.org/extension/tooark/ark-format>
+- **VS Code Marketplace:** <https://marketplace.visualstudio.com/items?itemName=tooark.ark-format>
 
 Ou dentro do VS Code:
 

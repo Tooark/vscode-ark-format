@@ -1,0 +1,58 @@
+name: ✨ Feature request
+description: Suggest a new feature or improvement for an Ark Format extension.
+title: "[feat] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your idea! Please explain the **problem** you are trying to solve, not just the solution.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight
+      options:
+        - label: I have searched existing issues and discussions.
+          required: true
+
+  - type: dropdown
+    id: extension
+    attributes:
+      label: Which extension?
+      options:
+        - Shell (ark-format-shell)
+        - PowerShell (ark-format-powershell)
+        - Makefile (ark-format-makefile)
+        - Extension Pack (ark-format-pack)
+        - New language / cross-cutting
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem are you trying to solve? Who is affected?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would be willing to help implement this.
+        - label: I would be willing to help test this.

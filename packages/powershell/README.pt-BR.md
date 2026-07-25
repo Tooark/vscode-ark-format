@@ -27,8 +27,8 @@ Automatize uma formatação consistente dos seus scripts com configurações fle
 
 ### Instalação
 
-- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format-powershell
-- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell
+- **Open VSX:** <https://open-vsx.org/extension/tooark/ark-format-powershell>
+- **VS Code Marketplace:** <https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell>
 
 Ou pelo VS Code:
 

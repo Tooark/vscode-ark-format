@@ -27,8 +27,8 @@ Keep your scripts consistently formatted with flexible configuration and optiona
 
 ### Install
 
-- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format-shell
-- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell
+- **Open VSX:** <https://open-vsx.org/extension/tooark/ark-format-shell>
+- **VS Code Marketplace:** <https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell>
 
 Or inside VS Code:
 

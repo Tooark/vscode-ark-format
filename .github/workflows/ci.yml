@@ -1,0 +1,118 @@
+# ==============================================================================
+# Ark Format — Continuous Integration
+# ==============================================================================
+# Lint + build + test on PRs and pushes to main.
+#
+# This complements publish.yml (which only runs on push to main to cut
+# Marketplace releases). CI here gives every PR a required green check before
+# it can be merged, without touching the release path.
+#
+# Toolchain mirrors publish.yml: Node 22 + pnpm. Extension (@vscode/test-*)
+# suites need a display, so the test step runs under xvfb.
+# ==============================================================================
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Lint, build & test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test (with coverage)
+        run: xvfb-run -a pnpm test
+
+  repo-hygiene:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required top-level files
+        run: |
+          set -euo pipefail
+          missing=0
+          for f in \
+            LICENSE \
+            README.md \
+            README.pt-BR.md \
+            CODE_OF_CONDUCT.md \
+            CONTRIBUTING.md \
+            SECURITY.md \
+            SUPPORT.md \
+            .gitignore \
+            .github/CODEOWNERS \
+            .github/dependabot.yml \
+            .github/workflows/dco.yml
+          do
+            if [ ! -f "$f" ]; then
+              echo "::error title=Missing required file::$f is expected in the repository."
+              missing=$((missing + 1))
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            exit 1
+          fi
+          echo "All required top-level files present. ✅"
+
+  ci-gate:
+    name: CI gate
+    if: always()
+    needs: [build-test, repo-hygiene]
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - name: Verify all needed jobs succeeded
+        run: |
+          set -euo pipefail
+          declare -A results
+          results[build-test]="${{ needs.build-test.result }}"
+          results[repo-hygiene]="${{ needs.repo-hygiene.result }}"
+
+          failed=0
+          for job in "${!results[@]}"; do
+            r="${results[$job]}"
+            case "$r" in
+              success|skipped) echo "$job: $r" ;;
+              *)               echo "::error title=Job failed::$job → $r"; failed=$((failed + 1)) ;;
+            esac
+          done
+
+          if [ "$failed" -gt 0 ]; then
+            exit 1
+          fi
+          echo "All CI jobs green. ✅"

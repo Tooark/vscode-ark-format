@@ -26,8 +26,8 @@ Format **Shell**, **PowerShell**, and **Makefile** files consistently in Visual 
 
 ### Install
 
-- **Open VSX:** https://open-vsx.org/extension/tooark/ark-format
-- **VS Code Marketplace:** https://marketplace.visualstudio.com/items?itemName=tooark.ark-format
+- **Open VSX:** <https://open-vsx.org/extension/tooark/ark-format>
+- **VS Code Marketplace:** <https://marketplace.visualstudio.com/items?itemName=tooark.ark-format>
 
 Or inside VS Code:
 

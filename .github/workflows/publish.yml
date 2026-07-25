@@ -232,7 +232,20 @@ jobs:
 
       - name: Package extension (.vsix)
         if: steps.check.outputs.skip != 'true'
-        run: pnpm --filter ark-format-${{ matrix.pkg }} run package
+        env:
+          PKG: ${{ matrix.pkg }}
+        run: |
+          set -eu
+
+          # The pack's workspace name is "ark-format" (no suffix), unlike the
+          # formatters ("ark-format-shell", "ark-format-powershell", ...).
+          if [ "$PKG" = "pack" ]; then
+            FILTER="ark-format"
+          else
+            FILTER="ark-format-${PKG}"
+          fi
+
+          pnpm --filter "$FILTER" run package
 
       - name: Upload .vsix artifact
         if: steps.check.outputs.skip != 'true'

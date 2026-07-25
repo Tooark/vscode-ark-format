@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions and discussions
+    url: https://github.com/Tooark/vscode-ark-format/discussions
+    about: Ask questions and share ideas with the community.
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/Tooark/vscode-ark-format/security/advisories/new
+    about: Please use private security advisories, not public issues.
+  - name: 🌐 Tooark project
+    url: https://tooark.com
+    about: Learn about the broader Tooark family.

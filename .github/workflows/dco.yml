@@ -1,0 +1,119 @@
+# ==============================================================================
+# Ark Format — DCO & Conventional Commits check
+# ==============================================================================
+# Enforces two contribution rules (see CONTRIBUTING.md):
+#   1. Developer Certificate of Origin — every commit must carry a
+#      `Signed-off-by:` trailer (`git commit -s`).
+#   2. Conventional Commits — the PR title must follow the specification.
+#
+# Intentionally small: only actions/checkout is used, minimizing supply-chain
+# surface.
+# ==============================================================================
+
+name: DCO & Conventional Commits
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: dco-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # --------------------------------------------------------------------------
+  # 1. Every commit in the PR must carry a Signed-off-by: trailer.
+  # --------------------------------------------------------------------------
+  dco:
+    name: DCO sign-off
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Verify Signed-off-by on every commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          echo "Base: $BASE_SHA"
+          echo "Head: $HEAD_SHA"
+
+          missing=0
+
+          while IFS= read -r sha; do
+            [ -z "$sha" ] && continue
+
+            author_name=$(git log -1 --format='%an' "$sha")
+            author_email=$(git log -1 --format='%ae' "$sha")
+            subject=$(git log -1 --format='%s' "$sha")
+            body=$(git log -1 --format='%B' "$sha")
+
+            # Skip merge commits (they typically don't need sign-off).
+            if [ "$(git log -1 --format='%P' "$sha" | wc -w)" -gt 1 ]; then
+              echo "::notice::Skipping merge commit $sha"
+              continue
+            fi
+
+            expected="Signed-off-by: ${author_name} <${author_email}>"
+
+            if ! printf '%s' "$body" | grep -qE '^Signed-off-by: .+ <.+>$'; then
+              echo "::error title=Missing DCO sign-off::Commit $sha ('$subject') by $author_name <$author_email> has no Signed-off-by trailer. Add one with: git commit --amend -s"
+              missing=$((missing + 1))
+              continue
+            fi
+
+            # Soft warning if the trailer doesn't match the author.
+            if ! printf '%s' "$body" | grep -qF "$expected"; then
+              echo "::warning title=DCO sign-off mismatch::Commit $sha has a Signed-off-by trailer that does not match the author '${expected}'. Please verify."
+            fi
+          done < <(git log --format='%H' "${BASE_SHA}..${HEAD_SHA}")
+
+          if [ "$missing" -gt 0 ]; then
+            echo "::error::${missing} commit(s) missing DCO sign-off. See CONTRIBUTING.md."
+            exit 1
+          fi
+
+          echo "All commits carry a Signed-off-by trailer. ✅"
+
+  # --------------------------------------------------------------------------
+  # 2. PR title must follow Conventional Commits.
+  # --------------------------------------------------------------------------
+  conventional-commits:
+    name: Conventional Commits (PR title)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Validate PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          echo "PR title: '${PR_TITLE}'"
+
+          types='feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert'
+          pattern="^(${types})(\\([a-z0-9._-]+\\))?!?: .+"
+
+          if ! printf '%s' "${PR_TITLE}" | grep -Eq "${pattern}"; then
+            echo "::error title=Non-conventional PR title::PR title must follow Conventional Commits (https://www.conventionalcommits.org/)."
+            echo "Allowed types: ${types}"
+            echo "Examples:"
+            echo "  feat(powershell): support here-string formatting"
+            echo "  fix(shell)!: change default indent width (breaking)"
+            echo "  docs: fix typo in README"
+            exit 1
+          fi
+
+          echo "PR title follows Conventional Commits. ✅"

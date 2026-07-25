@@ -1,0 +1,114 @@
+# ==============================================================================
+# Ark Format — Dependabot configuration
+# ==============================================================================
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Policy:
+#   - Security updates: always accepted (opened immediately by Dependabot).
+#   - Patch/minor updates: grouped weekly to reduce PR noise.
+#   - Major updates: opened individually for careful review.
+#
+# The whole repo is a single pnpm workspace, so one "npm" entry at "/" covers
+# the root and every packages/* manifest.
+# ==============================================================================
+
+version: 2
+
+updates:
+  # --------------------------------------------------------------------------
+  # JavaScript / TypeScript (pnpm workspace)
+  # --------------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "build"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      # Linting / formatting toolchain.
+      lint-format:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+        update-types:
+          - "minor"
+          - "patch"
+      # TypeScript + type definitions.
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Testing stack (Vitest).
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Build / packaging tooling for the extensions.
+      build-tools:
+        patterns:
+          - "esbuild"
+          - "@vscode/vsce"
+          - "@vscode/*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Everything else, minor/patch, in one PR.
+      other-minor-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+          - "typescript"
+          - "@types/*"
+          - "vitest"
+          - "@vitest/*"
+          - "esbuild"
+          - "@vscode/vsce"
+          - "@vscode/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # --------------------------------------------------------------------------
+  # GitHub Actions (workflow dependencies)
+  # --------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"

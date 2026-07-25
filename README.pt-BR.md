@@ -103,16 +103,32 @@ O diretório `.vscode/` contém configurações de tasks e debug para facilitar 
 Fluxo recomendado:
 
 1. Abra o workspace no VS Code
-2. Execute a task `pnpm: watch shell` ou `pnpm: watch powershell`
+2. Execute a task `pnpm: watch shell`, `pnpm: watch powershell` ou `pnpm: watch makefile` para iniciar o watch mode do pacote desejado
 3. Pressione `F5` para abrir o Extension Host e validar a extensão localmente
 
 ---
 
 ## 🤝 Contribuição
 
+Contribuições são bem-vindas! Comece pelo [CONTRIBUTING.md](CONTRIBUTING.md) — ele
+descreve a estrutura do repositório, o fluxo de desenvolvimento, a convenção de
+commits, a exigência de sign-off (DCO) e o processo de release.
+
+Em resumo:
+
 - Leia o README de cada pacote antes de abrir um PR
 - Siga as regras de lint compartilhadas em `configs/eslint.base.mjs`
 - Rode build e testes localmente antes de enviar alterações
+- Assine todos os commits (`git commit -s`) — há um check de CI que valida isso
+
+Ao participar, você concorda com o [Código de Conduta](CODE_OF_CONDUCT.md).
+
+---
+
+## 🆘 Ajuda & Segurança
+
+- ❓ **Dúvidas, bugs e ideias** — veja o [SUPPORT.md](SUPPORT.md) para escolher o canal certo
+- 🔒 **Vulnerabilidades de segurança** — **não** abra issue pública; siga o [SECURITY.md](SECURITY.md)
 
 ---
 
