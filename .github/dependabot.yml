@@ -87,6 +87,16 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # TypeScript 7 is the native (Go) preview compiler. Our lint toolchain
+      # (@typescript-eslint) still declares a peer range of `>=4.8.4 <6.1.0`,
+      # so a major bump breaks ESLint with
+      # "Cannot read properties of undefined (reading 'Cjs')".
+      # Block TS majors until @typescript-eslint officially supports v7;
+      # 5.x minor/patch updates keep flowing normally.
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
 
   # --------------------------------------------------------------------------
   # GitHub Actions (workflow dependencies)
