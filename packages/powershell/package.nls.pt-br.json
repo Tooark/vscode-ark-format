@@ -7,7 +7,7 @@
   "config.indentSize.description": "Número de espaços para indentação",
   "config.indentStyle.description": "Usar espaços ou tabulações para indentação",
   "config.insertFinalNewline.description": "Inserir uma nova linha ao final do arquivo",
-  "config.lineEnding.description": "Estilo de quebra de linha (LF, CRLF, ou Auto-detectar)",
+  "config.lineEnding.description": "Estilo de quebra de linha (LF, CRLF, ou Auto para preservar o original)",
   "config.maxConsecutiveBlankLines.description": "Número máximo de linhas em branco consecutivas",
   "config.alignAssignments.description": "Alinhar verticalmente os operadores de atribuição (=, +=, -=, *=, /=, %=, ??=) em blocos contíguos de atribuições de variáveis e entradas de hashtable. Desligado por padrão: o alinhamento gera ruído de diff quando um nome mais longo é adicionado ao bloco",
   "config.collapseSpaces.description": "Colapsar múltiplos espaços em um (fora de strings e contextos de alinhamento)",

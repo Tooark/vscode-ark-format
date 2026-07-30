@@ -72,7 +72,6 @@ jobs:
             --cache
             --max-cache-age 1d
             --no-progress
-            --exclude-mail
             --exclude-path node_modules
             --exclude-loopback
             --accept 200,206,301,302,304,403,429

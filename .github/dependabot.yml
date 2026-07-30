@@ -97,6 +97,12 @@ updates:
       - dependency-name: "typescript"
         update-types:
           - "version-update:semver-major"
+      # As extensões declaram engines.vscode ^1.85.0, cujo extension host roda
+      # Node 18. @types/node acima do runtime expõe tipos de APIs inexistentes
+      # em produção; majors ficam bloqueados até elevarmos o engine mínimo.
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
 
   # --------------------------------------------------------------------------
   # GitHub Actions (workflow dependencies)
