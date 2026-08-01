@@ -157,7 +157,7 @@ jobs:
           node-version: "22"
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -211,7 +211,7 @@ jobs:
 
       - name: Setup pnpm
         if: steps.check.outputs.skip != 'true'
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
 
       - name: Install dependencies
         if: steps.check.outputs.skip != 'true'
