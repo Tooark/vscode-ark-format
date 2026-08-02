@@ -159,7 +159,6 @@ If this extension helps your workflow, consider supporting its development:
 
 - 💙 [GitHub Sponsors](https://github.com/sponsors/paulosfjunior)
 - ☕ [Ko-fi](https://ko-fi.com/paulosfjunior)
-- 💸 [PayPal](https://www.paypal.com/donate/?business=62KETU4PXBWZC&no_recurring=0&item_name=Ol%C3%A1%21+Sou+o+fundador+e+mantenedor+da+Tooark+%28tooark.com%29+%E2%80%94%0Aum+ecossistema+de+projetos+open+source.%0AObrigado+pelo+apoio%21+%F0%9F%92%9A&currency_code=BRL)
 
 Every contribution helps keep the project maintained and improving. Thank you! 🙏
 

@@ -13,7 +13,3 @@ github: paulosfjunior
 
 # Ko-fi — one-off and recurring tips (username only, not the full URL).
 ko_fi: paulosfjunior
-
-# Custom URLs — max 4. PayPal has no dedicated FUNDING.yml key.
-custom:
-  - "https://www.paypal.com/donate/?business=62KETU4PXBWZC&no_recurring=0&currency_code=BRL"
