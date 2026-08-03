@@ -1,6 +1,9 @@
 # Ark Format
 
+[![CI](https://github.com/Tooark/vscode-ark-format/actions/workflows/ci.yml/badge.svg)](https://github.com/Tooark/vscode-ark-format/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-sponsor-EA4AAA?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/paulosfjunior)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-apoie-FF5E5B?logo=kofi&logoColor=white)](https://ko-fi.com/paulosfjunior)
 
 Monorepo oficial das extensões **Ark Format** para o Visual Studio Code.
 O projeto reúne formatadores para **Shell**, **PowerShell** e **Makefile**, além de um pacote agregador e bibliotecas compartilhadas.
@@ -24,13 +27,27 @@ O projeto reúne formatadores para **Shell**, **PowerShell** e **Makefile**, al�
 
 ## 📦 Pacotes
 
-| Pacote                                               | Descrição                                                                                           |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| [packages/shell](packages/shell/README.md)           | Extensão de formatação para Shell (`.sh`, `.bash`, `.zsh`, `.ksh`, `.tcsh`, `.azcli`, `.bats`)      |
-| [packages/powershell](packages/powershell/README.md) | Extensão de formatação para PowerShell (`.ps1`, `.psm1`, `.psd1`)                                   |
-| [packages/makefile](packages/makefile/README.md)     | Extensão de formatação para Makefile (`Makefile`, `GNUmakefile`, `*.mk`)                            |
-| [packages/pack](packages/pack/README.md)             | Extension Pack que instala Shell + PowerShell em conjunto                                           |
-| [packages/shared](packages/shared)                   | Código compartilhado entre os pacotes (lexer, indentação, utilitários e processamento de documento) |
+| Pacote                                               | Versão                                   | Instalações                                   | Descrição                                                                                           |
+| ---------------------------------------------------- | ---------------------------------------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| [packages/shell](packages/shell/README.md)           | [![Versão][shell-v]][shell-mp]           | [![Instalações][shell-i]][shell-mp]           | Extensão de formatação para Shell (`.sh`, `.bash`, `.zsh`, `.ksh`, `.tcsh`, `.azcli`, `.bats`)      |
+| [packages/powershell](packages/powershell/README.md) | [![Versão][powershell-v]][powershell-mp] | [![Instalações][powershell-i]][powershell-mp] | Extensão de formatação para PowerShell (`.ps1`, `.psm1`, `.psd1`)                                   |
+| [packages/makefile](packages/makefile/README.md)     | [![Versão][makefile-v]][makefile-mp]     | [![Instalações][makefile-i]][makefile-mp]     | Extensão de formatação para Makefile (`Makefile`, `GNUmakefile`, `*.mk`)                            |
+| [packages/pack](packages/pack/README.md)             | [![Versão][pack-v]][pack-mp]             | [![Instalações][pack-i]][pack-mp]             | Extension Pack que instala Shell + PowerShell em conjunto                                           |
+| [packages/shared](packages/shared)                   | ![Interno][internal-badge]               | —                                             | Código compartilhado entre os pacotes (lexer, indentação, utilitários e processamento de documento) |
+
+[shell-v]: https://img.shields.io/visual-studio-marketplace/v/tooark.ark-format-shell?label=vers%C3%A3o
+[shell-i]: https://img.shields.io/visual-studio-marketplace/i/tooark.ark-format-shell?label=instala%C3%A7%C3%B5es
+[shell-mp]: https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-shell
+[powershell-v]: https://img.shields.io/visual-studio-marketplace/v/tooark.ark-format-powershell?label=vers%C3%A3o
+[powershell-i]: https://img.shields.io/visual-studio-marketplace/i/tooark.ark-format-powershell?label=instala%C3%A7%C3%B5es
+[powershell-mp]: https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-powershell
+[makefile-v]: https://img.shields.io/visual-studio-marketplace/v/tooark.ark-format-makefile?label=vers%C3%A3o
+[makefile-i]: https://img.shields.io/visual-studio-marketplace/i/tooark.ark-format-makefile?label=instala%C3%A7%C3%B5es
+[makefile-mp]: https://marketplace.visualstudio.com/items?itemName=tooark.ark-format-makefile
+[pack-v]: https://img.shields.io/visual-studio-marketplace/v/tooark.ark-format?label=vers%C3%A3o
+[pack-i]: https://img.shields.io/visual-studio-marketplace/i/tooark.ark-format?label=instala%C3%A7%C3%B5es
+[pack-mp]: https://marketplace.visualstudio.com/items?itemName=tooark.ark-format
+[internal-badge]: https://img.shields.io/badge/interno-n%C3%A3o%20publicado-lightgrey
 
 ---
 
