@@ -27,8 +27,8 @@
   "devDependencies": {
     "@types/node": "^20.19.41",
     "@types/vscode": "^1.120.0",
-    "@typescript-eslint/eslint-plugin": "^8.65.0",
-    "@typescript-eslint/parser": "^8.65.0",
+    "@typescript-eslint/eslint-plugin": "^8.66.0",
+    "@typescript-eslint/parser": "^8.66.0",
     "@vitest/coverage-v8": "^4.1.10",
     "@vscode/vsce": "^3.9.0",
     "esbuild": "^0.28.1",
