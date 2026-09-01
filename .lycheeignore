@@ -1,5 +1,10 @@
 # Hosts and paths lychee should skip (one regex per line).
 
+# The public repository is not published yet — every self-referencing link
+# (repo, issues, discussions, security advisories) returns 404 until it is.
+# TODO: remove this block once https://github.com/Tooark/vscode-ark-format is live.
+https://github\.com/Tooark/vscode-ark-format.*
+
 # Marketplace / badge endpoints that rate-limit or block bots.
 https://marketplace\.visualstudio\.com/.*
 https://open-vsx\.org/.*

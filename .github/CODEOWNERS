@@ -28,7 +28,6 @@
 /package.json                       @paulosfjunior
 /pnpm-lock.yaml                     @paulosfjunior
 /pnpm-workspace.yaml                @paulosfjunior
-/.npmrc                             @paulosfjunior
 /configs/                           @paulosfjunior
 /vitest.config.ts                   @paulosfjunior
 

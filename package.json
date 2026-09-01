@@ -1,6 +1,6 @@
 {
   "name": "vscode-ark-format",
-  "description": "Monorepo das extensões VS Code Ark Format (Shell, PowerShell e Makefile).",
+  "description": "Ark Format VS Code extensions monorepo (Shell, PowerShell e Makefile).",
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -129,10 +129,10 @@ describe('formatTextGeneric', () => {
       opts: defaultOpts,
       createInitialState: createState,
       dedentBeforeLine: (text, st) => {
-        if (text === 'fi') st.indent = Math.max(0, st.indent - 1);
+        if (text === 'fi') {st.indent = Math.max(0, st.indent - 1);}
       },
       indentAfterLine: (text, st) => {
-        if (text === 'if true') st.indent++;
+        if (text === 'if true') {st.indent++;}
       },
       isShebang: (line) => line.startsWith('#!'),
       detectHeredocInCode: () => null,
@@ -191,10 +191,10 @@ describe('formatTextGeneric', () => {
       opts,
       createInitialState: createState,
       dedentBeforeLine: (text, st) => {
-        if (text === 'fi') st.indent = Math.max(0, st.indent - 1);
+        if (text === 'fi') {st.indent = Math.max(0, st.indent - 1);}
       },
       indentAfterLine: (text, st) => {
-        if (text === 'if true') st.indent++;
+        if (text === 'if true') {st.indent++;}
       },
       isShebang: () => false,
       detectHeredocInCode: () => null,
@@ -255,13 +255,13 @@ describe('formatTextGeneric', () => {
       isShebang: () => false,
       detectHeredocInCode: () => null,
       getCodePartsOnly: (line, mode) => {
-        if (mode !== 'code') return '';
+        if (mode !== 'code') {return '';}
         return line;
       },
       getQuoteModeAfterLine: (line, mode) => {
         const dq = (line.match(/"/g) || []).length;
-        if (mode === 'code' && dq % 2 === 1) return 'double';
-        if (mode === 'double' && dq % 2 === 1) return 'code';
+        if (mode === 'code' && dq % 2 === 1) {return 'double';}
+        if (mode === 'double' && dq % 2 === 1) {return 'code';}
         return mode;
       },
       applySpacing: (line) => line

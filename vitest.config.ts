@@ -11,7 +11,6 @@ export default defineConfig({
       include: ['packages/*/src/**/*.ts'],
       // Exclui arquivos sem lógica executável própria: barrels de re-export (index/utils),
       // declarações de tipos e os editorConfigReader que só re-exportam do shared
-      // (o do makefile permanece: tem constantes próprias e teste dedicado).
       exclude: [
         '**/*.test.ts',
         'packages/shared/src/index.ts',
