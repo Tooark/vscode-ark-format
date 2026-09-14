@@ -71,6 +71,28 @@ describe('applyShellSpacing', () => {
     expect(applyShellSpacing('#!/usr/bin/env bash', defaultCfg)).toBe('#!/usr/bin/env bash');
   });
 
+  it('preserves column alignment inside full-line comments', () => {
+    const input = '#   scripts/check.sh --changed[=REF]      only the stacks touched since REF';
+    expect(applyShellSpacing(input, defaultCfg)).toBe(input);
+  });
+
+  it('preserves column alignment inside inline comments', () => {
+    expect(applyShellSpacing('echo ok    #   aligned   comment', defaultCfg)).toBe('echo ok #   aligned   comment');
+  });
+
+  it('does not apply keyword spacing rules to comment text', () => {
+    const input = '# use for(i=0;;) or if[ x ];then or name(){';
+    expect(applyShellSpacing(input, defaultCfg)).toBe(input);
+  });
+
+  it('still applies spacing rules to code before an inline comment', () => {
+    expect(applyShellSpacing('if[ x ];then   #   keep  this', defaultCfg)).toBe('if [ x ]; then #   keep  this');
+  });
+
+  it('adds the marker space without touching the rest of the comment', () => {
+    expect(applyShellSpacing('#foo   bar', defaultCfg)).toBe('# foo   bar');
+  });
+
   it('does not treat ${#...} length expansion as comment', () => {
     const input = 'if [[ ${#lint_results[@]} -gt 0 ]]; then';
     expect(applyShellSpacing(input, defaultCfg)).toBe(input);

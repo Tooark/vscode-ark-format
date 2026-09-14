@@ -51,6 +51,25 @@ describe('PowerShellFormatter.formatDocument', () => {
 });
 
 describe('PowerShellFormatter.formatText', () => {
+  it('preserva espaços de alinhamento em bloco de comentários de cabeçalho', () => {
+    const input = [
+      '#!/usr/bin/env pwsh',
+      '# ============================================================',
+      '# Uso:',
+      '#   ./build.ps1                        perfil rápido: build + testes',
+      '#   ./build.ps1 -Target Test           executa apenas os testes',
+      '#                                      (padrão: todos os projetos)',
+      '#',
+      '# Env:',
+      '#   BUILD_SKIP_TESTS=1   pula a etapa de testes',
+      '# ============================================================',
+      'Set-StrictMode -Version Latest',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(input);
+  });
+
   it('indenta conteúdo dentro de bloco param multilinha', () => {
     const input = [
       'param (',

@@ -33,7 +33,14 @@ export function applyShellSpacing (trimmedLine: string, cfg: ShellSpacingConfig)
  * @returns O trecho de código shell transformado com o espaçamento aplicado.
  */
 function transformCode (code: string, cfg: ShellSpacingConfig): string {
-  let s = code;
+  // Separa o texto do comentário para que as regras de espaçamento não o alterem: alinhamentos em
+  // colunas, exemplos de uso e trechos de código citados em comentários devem ser preservados.
+  // O `#` permanece no trecho de código para que o espaço entre o código e o comentário inline
+  // também seja colapsado (ex.: `echo ok    # texto` -> `echo ok # texto`).
+  const commentStart = findCommentStart(code);
+  const codeEnd = commentStart === -1 ? code.length : commentStart + 1;
+  const comment = code.slice(codeEnd);
+  let s = code.slice(0, codeEnd);
 
   // Aplica espaço após ';' em 'then' e 'do'
   if (cfg.spaceBeforeThenDo) {
@@ -67,9 +74,7 @@ function transformCode (code: string, cfg: ShellSpacingConfig): string {
   }
 
   // Normaliza o espaçamento em comentários
-  s = normalizeCommentSpacing(s, findCommentStart);
-
-  return s;
+  return normalizeCommentSpacing(s + comment, findCommentStart);
 }
 
 /**

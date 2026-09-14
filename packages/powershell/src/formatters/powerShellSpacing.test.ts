@@ -88,6 +88,38 @@ describe('applyPowerShellSpacing', () => {
       const result = applyPowerShellSpacing('#>', { spaceBeforeFunctionBrace: false, collapseSpaces: false });
       expect(result).toBe('#>');
     });
+
+    it('preserva alinhamento em colunas dentro de comentário de linha inteira', () => {
+      const input = '#   ./build.ps1 -Target Test      executa apenas os testes';
+      const result = applyPowerShellSpacing(input, { spaceBeforeFunctionBrace: true, collapseSpaces: true });
+      expect(result).toBe(input);
+    });
+
+    it('preserva alinhamento em colunas dentro de comentário inline', () => {
+      const result = applyPowerShellSpacing('$x = 1    #   valor   padrão', { spaceBeforeFunctionBrace: true, collapseSpaces: true });
+      expect(result).toBe('$x = 1 #   valor   padrão');
+    });
+
+    it('não aplica regras de chaves ao texto do comentário', () => {
+      const input = '# ex.: function Test{ ou if ($x){';
+      const result = applyPowerShellSpacing(input, { spaceBeforeFunctionBrace: true, collapseSpaces: true });
+      expect(result).toBe(input);
+    });
+
+    it('continua aplicando as regras ao código antes do comentário inline', () => {
+      const result = applyPowerShellSpacing('if ($x){   #   mantém  isto', { spaceBeforeFunctionBrace: true, collapseSpaces: true });
+      expect(result).toBe('if ($x) { #   mantém  isto');
+    });
+
+    it('adiciona o espaço do marcador sem alterar o restante do comentário', () => {
+      const result = applyPowerShellSpacing('#foo   bar', { spaceBeforeFunctionBrace: true, collapseSpaces: true });
+      expect(result).toBe('# foo   bar');
+    });
+
+    it('não trata # escapado por crase como comentário', () => {
+      const result = applyPowerShellSpacing('Write-Host  `#tag   x', { spaceBeforeFunctionBrace: true, collapseSpaces: true });
+      expect(result).toBe('Write-Host `#tag x');
+    });
   });
 
   describe('combinações', () => {

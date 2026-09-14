@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.13 - 2026-09-13
+
+- Versão do pacote atualizada de `1.0.12` para `1.0.13`.
+- Correção: as regras de espaçamento eram aplicadas também ao texto dos comentários (`#`). O `collapseSpaces` removia espaços de alinhamento em colunas (ex.: blocos `Usage:`/`Env:` em cabeçalhos de script) e as regras de palavras-chave alteravam código citado em comentários (`for(` → `for (`, `if[` → `if [`, `;then` → `; then`).
+- O texto do comentário passa a ser preservado literalmente; as regras continuam valendo para o código que o precede, o espaço entre o código e o `#` de um comentário inline continua sendo colapsado e o espaço após o marcador (`#texto` → `# texto`) continua sendo normalizado.
+- Novos testes de regressão: alinhamento em comentários de linha inteira e inline, código citado em comentário, e cabeçalho de script como ponto fixo do formatador.
+- Detalhes: [notes/shell1.0.13.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.13.md)
+
 ## 1.0.12 - 2026-07-06
 
 - Versão do pacote atualizada de `1.0.11` para `1.0.12`.

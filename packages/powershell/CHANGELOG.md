@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.2.3 - 2026-09-13
+
+- Versão do pacote atualizada de `1.2.2` para `1.2.3`.
+- Correção: as regras de espaçamento eram aplicadas também ao texto dos comentários de linha (`#`). O `collapseSpaces` removia espaços de alinhamento em colunas (ex.: blocos `Uso:`/`Env:` em cabeçalhos de script) e a regra de chave de abertura alterava código citado em comentários (`function Test{` → `function Test {`, `if ($x){` → `if ($x) {`).
+- O texto do comentário passa a ser preservado literalmente; as regras continuam valendo para o código que o precede, o espaço entre o código e o `#` de um comentário inline continua sendo colapsado, o espaço após o marcador (`#texto` → `# texto`) continua sendo normalizado e `#>` segue preservado. Comentários em bloco (`<# ... #>`) já não passavam por essas regras e permanecem regidos por `formatBlockComments`.
+- Novos testes de regressão: alinhamento em comentários de linha inteira e inline, código citado em comentário, `#` escapado por crase, e cabeçalho de script como ponto fixo do formatador.
+- Detalhes: [notes/powershell1.2.3.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.3.md)
+
 ## 1.2.2 - 2026-07-20
 
 - Versão do pacote atualizada de `1.2.1` para `1.2.2`.

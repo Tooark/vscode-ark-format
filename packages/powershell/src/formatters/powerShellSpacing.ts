@@ -35,7 +35,14 @@ export function applyPowerShellSpacing (trimmedLine: string, cfg: PowerShellSpac
  * @returns O trecho de código PowerShell transformado com o espaçamento aplicado.
  */
 function transformCode (code: string, cfg: PowerShellSpacingConfig): string {
-  let s = code;
+  // Separa o texto do comentário para que as regras de espaçamento não o alterem: alinhamentos em
+  // colunas, exemplos de uso e trechos de código citados em comentários devem ser preservados.
+  // O `#` permanece no trecho de código para que o espaço entre o código e o comentário inline
+  // também seja colapsado (ex.: `$x = 1    # texto` -> `$x = 1 # texto`).
+  const commentStart = findCommentStart(code);
+  const codeEnd = commentStart === -1 ? code.length : commentStart + 1;
+  const comment = code.slice(codeEnd);
+  let s = code.slice(0, codeEnd);
 
   // Aplica espaço antes da chave de abertura em definições de função, se configurado
   if (cfg.spaceBeforeFunctionBrace) {
@@ -53,9 +60,7 @@ function transformCode (code: string, cfg: PowerShellSpacingConfig): string {
   }
 
   // Normaliza o espaçamento em comentários, preservando o fechamento de comentário em bloco (#>)
-  s = normalizeCommentSpacing(s, findCommentStart, ['>']);
-
-  return s;
+  return normalizeCommentSpacing(s + comment, findCommentStart, ['>']);
 }
 
 /**

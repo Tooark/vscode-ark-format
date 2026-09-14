@@ -53,6 +53,25 @@ describe('ShellFormatter.formatText', () => {
     expect(result).toBe('#!/bin/bash\necho hi\n');
   });
 
+  it('preserves alignment spaces inside a comment header block', () => {
+    const input = [
+      '#!/usr/bin/env bash',
+      '# ============================================================',
+      '# Usage:',
+      '#   scripts/check.sh                      fast profile: backend, frontend, cli',
+      '#   scripts/check.sh --changed[=REF]      only the stacks touched since REF',
+      "#                                         (default: the branch's upstream, else origin/main)",
+      '#',
+      '# Env:',
+      '#   ARKUEST_SKIP_CHECKS=1   the hooks that call this script return at once',
+      '# ============================================================',
+      'set -uo pipefail',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(input);
+  });
+
   it('formats nested if/else', () => {
     const input = 'if [ 1 ]; then\nif [ 2 ]; then\necho "deep"\nelse\necho "alt"\nfi\nfi\n';
     const result = format(input);
