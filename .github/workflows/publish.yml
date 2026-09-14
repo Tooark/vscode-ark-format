@@ -254,23 +254,82 @@ jobs:
           name: vsix-${{ matrix.pkg }}-${{ matrix.version }}
           path: packages/${{ matrix.pkg }}/*.vsix
 
+      # Both registries publish the .vsix built in "Package extension" above,
+      # so what goes to the Marketplace/Open VSX is byte-for-byte what gets
+      # uploaded as artifact and attached to the GitHub Release (and we skip
+      # a redundant vscode:prepublish rebuild).
+      #
+      # The Marketplace gallery API times out intermittently
+      # ("Request timeout: /_apis/gallery"), so each publish is retried with
+      # backoff. A timeout can also land *after* the server accepted the
+      # upload, so "already exists/published" is treated as success — that
+      # keeps a re-run of a failed job idempotent.
       - name: Publish to VS Code Marketplace
         if: steps.check.outputs.skip != 'true'
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          PKG: ${{ matrix.pkg }}
         run: |
-          cd packages/${{ matrix.pkg }}
-          pnpm exec vsce publish --no-dependencies
+          set -eu
+          cd "packages/${PKG}"
+          VSIX_FILE=$(ls *.vsix | head -n 1)
+
+          MAX_ATTEMPTS=5
+          for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+            if OUT=$(pnpm exec vsce publish --packagePath "$VSIX_FILE" 2>&1); then
+              printf '%s\n' "$OUT"
+              exit 0
+            fi
+            printf '%s\n' "$OUT"
+
+            if printf '%s' "$OUT" | grep -qiE 'already (exists|published)'; then
+              echo "::warning title=Already published::${VSIX_FILE} is already on the Marketplace; treating as success."
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              SLEEP=$((attempt * 30))
+              echo "::warning title=Marketplace publish failed::Attempt ${attempt}/${MAX_ATTEMPTS} failed, retrying in ${SLEEP}s..."
+              sleep "$SLEEP"
+            fi
+          done
+
+          echo "::error title=Marketplace publish failed::Gave up after ${MAX_ATTEMPTS} attempts."
+          exit 1
 
       - name: Publish to Open VSX Registry
         if: steps.check.outputs.skip != 'true'
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
+          PKG: ${{ matrix.pkg }}
         run: |
+          set -eu
           npm install -g ovsx
-          cd packages/${{ matrix.pkg }}
+          cd "packages/${PKG}"
           VSIX_FILE=$(ls *.vsix | head -n 1)
-          ovsx publish "$VSIX_FILE"
+
+          MAX_ATTEMPTS=5
+          for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
+            if OUT=$(ovsx publish "$VSIX_FILE" 2>&1); then
+              printf '%s\n' "$OUT"
+              exit 0
+            fi
+            printf '%s\n' "$OUT"
+
+            if printf '%s' "$OUT" | grep -qiE 'already (exists|published)'; then
+              echo "::warning title=Already published::${VSIX_FILE} is already on Open VSX; treating as success."
+              exit 0
+            fi
+
+            if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+              SLEEP=$((attempt * 30))
+              echo "::warning title=Open VSX publish failed::Attempt ${attempt}/${MAX_ATTEMPTS} failed, retrying in ${SLEEP}s..."
+              sleep "$SLEEP"
+            fi
+          done
+
+          echo "::error title=Open VSX publish failed::Gave up after ${MAX_ATTEMPTS} attempts."
+          exit 1
 
       - name: Create and push version tag
         if: steps.check.outputs.skip != 'true'
