@@ -6,7 +6,7 @@ import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isShebang
 import { ShellRangeFormatter } from './formatters/shellRangeFormatter';
 import { runShfmt } from './formatters/shfmtRunner';
 import { SHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from './formatters/types';
-import type { FormatterEngine, IndentStyle, LineEnding, QuoteKind, ShellFormatterOptions, ShellLanguageId } from './formatters/types';
+import type { FormatterEngine, IndentStyle, LineEnding, QuoteState, ShellFormatterOptions, ShellLanguageId } from './formatters/types';
 
 /** DiagnosticCollection compartilhada para erros de formatação */
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -279,7 +279,7 @@ function getUserLevelConfigValue<T> (cfg: vscode.WorkspaceConfiguration, key: st
  */
 function computeBaseIndent (document: vscode.TextDocument, startLine: number): number {
   const st = createInitialState();
-  let quoteMode: QuoteKind = 'code';
+  let quoteMode: QuoteState = 'code';
 
   // Itera sobre as linhas anteriores à seleção para calcular o estado de indentação
   for (let i = 0; i < startLine; i++) {

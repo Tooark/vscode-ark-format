@@ -32,6 +32,18 @@ export type QuoteKind =
   | 'bt';  // backtick quoting: `...`
 
 /**
+ * Tipagem para o estado de aspas carregado de uma linha para a seguinte pelo lexer Shell.
+ * - Nos casos simples, é um único `QuoteKind` (`code`, `sq`, `dq`, `ansi` ou `bt`).
+ * - Quando a linha termina dentro de contextos aninhados — por exemplo, dentro de uma substituição
+ *   de comando `$(...)` que está entre aspas duplas, onde as aspas formam um novo contexto —, a
+ *   pilha de contextos é serializada de fora para dentro, separada por `>`. Exemplos: `dq>cs1`
+ *   (dentro de `"$(`) e `dq>cs1>sq` (dentro de `'...'` em `"$( ...`), onde `csN` é uma
+ *   substituição de comando com N parênteses abertos.
+ * O contexto mais externo é sempre uma string; o formatador só distingue `code` dos demais estados.
+ */
+export type QuoteState = QuoteKind | `${Exclude<QuoteKind, 'code'>}>${string}`;
+
+/**
  * Interface para representar o estado de indentação durante a formatação de shell. Permite rastrear:
  * - `indent`: Nível atual de indentação.
  * - `inHeredoc`: Se o processador está atualmente dentro de um heredoc.

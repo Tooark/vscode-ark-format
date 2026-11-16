@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { splitByQuotesPreserve, getCodePartsOnly, getQuoteModeAfterLine, detectHeredocInCode, isShebang, isFullLineComment } from './powerShellLex';
+import { splitByQuotesPreserve, getCodePartsOnly, getQuoteModeAfterLine, detectHeredocInCode, isShebang, isFullLineComment, isHereStringLine } from './powerShellLex';
 
 describe('splitByQuotesPreserve', () => {
   it('retorna código puro sem aspas', () => {
@@ -225,5 +225,96 @@ describe('isFullLineComment', () => {
 
   it('detecta comentário com múltiplos #', () => {
     expect(isFullLineComment('## section')).toBe(true);
+  });
+});
+
+// Regressão (equivalente PowerShell da issue #34): aspas dentro de uma subexpressão $(...) em string
+// de aspas duplas formam um novo contexto de aspas e não fecham a string externa.
+describe('aspas aninhadas em subexpressão dentro de aspas duplas', () => {
+  const line = 'Write-Host "Nome: $($user.Name.Trim(\'"\'))"';
+
+  it('splitByQuotesPreserve mantém a string com a subexpressão como uma única parte dq', () => {
+    expect(splitByQuotesPreserve(line)).toEqual([
+      { kind: 'code', text: 'Write-Host ' },
+      { kind: 'dq', text: '"Nome: $($user.Name.Trim(\'"\'))"' },
+    ]);
+  });
+
+  it('getCodePartsOnly retorna apenas o código fora de aspas', () => {
+    expect(getCodePartsOnly(line)).toBe('Write-Host ');
+  });
+
+  it('getQuoteModeAfterLine retorna code, independentemente de quantas vezes a linha se repete', () => {
+    let mode = getQuoteModeAfterLine(line);
+    expect(mode).toBe('code');
+    mode = getQuoteModeAfterLine(line, mode);
+    mode = getQuoteModeAfterLine(line, mode);
+    expect(mode).toBe('code');
+  });
+
+  it('mantém o estado aninhado entre linhas até a subexpressão e a string fecharem', () => {
+    const open = getQuoteModeAfterLine('$msg = "Itens: $(');
+    expect(open).not.toBe('code');
+
+    const inner = getQuoteModeAfterLine('  $items | ForEach-Object { "\'$_\'" }', open);
+    expect(inner).toBe(open);
+    expect(getCodePartsOnly(') " ; $x', inner)).toBe(' ; $x');
+    expect(getQuoteModeAfterLine(')"', inner)).toBe('code');
+  });
+
+  it('fecha a subexpressão somente no parêntese correspondente', () => {
+    expect(getQuoteModeAfterLine('"$( (1 + 2) * 3 )"')).toBe('code');
+    expect(getQuoteModeAfterLine('"$(\'(\' + ")")"')).toBe('code');
+    expect(getQuoteModeAfterLine('"$($(\'"\'))"')).toBe('code');
+  });
+
+  it('aceita escape com crase e comentário dentro da subexpressão', () => {
+    expect(getQuoteModeAfterLine('"$("`"")"')).toBe('code');
+
+    const open = getQuoteModeAfterLine('$x = "$(');
+    const afterComment = getQuoteModeAfterLine("  Get-Date # it's a comment", open);
+    expect(afterComment).toBe(open);
+    expect(getQuoteModeAfterLine(')"', afterComment)).toBe('code');
+  });
+
+  it('trata here-string dentro da subexpressão como literal até o terminador', () => {
+    let mode = getQuoteModeAfterLine("$x = \"$(@'");
+    expect(isHereStringLine(mode)).toBe(true);
+
+    mode = getQuoteModeAfterLine("it's \" literal", mode);
+    expect(isHereStringLine(mode)).toBe(true);
+
+    mode = getQuoteModeAfterLine("'@", mode);
+    expect(isHereStringLine(mode)).toBe(false);
+    expect(getQuoteModeAfterLine(')"', mode)).toBe('code');
+  });
+
+  it('não abre contexto aninhado para $( fora de aspas duplas', () => {
+    expect(getQuoteModeAfterLine("$x = $(Get-Item 'a'")).toBe('code');
+    expect(getCodePartsOnly("$x = $(Get-Item 'a')")).toBe('$x = $(Get-Item )');
+  });
+
+  it('não detecta here-string aninhada como here-string de nível superior', () => {
+    expect(detectHeredocInCode("$x = \"$(@'")).toBeNull();
+    expect(isHereStringLine('hereSq')).toBe(true);
+    expect(isHereStringLine('code')).toBe(false);
+  });
+});
+
+// Regressão: aspas escapadas com crase fora de strings (`' e `") são literais e não abrem string.
+describe('aspas escapadas com crase fora de strings', () => {
+  it('não abre string para `\' ou `" no código', () => {
+    expect(getQuoteModeAfterLine('Write-Host `"oi')).toBe('code');
+    expect(getQuoteModeAfterLine("Write-Host it`'s")).toBe('code');
+  });
+
+  it('mantém as aspas escapadas como código', () => {
+    expect(splitByQuotesPreserve('Write-Host `"a  b`"')).toEqual([{ kind: 'code', text: 'Write-Host `"a  b`"' }]);
+    expect(getCodePartsOnly("Write-Host it`'s")).toBe("Write-Host it`'s");
+  });
+
+  it('mantém a crase de continuação no fim da linha como código', () => {
+    expect(getCodePartsOnly('Get-Item `')).toBe('Get-Item `');
+    expect(getQuoteModeAfterLine('Get-Item `')).toBe('code');
   });
 });

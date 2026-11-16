@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { PowerShellRangeFormatterOptions, QuoteKind } from './types';
+import { PowerShellRangeFormatterOptions, QuoteState } from './types';
 import { buildRangeEdits } from '@tooark/ark-format-shared/edits';
 import { normalizeToLf, trimTrailingWhitespace, reduceBlankLines } from './utils';
 import { alignPowerShellAssignments } from './powerShellAlign';
@@ -38,7 +38,7 @@ export class PowerShellRangeFormatter {
     const rawLines = textLf.split('\n');
     const indentUnit = this.opts.indentStyle === 'tab' ? '\t' : ' '.repeat(Math.max(0, this.opts.indentSize));
     const out: string[] = [];
-    let quoteMode: QuoteKind = 'code';
+    let quoteMode: QuoteState = 'code';
 
     // Verifica se a opção de reindentação está desativada.
     if (!this.opts.reindent) {

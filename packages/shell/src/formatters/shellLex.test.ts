@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isShebang, isFullLineComment, splitByQuotesPreserve, detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine } from './shellLex';
+import { isShebang, isFullLineComment, splitByQuotesPreserve, detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isNestedHeredocLine } from './shellLex';
 
 describe('isShebang', () => {
   it('detects shebang lines', () => {
@@ -238,5 +238,178 @@ describe('getQuoteModeAfterLine', () => {
 
   it('handles bt mode with escape inside', () => {
     expect(getQuoteModeAfterLine('still in bt\\x', 'bt')).toBe('bt');
+  });
+});
+
+// Regressão (issue #34): aspas dentro de substituição de comando $(...) que está entre aspas duplas
+// formam um novo contexto de aspas e não fecham a string externa.
+describe('quotes nested in command substitution inside double quotes', () => {
+  const issueLine = 'x="$(echo \'"Hello"\' | tr -d \'"\')"';
+
+  it('splitByQuotesPreserve keeps the whole quoted substitution as one dq part', () => {
+    expect(splitByQuotesPreserve(issueLine)).toEqual([
+      { kind: 'code', text: 'x=' },
+      { kind: 'dq', text: '"$(echo \'"Hello"\' | tr -d \'"\')"' },
+    ]);
+  });
+
+  it('getCodePartsOnly returns only the unquoted code', () => {
+    expect(getCodePartsOnly(issueLine)).toBe('x=');
+  });
+
+  it('getQuoteModeAfterLine returns code when the substitution and the string close', () => {
+    expect(getQuoteModeAfterLine(issueLine)).toBe('code');
+  });
+
+  it('keeps the state stable regardless of how many times the line repeats', () => {
+    let mode = getQuoteModeAfterLine(issueLine);
+    mode = getQuoteModeAfterLine(issueLine, mode);
+    mode = getQuoteModeAfterLine(issueLine, mode);
+    expect(mode).toBe('code');
+  });
+
+  it('carries the nested state across lines until the substitution and the string close', () => {
+    const afterOpen = getQuoteModeAfterLine('x="$(echo \'"Hello"\' |');
+    expect(afterOpen).not.toBe('code');
+
+    const afterInner = getQuoteModeAfterLine("  tr -d '\"' |", afterOpen);
+    expect(afterInner).toBe(afterOpen);
+
+    expect(getQuoteModeAfterLine(')"', afterInner)).toBe('code');
+  });
+
+  it('reports the outer double quote as the part kind of an unclosed nested line', () => {
+    const parts = splitByQuotesPreserve('x="$(echo \'a\'');
+    expect(parts).toEqual([
+      { kind: 'code', text: 'x=' },
+      { kind: 'dq', text: '"$(echo \'a\'' },
+    ]);
+  });
+
+  it('getCodePartsOnly drops text until the nested context fully closes', () => {
+    const state = getQuoteModeAfterLine('x="$(');
+    expect(getCodePartsOnly("echo ')' ) \" ; then", state)).toBe(' ; then');
+  });
+
+  it('closes the substitution only at the matching parenthesis', () => {
+    expect(getQuoteModeAfterLine('x="$(( (1 + 2) * 3 ))"')).toBe('code');
+    expect(getQuoteModeAfterLine('x="$(echo "(" \')\' ")")"')).toBe('code');
+    expect(getQuoteModeAfterLine('x="$(echo $(echo \'"\'))"')).toBe('code');
+  });
+
+  it('handles escapes inside the substitution', () => {
+    // Linha shell: x="$(echo \' \) \")"
+    expect(getQuoteModeAfterLine('x="$(echo \\\' \\) \\")"')).toBe('code');
+  });
+
+  it('treats # as a comment inside the substitution only at the start of a word', () => {
+    // $# e ${#x} não são comentários; o ')' entre aspas simples não fecha a substituição.
+    expect(getQuoteModeAfterLine('x="$(echo $# ${#arr[@]} \')\')"')).toBe('code');
+
+    // Apóstrofo em comentário dentro da substituição multilinha não abre aspas simples.
+    const open = getQuoteModeAfterLine('x="$(');
+    const afterComment = getQuoteModeAfterLine("  date # it's a comment", open);
+    expect(afterComment).toBe(open);
+    expect(getQuoteModeAfterLine(')"', afterComment)).toBe('code');
+  });
+
+  it('treats a heredoc body inside the substitution as literal until its delimiter', () => {
+    // Apóstrofos e aspas no corpo do heredoc não abrem strings.
+    let mode = getQuoteModeAfterLine("msg=\"$(cat <<'EOF'");
+    expect(mode).not.toBe('code');
+    expect(getCodePartsOnly("Don't \" do this", mode)).toBe('');
+
+    mode = getQuoteModeAfterLine("Don't \" do this", mode);
+    mode = getQuoteModeAfterLine(')" not yet', mode);
+    mode = getQuoteModeAfterLine('EOF', mode);
+    expect(getQuoteModeAfterLine(')"', mode)).toBe('code');
+  });
+
+  it('isNestedHeredocLine is true only for lines inside a heredoc declared in the substitution', () => {
+    expect(isNestedHeredocLine('code')).toBe(false);
+    expect(isNestedHeredocLine('dq')).toBe(false);
+
+    const open = getQuoteModeAfterLine('x="$(cat <<EOF');
+    expect(isNestedHeredocLine(open)).toBe(true);
+
+    const body = getQuoteModeAfterLine('body', open);
+    expect(isNestedHeredocLine(body)).toBe(true);
+
+    const afterDelimiter = getQuoteModeAfterLine('EOF', body);
+    expect(isNestedHeredocLine(afterDelimiter)).toBe(false);
+    expect(afterDelimiter).not.toBe('code');
+  });
+
+  it('handles <<- heredocs, several heredocs on one line and here-strings', () => {
+    let mode = getQuoteModeAfterLine('x="$(cat <<-END');
+    mode = getQuoteModeAfterLine("\tit's tabbed", mode);
+    mode = getQuoteModeAfterLine('\tEND', mode);
+    expect(getQuoteModeAfterLine(')"', mode)).toBe('code');
+
+    mode = getQuoteModeAfterLine('x="$(paste - - <<A 3<<"B"');
+    for (const line of ["a's", 'A', "b's", 'B']) {
+      mode = getQuoteModeAfterLine(line, mode);
+    }
+    expect(getQuoteModeAfterLine(')"', mode)).toBe('code');
+
+    // Delimitador sem aspas é a palavra inteira (ex.: END-MSG, não só END).
+    mode = getQuoteModeAfterLine('x="$(cat <<END-MSG');
+    mode = getQuoteModeAfterLine("it's fine", mode);
+    expect(isNestedHeredocLine(mode)).toBe(true);
+    mode = getQuoteModeAfterLine('END', mode);
+    expect(isNestedHeredocLine(mode)).toBe(true);
+    mode = getQuoteModeAfterLine('END-MSG', mode);
+    expect(getQuoteModeAfterLine(')"', mode)).toBe('code');
+
+    // <<< é here-string: as aspas seguintes continuam sendo aspas.
+    expect(getQuoteModeAfterLine('x="$(tr -d a <<< "it\'s")"')).toBe('code');
+  });
+
+  it('does not treat << as a heredoc inside arithmetic expansion', () => {
+    const mode = getQuoteModeAfterLine('x="$(( 1 <<');
+    expect(getQuoteModeAfterLine(' EOF ))"', mode)).toBe('code');
+  });
+
+  it('does not treat here-strings or nested arithmetic as heredocs in a multiline substitution', () => {
+    // O segundo `<` de `<<<` não pode ser relido como início de `<<`.
+    let mode = getQuoteModeAfterLine('x="$(');
+    const open = mode;
+    mode = getQuoteModeAfterLine('  jq -r .a <<< "$json"', mode);
+    expect(mode).toBe(open);
+    mode = getQuoteModeAfterLine('  jq -r .b <<<word', mode);
+    expect(mode).toBe(open);
+
+    // `$((` aninhado na substituição é aritmética: `<< n` é deslocamento.
+    mode = getQuoteModeAfterLine('  echo $(( 1 << n ))', mode);
+    expect(mode).toBe(open);
+    expect(getQuoteModeAfterLine(')"', mode)).toBe('code');
+  });
+
+  it('does not open a nested context for $( outside double quotes', () => {
+    expect(getQuoteModeAfterLine('x=$(echo "a"')).toBe('code');
+    expect(getCodePartsOnly('x=$(echo \'a\')')).toBe('x=$(echo )');
+  });
+});
+
+// Regressão: aspas escapadas com barra invertida fora de aspas (\' e \") são literais e não abrem string.
+describe('escaped quotes outside of quotes', () => {
+  it('does not open a string for escaped single or double quotes in code', () => {
+    expect(getQuoteModeAfterLine("echo it\\'s")).toBe('code');
+    expect(getQuoteModeAfterLine('echo \\"hi')).toBe('code');
+    expect(getQuoteModeAfterLine("case $x in (*\\'*) ;; esac")).toBe('code');
+  });
+
+  it('keeps escaped quotes as code parts', () => {
+    expect(splitByQuotesPreserve('echo \\"a  b\\"')).toEqual([{ kind: 'code', text: 'echo \\"a  b\\"' }]);
+    expect(getCodePartsOnly("echo it\\'s")).toBe("echo it\\'s");
+  });
+
+  it('still opens a string after an escaped backslash', () => {
+    expect(getQuoteModeAfterLine('echo \\\\"open')).toBe('dq');
+  });
+
+  it('keeps a trailing backslash (line continuation) as code', () => {
+    expect(getQuoteModeAfterLine('echo a \\')).toBe('code');
+    expect(getCodePartsOnly('echo a \\')).toBe('echo a \\');
   });
 });

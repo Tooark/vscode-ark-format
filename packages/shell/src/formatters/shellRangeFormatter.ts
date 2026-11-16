@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { QuoteKind, ShellRangeFormatterOptions } from './types';
+import { QuoteState, ShellRangeFormatterOptions } from './types';
 import { buildRangeEdits } from '@tooark/ark-format-shared/edits';
 import { normalizeToLf, trimTrailingWhitespace, reduceBlankLines, updateIndentAfterLineWithContinuation } from './utils';
 import { applyShellSpacing, toShellSpacingConfig } from './shellSpacing';
@@ -37,7 +37,7 @@ export class ShellRangeFormatter {
     const rawLines = textLf.split('\n');
     const indentUnit = this.opts.indentStyle === 'tab' ? '\t' : ' '.repeat(Math.max(0, this.opts.indentSize));
     const out: string[] = [];
-    let quoteMode: QuoteKind = 'code';
+    let quoteMode: QuoteState = 'code';
 
     // Verifica se a opção de reindentação está desativada.
     if (!this.opts.reindent) {
@@ -197,7 +197,7 @@ export class ShellRangeFormatter {
    * @param quoteMode O modo de aspas vindo da linha anterior.
    * @returns O texto de controle da linha, já trimado.
    */
-  private controlTextFor (raw: string, quoteMode: QuoteKind): string {
+  private controlTextFor (raw: string, quoteMode: QuoteState): string {
     const codeParts = getCodePartsOnly(raw, quoteMode).trim();
 
     // Preserva sinal de continuação no texto de controle mesmo quando ocorre dentro de string multilinha.

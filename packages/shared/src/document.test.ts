@@ -273,6 +273,61 @@ describe('formatTextGeneric', () => {
     expect(result.split('\n').some(l => l === '')).toBe(true);
   });
 
+  it('preserves lines of a multiline quote that is never closed before EOF', () => {
+    // Regressão (issue #34): o buffer de string multilinha só era descarregado quando a string
+    // fechava; se o arquivo terminasse com ela aberta, as linhas seguintes eram descartadas.
+    const input = 'x="open\n  line2\nline3\n';
+
+    const result = formatTextGeneric<FormatTextState, string, FormatterOptions>({
+      originalText: input,
+      opts: defaultOpts,
+      createInitialState: createState,
+      dedentBeforeLine: () => {},
+      indentAfterLine: () => {},
+      isShebang: () => false,
+      detectHeredocInCode: () => null,
+      getCodePartsOnly: (line, mode) => (mode === 'code' ? line : ''),
+      getQuoteModeAfterLine: (line, mode) => {
+        const dq = (line.match(/"/g) || []).length;
+        if (dq % 2 === 0) {return mode;}
+        return mode === 'code' ? 'double' : 'code';
+      },
+      applySpacing: (line) => line
+    });
+
+    expect(result).toBe('x="open\n  line2\nline3\n');
+  });
+
+  it('keeps verbatim lines of a multiline quote unchanged and out of the block indentation', () => {
+    // Linhas marcadas por isVerbatimQuoteLine (ex.: heredoc dentro da string) não são reindentadas
+    // nem influenciam a indentação mínima usada para as demais linhas do bloco.
+    const input = 'if true\nx="open\nRAW\n    raw2\n  close"\nfi\n';
+
+    const result = formatTextGeneric<FormatTextState, string, FormatterOptions>({
+      originalText: input,
+      opts: defaultOpts,
+      createInitialState: createState,
+      dedentBeforeLine: (text, st) => {
+        if (text === 'fi') {st.indent = Math.max(0, st.indent - 1);}
+      },
+      indentAfterLine: (text, st) => {
+        if (text === 'if true') {st.indent++;}
+      },
+      isShebang: () => false,
+      detectHeredocInCode: () => null,
+      getCodePartsOnly: (line, mode) => (mode === 'code' ? line : ''),
+      getQuoteModeAfterLine: (line, mode) => {
+        const dq = (line.match(/"/g) || []).length;
+        if (dq % 2 === 0) {return mode;}
+        return mode === 'code' ? 'double' : 'code';
+      },
+      applySpacing: (line) => line,
+      isVerbatimQuoteLine: (line) => line.trim().toLowerCase().startsWith('raw')
+    });
+
+    expect(result).toBe('if true\n  x="open\nRAW\n    raw2\n  close"\nfi\n');
+  });
+
   it('applies spacing function to code lines', () => {
     const input = 'echo   hello\n';
     const result = formatTextGeneric({

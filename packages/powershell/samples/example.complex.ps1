@@ -10,6 +10,7 @@
     - Try/Catch/Finally
     - Pipeline e filtros
     - Here-string
+    - Subexpressoes "$(...)" com aspas aninhadas
 #>
 
 [CmdletBinding()]
@@ -43,6 +44,14 @@ Detalhado: $Detailed
 
 Write-Host "=== Inicio da rotina de validacao ===" -ForegroundColor Cyan
 Write-Host $banner
+
+# Comentario: aspas dentro de uma subexpressao "$(...)" formam um novo contexto e nao
+# fecham a string externa (equivalente PowerShell da issue #34 do formatador Shell).
+$quotedOwner = '"{0}"' -f $config.Owner
+Write-Host "Responsavel: $($quotedOwner.Trim('"'))"
+Write-Host "Tags: $(
+    ($config.Tags | ForEach-Object { "'$_'" }) -join ', '
+)"
 
 function Invoke-ServerCheck {
     param (

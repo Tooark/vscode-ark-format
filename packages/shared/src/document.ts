@@ -198,7 +198,8 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
     detectBlockCommentStart,
     isBlockCommentEnd,
     isBlockCommentKeyword,
-    formatBlockComments
+    formatBlockComments,
+    isVerbatimQuoteLine
   } = params;
 
   // Normaliza os finais de linha do texto original para LF e divide o texto em linhas.
@@ -212,6 +213,8 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
   let quoteIndentOffset = 0;
   let quoteBlockIndentLevel = 0;
   let quoteBuffer: string[] = [];
+  // Índices (em quoteBuffer) das linhas que devem ser preservadas sem reindentação.
+  let quoteVerbatim = new Set<number>();
   let inBlockComment = false;
   let blockCommentBuffer: string[] = [];
   let blockCommentIndentLevel = 0;
@@ -304,16 +307,30 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
 
     // Multiline string/quote
     if (quoteMode !== 'code') {
+      // Linhas marcadas como literais (ex.: corpo e delimitador de heredoc dentro da string) não são reindentadas.
+      if (isVerbatimQuoteLine?.(raw, quoteMode)) {
+        quoteVerbatim.add(quoteBuffer.length);
+      }
+
       quoteBuffer.push(raw);
 
       // Verifica se o modo de aspas mudou para 'code', indicando o fim de um bloco de aspas multilinha, e processa o buffer de aspas.
       if (nextQuoteMode === 'code') {
-        const minLeading = getMinimumLeadingWhitespace(quoteBuffer);
+        // As linhas literais não participam do cálculo da indentação mínima do bloco.
+        const minLeading = getMinimumLeadingWhitespace(quoteBuffer.filter((_, idx) => !quoteVerbatim.has(idx)));
         const indentStr = indentUnit.repeat(Math.max(0, quoteBlockIndentLevel));
 
         // Itera sobre cada linha do buffer de aspas para aplicar a indentação correta
-        for (const qline of quoteBuffer) {
+        for (let idx = 0; idx < quoteBuffer.length; idx++) {
+          const qline = quoteBuffer[idx];
           const qtrimmed = qline.trim();
+
+          // Linha literal: preservada exatamente como no original
+          if (quoteVerbatim.has(idx)) {
+            out.push(qline);
+
+            continue;
+          }
 
           // Se a linha for vazia ou contiver apenas espaços em branco
           if (qtrimmed === '') {
@@ -327,6 +344,7 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
 
         // Limpa o buffer de aspas e atualiza a indentação após processar o bloco de aspas multilinha.
         quoteBuffer = [];
+        quoteVerbatim = new Set<number>();
         updateIndentAfterLineWithContinuation(controlText, st, indentAfterLine);
         quoteIndentOffset = 0;
       }
@@ -398,6 +416,18 @@ export function formatTextGeneric<State extends FormatTextState, QuoteKind exten
   if (inBlockComment) {
     flushBlockComment();
     inBlockComment = false;
+  }
+
+  // Descarrega, sem alterações, as linhas de uma string multilinha que não foi fechada até o fim
+  // do texto (string realmente aberta ou aspas interpretadas incorretamente). Sem isso, essas
+  // linhas seriam descartadas e o formatador apagaria o restante do arquivo.
+  if (quoteBuffer.length > 0) {
+    for (const qline of quoteBuffer) {
+      out.push(qline);
+    }
+
+    quoteBuffer = [];
+    quoteVerbatim = new Set<number>();
   }
 
   // Aplica as transformações finais de formatação

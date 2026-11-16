@@ -2,6 +2,17 @@
 
 Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
 
+## 1.0.14 - 2026-11-16
+
+- Versão do pacote atualizada de `1.0.13` para `1.0.14`.
+- Correção ([#34](https://github.com/Tooark/vscode-ark-format/issues/34)): o formatador apagava as linhas seguintes a uma substituição de comando entre aspas duplas que contém aspas aninhadas, como `x="$(echo '"Hello"' | tr -d '"')"`. O lexer passa a tratar `$(...)` dentro de aspas duplas como um novo contexto de aspas, como o Bash, incluindo parênteses balanceados, `$((...))`, escapes, comentários, heredocs e here-strings dentro da substituição e substituições em várias linhas.
+- Correção: aspas escapadas fora de strings (`it\'s`, `\"texto\"`, `(*\'*)`) não abrem mais uma string por engano.
+- Correção: o corpo e o delimitador de um heredoc declarado dentro de `"$(...)"` multilinha em um bloco indentado eram reindentados, quebrando o script. Passam a ser preservados como no original.
+- Proteção contra perda de dados: se uma string continuar aberta até o fim do arquivo, as linhas pendentes passam a ser preservadas sem alterações em vez de descartadas.
+- Exemplo `samples/example.bash` com os casos da issue e um heredoc dentro de `"$(...)"`.
+- Novos testes de regressão para os casos da issue, aspas aninhadas, heredocs, aspas escapadas e string aberta até o fim do arquivo.
+- Detalhes: [notes/shell1.0.14.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.14.md)
+
 ## 1.0.13 - 2026-09-13
 
 - Versão do pacote atualizada de `1.0.12` para `1.0.13`.

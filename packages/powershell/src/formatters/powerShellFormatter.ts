@@ -1,11 +1,11 @@
 import type * as vscode from 'vscode';
-import { QuoteKind, PowerShellFormatterOptions } from './types';
+import { QuoteState, PowerShellFormatterOptions } from './types';
 import { applyPowerShellSpacing, toPowerShellSpacingConfig } from './powerShellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './powerShellIndent';
 import { buildFullDocumentEdits } from '@tooark/ark-format-shared/edits';
 import { isShebang } from '@tooark/ark-format-shared/lex';
 import { alignPowerShellAssignments } from './powerShellAlign';
-import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isBlockCommentStart, isBlockCommentEnd, isCommentHelpKeyword } from './powerShellLex';
+import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isBlockCommentStart, isBlockCommentEnd, isCommentHelpKeyword, isHereStringLine } from './powerShellLex';
 import { formatTextGeneric } from './utils';
 
 /**
@@ -34,7 +34,7 @@ export class PowerShellFormatter {
    * @returns O texto formatado de acordo com as regras e opções configuradas.
    */
   public formatText (originalText: string): string {
-    const formatted = formatTextGeneric<ReturnType<typeof createInitialState>, QuoteKind, PowerShellFormatterOptions>({
+    const formatted = formatTextGeneric<ReturnType<typeof createInitialState>, QuoteState, PowerShellFormatterOptions>({
       originalText,
       opts: this.opts,
       createInitialState,
@@ -48,7 +48,9 @@ export class PowerShellFormatter {
       detectBlockCommentStart: isBlockCommentStart,
       isBlockCommentEnd,
       isBlockCommentKeyword: isCommentHelpKeyword,
-      formatBlockComments: this.opts.formatBlockComments ?? false
+      formatBlockComments: this.opts.formatBlockComments ?? false,
+      // Corpo e terminador de here-string dentro de subexpressão em string multilinha são preservados sem reindentação.
+      isVerbatimQuoteLine: (_line: string, quoteMode: QuoteState) => isHereStringLine(quoteMode)
     });
 
     // Alinhamento vertical dos operadores de atribuição em blocos contíguos, quando habilitado

@@ -27,6 +27,18 @@ export type QuoteKind =
   | 'hereDq'; // @" ... "@
 
 /**
+ * Tipagem para o estado de aspas carregado de uma linha para a seguinte pelo lexer PowerShell.
+ * - Nos casos simples, é um único `QuoteKind` (`code`, `sq`, `dq`, `hereSq` ou `hereDq`).
+ * - Quando a linha termina dentro de contextos aninhados — por exemplo, dentro de uma
+ *   subexpressão `$(...)` de uma string de aspas duplas, onde as aspas formam um novo contexto —,
+ *   a pilha de contextos é serializada de fora para dentro, separada por `>`. Exemplos: `dq>sub1`
+ *   (dentro de `"$(`) e `dq>sub1>sq` (dentro de `'...'` em `"$( ...`), onde `subN` é uma
+ *   subexpressão com N parênteses abertos.
+ * O contexto mais externo é sempre uma string; o formatador só distingue `code` dos demais estados.
+ */
+export type QuoteState = QuoteKind | `${Exclude<QuoteKind, 'code'>}>${string}`;
+
+/**
  * Estado de indentação para o formatador PowerShell.
  * - `parenDepth`: Profundidade de parênteses multilinha pendentes (`(`, `@(`, `$(`, `param (`),
  *   usada para indentar o conteúdo interno e alinhar o `)` de fechamento com a linha que abriu.

@@ -1,10 +1,10 @@
 import type * as vscode from 'vscode';
-import { QuoteKind, ShellFormatterOptions } from './types';
+import { QuoteState, ShellFormatterOptions } from './types';
 import { applyShellSpacing, toShellSpacingConfig } from './shellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine, isLineContinuation } from './shellIndent';
 import { buildFullDocumentEdits } from '@tooark/ark-format-shared/edits';
 import { isShebang } from '@tooark/ark-format-shared/lex';
-import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine } from './shellLex';
+import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isNestedHeredocLine } from './shellLex';
 import { formatTextGeneric } from './utils';
 
 /**
@@ -33,7 +33,7 @@ export class ShellFormatter {
    * @returns O texto formatado de acordo com as regras e opções configuradas.
    */
   public formatText (originalText: string): string {
-    return formatTextGeneric<ReturnType<typeof createInitialState>, QuoteKind, ShellFormatterOptions>({
+    return formatTextGeneric<ReturnType<typeof createInitialState>, QuoteState, ShellFormatterOptions>({
       originalText,
       opts: this.opts,
       createInitialState,
@@ -53,7 +53,9 @@ export class ShellFormatter {
         return codeParts;
       },
       getQuoteModeAfterLine,
-      applySpacing: (line: string, opts: ShellFormatterOptions) => applyShellSpacing(line, toShellSpacingConfig(opts))
+      applySpacing: (line: string, opts: ShellFormatterOptions) => applyShellSpacing(line, toShellSpacingConfig(opts)),
+      // Corpo e delimitador de heredoc dentro de "$(...)" multilinha são preservados sem reindentação.
+      isVerbatimQuoteLine: (_line: string, quoteMode: QuoteState) => isNestedHeredocLine(quoteMode)
     });
   }
 }
