@@ -1,7 +1,7 @@
 import { alignAssignmentBlocks, AlignableAssignmentParts, AssignmentAlignMeta } from '@tooark/ark-format-shared/align';
 import { hasOddTrailingExplicitMarker } from '@tooark/ark-format-shared/indent';
 import { getCodePartsOnly, getQuoteModeAfterLine, isBlockCommentEnd, isBlockCommentStart } from './powerShellLex';
-import type { QuoteKind } from './types';
+import type { QuoteState } from './types';
 
 /**
  * Expressão regular para atribuições de variável do PowerShell, com escopo opcional
@@ -61,7 +61,7 @@ export function alignPowerShellAssignments (formattedText: string): string {
   const normalizedText = usesCrlf ? formattedText.replace(/\r\n/g, '\n') : formattedText;
   const lines = normalizedText.split('\n');
   const meta: AssignmentAlignMeta[] = [];
-  let quoteMode: QuoteKind = 'code';
+  let quoteMode: QuoteState = 'code';
   let inBlockComment = false;
   let previousContinues = false;
 

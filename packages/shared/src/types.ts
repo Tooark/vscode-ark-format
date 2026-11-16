@@ -172,6 +172,7 @@ export interface FormatterOptions {
  * - `isBlockCommentEnd`: Função opcional para detectar o fim de um bloco de comentário multilinha (ex.: `#>` no PowerShell).
  * - `isBlockCommentKeyword`: Função opcional para identificar palavras-chave dentro do bloco de comentário (ex.: `.SYNOPSIS`), usada ao reindentar o bloco.
  * - `formatBlockComments`: Se habilitado, reindenta o conteúdo do bloco de comentário usando o tamanho de indentação configurado; caso contrário, preserva o bloco sem alterações.
+ * - `isVerbatimQuoteLine`: Função opcional para indicar, a partir do modo de aspas vindo da linha anterior, que uma linha de string multilinha deve ser preservada sem reindentação (ex.: corpo e delimitador de um heredoc declarado dentro da string, cujo delimitador precisa permanecer na coluna original).
  */
 export interface FormatTextGenericParams<State extends FormatTextState, QuoteKind extends string, Opts extends FormatterOptions> {
   originalText: string;
@@ -188,6 +189,7 @@ export interface FormatTextGenericParams<State extends FormatTextState, QuoteKin
   isBlockCommentEnd?: (trimmed: string) => boolean;
   isBlockCommentKeyword?: (trimmed: string) => boolean;
   formatBlockComments?: boolean;
+  isVerbatimQuoteLine?: (line: string, quoteMode: QuoteKind) => boolean;
 }
 
 /**

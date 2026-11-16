@@ -178,6 +178,203 @@ describe('ShellFormatter.formatText', () => {
     expect(result).toBe(expected);
   });
 
+  describe('issue #34: double quotes inside single quotes inside "$(...)"', () => {
+    const issueLine = 'x="$(echo \'"Hello"\' | tr -d \'"\')"';
+
+    it.each([1, 2, 3])('keeps the following lines with %i occurrence(s) of the line', (count) => {
+      const input = [...Array<string>(count).fill(issueLine), 'echo "Test"', ''].join('\n');
+
+      const result = format(input);
+      expect(result).toBe(input);
+      expect(format(result)).toBe(result);
+    });
+
+    it('keeps the octal workaround from the issue unchanged', () => {
+      const input = ['x="$(echo \'"Hello"\' | tr -d \'\\042\')"', 'echo "Test"', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+
+    it('formats code after the line and inside blocks normally', () => {
+      const input = [
+        'if true;then',
+        issueLine,
+        'echo   Test',
+        'fi',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'if true; then',
+        `  ${issueLine}`,
+        '  echo Test',
+        'fi',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('preserves a multiline quoted substitution with nested quotes', () => {
+      const input = [
+        'x="$(',
+        '  echo \'"Hello"\' |',
+        '    tr -d \'"\'',
+        ')"',
+        'echo "Test"',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(input);
+    });
+
+    it('keeps formatting after a heredoc with an apostrophe inside "$(...)"', () => {
+      const input = [
+        "msg=\"$(cat <<'EOF'",
+        "Don't do this",
+        'EOF',
+        ')"',
+        'if true;then',
+        'echo   ok',
+        'fi',
+        '',
+      ].join('\n');
+
+      const expected = [
+        "msg=\"$(cat <<'EOF'",
+        "Don't do this",
+        'EOF',
+        ')"',
+        'if true; then',
+        '  echo ok',
+        'fi',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('preserves heredoc body and delimiter inside "$(...)" in an indented block', () => {
+      // O delimitador de <<EOF precisa permanecer na coluna 0; o restante do bloco é reindentado.
+      const input = [
+        'f() {',
+        "msg=\"$(cat <<'EOF'",
+        "Don't do this",
+        '  indented body',
+        'EOF',
+        ')"',
+        'echo   ok',
+        '}',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'f() {',
+        "  msg=\"$(cat <<'EOF'",
+        "Don't do this",
+        '  indented body',
+        'EOF',
+        '  )"',
+        '  echo ok',
+        '}',
+        '',
+      ].join('\n');
+
+      const result = format(input);
+      expect(result).toBe(expected);
+      expect(format(result)).toBe(result);
+    });
+
+    it('preserves <<- heredoc body inside "$(...)" while reindenting the surrounding lines', () => {
+      const input = [
+        'if true;then',
+        'z="$(cat <<-END',
+        '\tit\'s tabbed',
+        '\tEND',
+        'echo done',
+        ')"',
+        'fi',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'if true; then',
+        '  z="$(cat <<-END',
+        '\tit\'s tabbed',
+        '\tEND',
+        '  echo done',
+        '  )"',
+        'fi',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('uses the whole word as the delimiter of a heredoc inside "$(...)"', () => {
+      const input = ['x="$(cat <<END-MSG', "it's fine", 'END-MSG', ')"', 'echo   ok', ''].join('\n');
+      const expected = ['x="$(cat <<END-MSG', "it's fine", 'END-MSG', ')"', 'echo ok', ''].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('keeps formatting after here-strings and arithmetic inside a multiline "$(...)"', () => {
+      const input = [
+        'x="$(',
+        '  jq -r .a <<< "$json"',
+        '  echo $(( 1 << n ))',
+        ')"',
+        'echo   ok',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'x="$(',
+        '  jq -r .a <<< "$json"',
+        '  echo $(( 1 << n ))',
+        ')"',
+        'echo ok',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+  });
+
+  describe('top-level heredoc detection', () => {
+    it('keeps formatting after a heredoc whose delimiter has other characters', () => {
+      const input = ['cat <<END-MSG', "  it's literal", 'END-MSG', 'if true;then', 'echo ok', 'fi', ''].join('\n');
+      const expected = ['cat <<END-MSG', "  it's literal", 'END-MSG', 'if true; then', '  echo ok', 'fi', ''].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('preserves the body of heredocs with quoted or escaped delimiters', () => {
+      // O corpo é literal: não pode receber espaçamento nem reindentação.
+      const input = ["cat <<'END MSG'", 'if[ x ];then', '    keep   spacing', 'END MSG', 'cat <<\\EOF', 'for(( ;; ))', 'EOF', ''].join('\n');
+
+      expect(format(input)).toBe(input);
+    });
+
+    it('keeps formatting after here-strings and arithmetic shifts', () => {
+      const input = ['tr a b <<< word', 'x=$(( 1 << 2 ))', '(( y = 1 << n ))', 'if true;then', 'echo ok', 'fi', ''].join('\n');
+      const expected = ['tr a b <<< word', 'x=$(( 1 << 2 ))', '(( y = 1 << n ))', 'if true; then', '  echo ok', 'fi', ''].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+  });
+
+  it('keeps lines after an escaped quote outside of quotes', () => {
+    const input = ['echo it\\\'s', 'case $x in', '(*\\\'*) echo quote;;', 'esac', 'echo "Test"', ''].join('\n');
+    const expected = ['echo it\\\'s', 'case $x in', '  (*\\\'*) echo quote;;', 'esac', 'echo "Test"', ''].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
+  it('never drops lines when a string is left open until the end of the file', () => {
+    const input = ['echo "unterminated', 'line2', '  line3', ''].join('\n');
+    expect(format(input)).toBe(input);
+  });
+
   it('removes leading blank lines', () => {
     const result = format('\n\n#!/bin/bash\necho hi\n');
     expect(result).toBe('#!/bin/bash\necho hi\n');

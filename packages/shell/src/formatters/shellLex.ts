@@ -1,168 +1,406 @@
-import { QuoteKind } from "./types";
+import { QuoteKind, QuoteState } from "./types";
 export { isShebang, isFullLineComment } from '@tooark/ark-format-shared/lex';
+
+/**
+ * Tipagem para um contexto da pilha do lexer Shell:
+ * - `sq`, `dq`, `ansi`, `bt`: strings e crases, com as mesmas regras de `QuoteKind`.
+ * - `cs`: substituição de comando `$(...)` aberta dentro de aspas duplas. Dentro dela as aspas
+ *   formam um novo contexto, como no código normal. Guarda a quantidade de parênteses ainda
+ *   abertos (`depth`), se é uma expansão aritmética `$((...))` (`arith`) e os delimitadores dos
+ *   heredocs declarados na linha atual (`heredocs`), cujo corpo começa na linha seguinte.
+ * - `hd`: corpo de heredoc declarado dentro de uma substituição de comando; as linhas são
+ *   literais até a linha que contém apenas o delimitador.
+ * A pilha vazia representa o código normal, fora de qualquer string.
+ */
+type LexFrame =
+  { kind: Exclude<QuoteKind, 'code'> }
+  | { kind: 'cs'; depth: number; arith: boolean; heredocs: string[] }
+  | { kind: 'hd'; delimiter: string };
+
+/**
+ * Função para ler o delimitador de um heredoc a partir da posição logo após o operador `<<`.
+ * Aceita `<<-`, espaços antes da palavra e a palavra inteira, como no Bash: termina em espaço ou
+ * metacaractere (`;&|<>()`) e tem as aspas removidas (`'EOF'`, `"EOF"`, `E"O"F` e `\EOF` → `EOF`;
+ * `END-MSG` e `'END MSG'` são aceitos inteiros).
+ * @param line - A linha em análise.
+ * @param start - A posição logo após `<<`.
+ * @returns O delimitador e a posição logo após ele, ou null se não houver palavra válida.
+ */
+function readHeredocDelimiter (line: string, start: number): { delimiter: string; end: number } | null {
+  let i = start;
+
+  // Operador `<<-` e espaços antes da palavra
+  if (line[i] === '-') {
+    i++;
+  }
+
+  while (line[i] === ' ' || line[i] === '\t') {
+    i++;
+  }
+
+  let delimiter = '';
+  let quoted = false;
+
+  // Ler a palavra, removendo aspas e escapes
+  while (i < line.length && !/[\s;&|<>()]/.test(line[i])) {
+    const ch = line[i];
+
+    // Trecho entre aspas: conteúdo literal
+    if (ch === "'" || ch === '"') {
+      const close = line.indexOf(ch, i + 1);
+
+      // Aspas sem fechamento: não é um delimitador válido
+      if (close === -1) {
+        return null;
+      }
+
+      delimiter += line.slice(i + 1, close);
+      quoted = true;
+      i = close + 1;
+      continue;
+    }
+
+    // Barra invertida: o próximo caractere é literal
+    if (ch === '\\' && i + 1 < line.length) {
+      delimiter += line[i + 1];
+      i += 2;
+      continue;
+    }
+
+    delimiter += ch;
+    i++;
+  }
+
+  // Sem palavra (ex.: `<<` no fim da linha) não há heredoc; `<<''` é um delimitador vazio válido
+  if (delimiter === '' && !quoted) {
+    return null;
+  }
+
+  return { delimiter, end: i };
+}
+
+/**
+ * Função para converter o estado de aspas recebido da linha anterior em uma pilha de contextos.
+ * @param state - O estado serializado (`code`, `dq`, `dq>cs1>sq`, `dq>cs1>hd:EOF`, ...).
+ * @returns A pilha de contextos, do mais externo para o mais interno.
+ */
+function parseQuoteState (state: QuoteState): LexFrame[] {
+  // Código normal não tem contexto aberto
+  if (state === 'code') {
+    return [];
+  }
+
+  return state.split('>').map((token): LexFrame => {
+    // Corpo de heredoc: `hd:<delimitador codificado>`
+    if (token.startsWith('hd:')) {
+      return { kind: 'hd', delimiter: decodeURIComponent(token.slice(3)) };
+    }
+
+    // Substituição de comando (`csN`) ou expansão aritmética (`arN`), com N parênteses abertos
+    const subst = /^(cs|ar)(\d+)$/.exec(token);
+    if (subst) {
+      return { kind: 'cs', depth: Math.max(1, Number(subst[2])), arith: subst[1] === 'ar', heredocs: [] };
+    }
+
+    return { kind: token as Exclude<QuoteKind, 'code'> };
+  });
+}
+
+/**
+ * Função para serializar a pilha de contextos como estado de aspas para a próxima linha.
+ * Pilhas de um único nível geram exatamente o `QuoteKind` correspondente.
+ * @param stack - A pilha de contextos, do mais externo para o mais interno.
+ * @returns O estado serializado.
+ */
+function serializeQuoteState (stack: LexFrame[]): QuoteState {
+  // Pilha vazia representa código normal
+  if (stack.length === 0) {
+    return 'code';
+  }
+
+  return stack.map((frame) => {
+    switch (frame.kind) {
+      case 'cs':
+        return `${frame.arith ? 'ar' : 'cs'}${frame.depth}`;
+      case 'hd':
+        return `hd:${encodeURIComponent(frame.delimiter)}`;
+      default:
+        return frame.kind;
+    }
+  }).join('>') as QuoteState;
+}
+
+/**
+ * Função para verificar se a posição informada está no início de uma palavra shell, onde `#`
+ * inicia um comentário. `$#`, `${#var}` e `a#b`, por exemplo, não são comentários.
+ * @param input - A linha em análise.
+ * @param i - A posição do caractere `#`.
+ * @returns `true` se o caractere estiver no início da linha ou após espaço ou metacaractere.
+ */
+function isWordStart (input: string, i: number): boolean {
+  return i === 0 || /[\s;&|()<>]/.test(input[i - 1]);
+}
+
+/**
+ * Função para consumir, no início de uma linha, o corpo de um heredoc aberto dentro de uma
+ * substituição de comando: a linha inteira é literal, e a linha que contém apenas o
+ * delimitador encerra o heredoc.
+ * @param input - A linha em análise.
+ * @param stack - A pilha de contextos, alterada no lugar.
+ * @returns `true` se a linha pertence ao heredoc (e já foi consumida).
+ */
+function consumeHeredocLine (input: string, stack: LexFrame[]): boolean {
+  const top = stack[stack.length - 1];
+
+  // Fora de heredoc a linha é processada normalmente
+  if (top?.kind !== 'hd') {
+    return false;
+  }
+
+  // A linha do delimitador encerra o heredoc (mesma tolerância a espaços do formatador)
+  if (input.trim() === top.delimiter) {
+    stack.pop();
+  }
+
+  return true;
+}
+
+/**
+ * Função para abrir, ao final de uma linha, os heredocs declarados nela dentro de substituições
+ * de comando. O corpo começa na linha seguinte; com mais de um heredoc, o primeiro declarado
+ * fica no topo da pilha, pois é lido primeiro.
+ * @param stack - A pilha de contextos, alterada no lugar.
+ */
+function openPendingHeredocs (stack: LexFrame[]): void {
+  const delimiters: string[] = [];
+
+  // Coletar os heredocs pendentes de todas as substituições abertas
+  for (const frame of stack) {
+    if (frame.kind === 'cs' && frame.heredocs.length > 0) {
+      delimiters.push(...frame.heredocs);
+      frame.heredocs = [];
+    }
+  }
+
+  // Empilhar na ordem inversa para que o primeiro declarado fique no topo
+  for (let k = delimiters.length - 1; k >= 0; k--) {
+    stack.push({ kind: 'hd', delimiter: delimiters[k] });
+  }
+}
+
+/**
+ * Função para avançar o lexer sobre o caractere na posição `i`, atualizando a pilha de contextos.
+ * Regras:
+ * - Código normal (pilha vazia): `\x` é um escape; `'`, `"`, `` ` `` e `$'` abrem strings.
+ *   Comentários no código normal são tratados por quem chama, pois cada função tem sua regra.
+ * - `sq`: tudo é literal até a próxima `'`.
+ * - `dq`, `ansi`, `bt`: `\x` é um escape; o delimitador correspondente fecha o contexto.
+ *   Em `dq`, `$(` abre uma substituição de comando (`cs`) e `$((`, uma expansão aritmética.
+ * - `cs`: como o código normal, mas parênteses fora de aspas são contados e o `)` que zera a
+ *   contagem fecha a substituição; `$((` aninhado abre uma expansão aritmética própria. Fora de
+ *   expansão aritmética, `#` no início de uma palavra é comentário até o fim da linha, `<<DELIM`
+ *   declara um heredoc e `<<<` (here-string) é consumido inteiro.
+ * - `hd`: linhas de heredoc são consumidas inteiras por `consumeHeredocLine`.
+ * @param input - A linha em análise.
+ * @param i - A posição do caractere atual.
+ * @param stack - A pilha de contextos, alterada no lugar.
+ * @returns A quantidade de caracteres consumidos (pelo menos 1).
+ */
+function lexStep (input: string, i: number, stack: LexFrame[]): number {
+  const ch = input[i];
+  const next = input[i + 1];
+  const hasNext = i + 1 < input.length;
+  const top = stack[stack.length - 1];
+
+  // Código normal ou substituição de comando: aspas abrem um novo contexto
+  if (top === undefined || top.kind === 'cs') {
+    // Barra invertida escapa o próximo caractere (ex.: \' e \" são literais)
+    if (ch === '\\' && hasNext) {
+      return 2;
+    }
+
+    // Regras exclusivas de substituição de comando (fora de expansão aritmética)
+    if (top !== undefined && !top.arith) {
+      // Comentário: resto da linha não altera o estado
+      if (ch === '#' && isWordStart(input, i)) {
+        return input.length - i;
+      }
+
+      // Heredoc: o corpo começa na próxima linha
+      if (ch === '<' && next === '<') {
+        // Here-string `<<<` não é heredoc: consumido inteiro para que o segundo `<` não seja relido
+        if (input[i + 2] === '<') {
+          return 3;
+        }
+
+        const heredoc = readHeredocDelimiter(input, i + 2);
+
+        // Delimitador só numérico é tratado como deslocamento (`<< 2`), pois `((` aninhado não é rastreado aqui
+        if (heredoc && !/^[0-9]+$/.test(heredoc.delimiter)) {
+          top.heredocs.push(heredoc.delimiter);
+
+          return heredoc.end - i;
+        }
+      }
+    }
+
+    // Expansão aritmética aninhada em uma substituição: `<<` é deslocamento, não heredoc
+    if (top !== undefined && ch === '$' && next === '(' && input[i + 2] === '(') {
+      stack.push({ kind: 'cs', depth: 1, arith: true, heredocs: [] });
+
+      return 2;
+    }
+
+    // $'...' ANSI-C quoting
+    if (ch === '$' && next === "'") {
+      stack.push({ kind: 'ansi' });
+
+      return 2;
+    }
+
+    // Verificar os caracteres que iniciam strings
+    switch (ch) {
+      case "'":
+        stack.push({ kind: 'sq' });
+
+        return 1;
+      case '"':
+        stack.push({ kind: 'dq' });
+
+        return 1;
+      case '`':
+        stack.push({ kind: 'bt' });
+
+        return 1;
+    }
+
+    // Contagem de parênteses da substituição de comando
+    if (top !== undefined) {
+      if (ch === '(') {
+        top.depth++;
+      } else if (ch === ')') {
+        top.depth--;
+
+        // O parêntese que zera a contagem fecha a substituição
+        if (top.depth === 0) {
+          stack.pop();
+        }
+      }
+    }
+
+    return 1;
+  }
+
+  // Corpo de heredoc: literal (normalmente consumido linha a linha por consumeHeredocLine)
+  if (top.kind === 'hd') {
+    return 1;
+  }
+
+  // Aspas simples: tudo é literal até a próxima aspa simples
+  if (top.kind === 'sq') {
+    if (ch === "'") {
+      stack.pop();
+    }
+
+    return 1;
+  }
+
+  // Aspas duplas, ANSI-C quoting e crases aceitam escapes com barra invertida
+  if (ch === '\\' && hasNext) {
+    return 2;
+  }
+
+  // Aspas duplas: `$(` abre uma substituição de comando, onde as aspas formam um novo contexto
+  if (top.kind === 'dq') {
+    if (ch === '"') {
+      stack.pop();
+
+      return 1;
+    }
+
+    if (ch === '$' && next === '(') {
+      stack.push({ kind: 'cs', depth: 1, arith: input[i + 2] === '(', heredocs: [] });
+
+      return 2;
+    }
+
+    return 1;
+  }
+
+  // ANSI-C quoting fecha com aspa simples; crase fecha com crase
+  if ((top.kind === 'ansi' && ch === "'") || (top.kind === 'bt' && ch === '`')) {
+    stack.pop();
+  }
+
+  return 1;
+}
+
+/**
+ * Função para verificar se, a partir do estado de aspas vindo da linha anterior, a linha atual
+ * pertence a um heredoc declarado dentro de uma substituição de comando (corpo ou delimitador).
+ * Essas linhas devem ser preservadas sem reindentação: o conteúdo do heredoc é literal e o
+ * delimitador de `<<EOF` só é reconhecido pelo shell na coluna original.
+ * @param state - O estado de aspas vindo da linha anterior.
+ * @returns `true` se a linha pertence a um heredoc aninhado.
+ */
+export function isNestedHeredocLine (state: QuoteState): boolean {
+  const stack = parseQuoteState(state);
+
+  return stack[stack.length - 1]?.kind === 'hd';
+}
 
 /**
  * Função para dividir uma linha de código shell em partes, preservando o tipo de cada parte
  * (código, aspas simples, aspas duplas, ANSI-C quoting ou crases).
+ * Uma string que contém contextos aninhados (ex.: `"$(echo '"')"`) forma uma única parte, com o
+ * tipo da string mais externa.
  * @param input - A linha de código a ser dividida.
  * @returns Um array de objetos, onde cada objeto tem uma propriedade `kind` indicando o
  * tipo da parte (code, sq, dq, ansi, bt) e uma propriedade `text` com o conteúdo original dessa parte.
  */
 export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; text: string }> {
   const parts: Array<{ kind: QuoteKind; text: string }> = [];
+  const stack: LexFrame[] = [];
   let buf = '';
-  let mode: QuoteKind = 'code';
+  let kind: QuoteKind = 'code';
 
-  // Iterar por cada caractere da linha
-  for (let i = 0; i < input.length; i++) {
-    const ch = input[i];
+  // Iterar pela linha, avançando o lexer a cada passo
+  for (let i = 0; i < input.length;) {
+    // Comentário inline no código normal: resto da linha não é processado como código
+    if (stack.length === 0 && input[i] === '#') {
+      buf += input.slice(i);
+      break;
+    }
 
-    // Verifica se é o modo de código normal
-    if (mode === 'code') {
-      // $'...' ANSI-C quoting
-      if (ch === '$' && input[i + 1] === "'") {
-        // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo ANSI-C quoting
-        if (buf) {
-          parts.push({ kind: 'code', text: buf });
-        }
+    const wasCode = stack.length === 0;
+    const consumed = lexStep(input, i, stack);
+    const chunk = input.slice(i, i + consumed);
+    i += consumed;
 
-        buf = ch + input[i + 1];
-        i++;
-        mode = 'ansi';
-
-        continue;
+    // Abertura de uma string: fecha a parte de código acumulada e inicia a parte da string
+    if (wasCode && stack.length > 0) {
+      if (buf) {
+        parts.push({ kind: 'code', text: buf });
       }
 
-      // Verificar os caracteres que iniciam modos de aspas ou comentários
-      switch (ch) {
-        case "'": // Verificar se o caractere é uma aspa simples
-          // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas simples
-          if (buf) {
-            parts.push({ kind: 'code', text: buf });
-          }
-
-          buf = ch;
-          mode = 'sq';
-          break;
-        case '"': // Verificar se o caractere é uma aspa dupla
-          // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de aspas duplas
-          if (buf) {
-            parts.push({ kind: 'code', text: buf });
-          }
-
-          buf = ch;
-          mode = 'dq';
-          break;
-        case '`': // Verificar se o caractere é uma crase
-          // Verificar se há um buffer acumulado e adicioná-lo como parte de código antes de iniciar o modo de crase
-          if (buf) {
-            parts.push({ kind: 'code', text: buf });
-          }
-
-          buf = ch;
-          mode = 'bt';
-          break;
-        case '#': // Verificar se o caractere é um comentário inline (começa com #)
-          // inline comment — rest of line is not code
-          buf += input.slice(i);
-          break;
-        default:  // É outro tipo de código
-          buf += ch;
-          break;
-      }
-
-      // Se o caractere for um comentário inline, não processar mais caracteres como código
-      if (ch === '#') {
-        break;
-      }
-
+      buf = chunk;
+      kind = stack[0].kind as QuoteKind;
       continue;
     }
 
-    // Verifica os modos de aspas simples
-    if (mode === 'sq') {
-      buf += ch;
+    buf += chunk;
 
-      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de aspas simples
-      if (ch === "'") {
-        parts.push({ kind: 'sq', text: buf });
-        buf = '';
-        mode = 'code';
-      }
-
-      continue;
-    }
-
-    // Verifica os modos de aspas duplas
-    if (mode === 'dq') {
-      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-      if (ch === '\\' && i + 1 < input.length) {
-        buf += ch + input[i + 1];
-        i++;
-
-        continue;
-      }
-
-      buf += ch;
-
-      // Verificar se o caractere é uma aspa dupla, indicando o fim do modo de aspas duplas
-      if (ch === '"') {
-        parts.push({ kind: 'dq', text: buf });
-        buf = '';
-        mode = 'code';
-      }
-
-      continue;
-    }
-
-    // Verifica os modos de ANSI-C quoting
-    if (mode === 'ansi') {
-      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-      if (ch === '\\' && i + 1 < input.length) {
-        buf += ch + input[i + 1];
-        i++;
-
-        continue;
-      }
-
-      buf += ch;
-
-      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de ANSI-C quoting
-      if (ch === "'") {
-        parts.push({ kind: 'ansi', text: buf });
-        buf = '';
-        mode = 'code';
-      }
-
-      continue;
-    }
-
-    // Verifica os modos de crase
-    if (mode === 'bt') {
-      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-      if (ch === '\\' && i + 1 < input.length) {
-        buf += ch + input[i + 1];
-        i++;
-
-        continue;
-      }
-
-      buf += ch;
-
-      // Verificar se o caractere é uma crase, indicando o fim do modo de crase
-      if (ch === '`') {
-        parts.push({ kind: 'bt', text: buf });
-        buf = '';
-        mode = 'code';
-      }
-
-      continue;
+    // Fechamento da string mais externa: registra a parte e volta ao código normal
+    if (!wasCode && stack.length === 0) {
+      parts.push({ kind, text: buf });
+      buf = '';
+      kind = 'code';
     }
   }
 
-  // Verificar se há um buffer acumulado ao final da linha e adicioná-lo como parte de código
+  // Verificar se há um buffer acumulado ao final da linha (código ou string não fechada)
   if (buf) {
-    parts.push({ kind: mode, text: buf });
+    parts.push({ kind, text: buf });
   }
 
   return parts;
@@ -172,238 +410,134 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
  * Retorna apenas as partes de código fora de aspas, útil para decisões de indentação.
  * Caracteres literais dentro de strings não devem abrir ou fechar blocos shell.
  * @param input - Linha original de shell.
+ * @param initialMode - Estado de aspas de entrada (vindo da linha anterior).
  * @returns O conteúdo concatenado das partes classificadas como código.
  */
-export function getCodePartsOnly (input: string, initialMode: QuoteKind = 'code'): string {
-  let mode: QuoteKind = initialMode;
+export function getCodePartsOnly (input: string, initialMode: QuoteState = 'code'): string {
+  const stack = parseQuoteState(initialMode);
   let code = '';
 
-  // Iterar por cada caractere da linha para extrair apenas as partes de código
-  for (let i = 0; i < input.length; i++) {
-    const ch = input[i];
+  // Linha de corpo de heredoc dentro de substituição de comando: não há código
+  if (consumeHeredocLine(input, stack)) {
+    return code;
+  }
 
-    // Verifica o modo atual e as transições de estado com base nos caracteres encontrados
-    if (mode === 'code') {
-      // $'...' ANSI-C quoting
-      if (ch === '$' && input[i + 1] === "'") {
-        mode = 'ansi';
-        i++;
-        continue;
-      }
+  // Iterar pela linha, mantendo apenas o que está fora de qualquer string
+  for (let i = 0; i < input.length;) {
+    const wasCode = stack.length === 0;
+    const consumed = lexStep(input, i, stack);
 
-      // Verificar os caracteres que iniciam modos de aspas ou comentários
-      switch (ch) {
-        case "'": // Verificar se o caractere é uma aspa simples, indicando o início do modo de aspas simples
-          mode = 'sq';
-          continue;
-        case '"': // Verificar se o caractere é uma aspa dupla, indicando o início do modo de aspas duplas
-          mode = 'dq';
-          continue;
-        case '`': // Verificar se o caractere é uma crase, indicando o início do modo de crase
-          mode = 'bt';
-          continue;
-        default:
-          code += ch;
-          continue;
-      }
+    // Somente trechos que começam e terminam no código normal são código
+    if (wasCode && stack.length === 0) {
+      code += input.slice(i, i + consumed);
     }
 
-    // Verifica os modos de aspas simples
-    if (mode === 'sq') {
-      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de aspas simples
-      if (ch === "'") {
-        mode = 'code';
-      }
-
-      continue;
-    }
-
-    // Verifica os modos de aspas duplas
-    if (mode === 'dq') {
-      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-      if (ch === '\\' && i + 1 < input.length) {
-        i++;
-        continue;
-      }
-
-      // Verificar se o caractere é uma aspa dupla, indicando o fim do modo de aspas duplas
-      if (ch === '"') {
-        mode = 'code';
-      }
-
-      continue;
-    }
-
-    // Verifica os modos de ANSI-C quoting
-    if (mode === 'ansi') {
-      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-      if (ch === '\\' && i + 1 < input.length) {
-        i++;
-        continue;
-      }
-
-      // Verificar se o caractere é uma aspa simples, indicando o fim do modo de ANSI-C quoting
-      if (ch === "'") {
-        mode = 'code';
-      }
-
-      continue;
-    }
-
-    // Verifica os modos de crase
-    if (mode === 'bt') {
-      // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-      if (ch === '\\' && i + 1 < input.length) {
-        i++;
-        continue;
-      }
-
-      // Verificar se o caractere é uma crase, indicando o fim do modo de crase
-      if (ch === '`') {
-        mode = 'code';
-      }
-    }
+    i += consumed;
   }
 
   return code;
 }
 
 /**
- * Função para calcular o modo de aspas final após processar uma linha inteira de código shell.
+ * Função para calcular o estado de aspas final após processar uma linha inteira de código shell.
  * @param input - Linha original (sem trim) para preservar semântica de escapes.
- * @param initialMode - Modo de aspas de entrada (estado vindo da linha anterior).
- * @returns O modo final após processar a linha.
+ * @param initialMode - Estado de aspas de entrada (vindo da linha anterior).
+ * @returns O estado final após processar a linha: um `QuoteKind` nos casos simples ou a pilha
+ * serializada quando a linha termina dentro de contextos aninhados (ver `QuoteState`).
  */
-export function getQuoteModeAfterLine (input: string, initialMode: QuoteKind = 'code'): QuoteKind {
-  let mode: QuoteKind = initialMode;
+export function getQuoteModeAfterLine (input: string, initialMode: QuoteState = 'code'): QuoteState {
+  const stack = parseQuoteState(initialMode);
 
-  // Iterar por cada caractere da linha para determinar o modo de aspas final
-  for (let i = 0; i < input.length; i++) {
-    const ch = input[i];
-
-    // Verificar o modo atual e as transições de estado com base nos caracteres encontrados
-    switch (mode) {
-      case 'code':  // Modo de código
-        // $'...' ANSI-C quoting
-        if (ch === '$' && input[i + 1] === "'") {
-          mode = 'ansi';
-          i++;
-          continue;
-        }
-
-        // Verificar os caracteres que iniciam modos de aspas ou comentários
-        switch (ch) {
-          case "'": // Verificar se o caractere é uma aspa simples, indicando o início do modo de aspas simples
-            mode = 'sq';
-            continue;
-          case '"': // Verificar se o caractere é uma aspa dupla, indicando o início do modo de aspas duplas
-            mode = 'dq';
-            continue;
-          case '`': // Verificar se o caractere é uma crase, indicando o início do modo de crase
-            mode = 'bt';
-            continue;
-          case '#': // Comentário fora de aspas: resto da linha não altera estado de aspas.
-            break;
-          default:
-            continue;
-        }
-
-        break;
-      case 'sq':    // Modo de aspas simples
-        // Verificar se o caractere é uma aspa simples, indicando o fim do modo de aspas simples
-        if (ch === "'") {
-          mode = 'code';
-        }
-
-        continue;
-      case 'dq':    // Modo de aspas duplas
-        // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-        if (ch === '\\' && i + 1 < input.length) {
-          i++;
-          continue;
-        }
-
-        // Verificar se o caractere é uma aspa dupla, indicando o fim do modo de aspas duplas
-        if (ch === '"') {
-          mode = 'code';
-        }
-
-        continue;
-      case 'ansi':  // Modo de ANSI-C quoting
-        // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-        if (ch === '\\' && i + 1 < input.length) {
-          i++;
-          continue;
-        }
-
-        // Verificar se o caractere é uma aspa simples, indicando o fim do modo de ANSI-C quoting
-        if (ch === "'") {
-          mode = 'code';
-        }
-
-        continue;
-      case 'bt':    // Modo de crase
-        // Verificar se o caractere é uma barra invertida, indicando uma possível sequência de escape
-        if (ch === '\\' && i + 1 < input.length) {
-          i++;
-          continue;
-        }
-
-        // Verificar se o caractere é uma crase, indicando o fim do modo de crase
-        if (ch === '`') {
-          mode = 'code';
-        }
-
-        continue;
-    }
-
-    break;
+  // Linha de corpo de heredoc dentro de substituição de comando: só o delimitador muda o estado
+  if (consumeHeredocLine(input, stack)) {
+    return serializeQuoteState(stack);
   }
 
-  return mode;
+  // Iterar pela linha, avançando o lexer a cada passo
+  for (let i = 0; i < input.length;) {
+    // Comentário fora de aspas: resto da linha não altera o estado de aspas
+    if (stack.length === 0 && input[i] === '#') {
+      break;
+    }
+
+    i += lexStep(input, i, stack);
+  }
+
+  // Heredocs declarados nesta linha começam na próxima
+  openPendingHeredocs(stack);
+
+  return serializeQuoteState(stack);
 }
 
 /**
  * Função para detectar se um operador `<<` de heredoc aparece na parte de código da linha
- * (ou seja, não dentro de aspas ou comentários).
- * Lida com os seguintes casos: `<<EOF`, `<<-EOF`, `<<'EOF'`, `<<"EOF"`, `<<-'EOF'`
+ * (ou seja, fora de aspas e de comentários) e retornar o seu delimitador.
+ * Lida com `<<EOF`, `<<-EOF`, `<<'EOF'`, `<<"EOF"`, `<<\EOF`, `<<E"O"F` e delimitadores com outros
+ * caracteres (`<<END-MSG`, `<<'END MSG'`). Não são heredocs: o here-string `<<<`, o deslocamento
+ * `<<` em expressões aritméticas (`$(( 1 << 2 ))`, `(( x << n ))`) e `<<` em comentários.
  * @param trimmed - A linha de código já trimada (sem espaços no início ou no final).
- * @returns O identificador do heredoc se encontrado, ou null caso contrário.
+ * @returns O delimitador do heredoc se encontrado, ou null caso contrário.
  */
 export function detectHeredocInCode (trimmed: string): string | null {
-  const parts = splitByQuotesPreserve(trimmed);
+  const stack: LexFrame[] = [];
+  // Parênteses abertos no código normal; `true` marca uma expressão aritmética `((`/`$((`.
+  const parens: boolean[] = [];
 
-  // Iterar por cada parte da linha, procurando por operadores de heredoc na parte de código
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
-
-    // Verificar apenas a parte de código, ignorando aspas e comentários
-    if (p.kind !== 'code') {
+  // Iterar pela linha; o lexer cuida de aspas e escapes, e o código normal é analisado aqui
+  for (let i = 0; i < trimmed.length;) {
+    // Dentro de aspas: delegar ao lexer
+    if (stack.length > 0) {
+      i += lexStep(trimmed, i, stack);
       continue;
     }
 
-    // Caso 1: identificador diretamente no código: <<EOF ou <<-EOF ou <<"EOF" ou <<'EOF'
-    const m = p.text.match(/<<-?\s*["']?([A-Za-z0-9_]+)["']?/);
-    if (m) {
-      return m[1];
+    const ch = trimmed[i];
+
+    // Comentário no início de uma palavra: o restante da linha não é código
+    if (ch === '#' && isWordStart(trimmed, i)) {
+      break;
     }
 
-    // Caso 2: << no final da parte do código, identificador na próxima parte entre aspas: <<'EOF' ou <<"EOF"
-    const trailingHeredoc = p.text.match(/<<-?\s*$/);
-    if (trailingHeredoc && i + 1 < parts.length) {
-      const next = parts[i + 1];
+    // Here-string `<<<`: não é heredoc
+    if (trimmed.startsWith('<<<', i)) {
+      i += 3;
+      continue;
+    }
 
-      // Verificar se a próxima parte é uma string entre aspas simples ou duplas contendo um identificador válido
-      if (next.kind === 'sq' || next.kind === 'dq') {
-        // remover aspas ao redor
-        const inner = next.text.slice(1, -1);
+    // Operador de heredoc fora de expressão aritmética
+    if (trimmed.startsWith('<<', i)) {
+      const heredoc = parens.includes(true) ? null : readHeredocDelimiter(trimmed, i + 2);
 
-        // Verificar se o conteúdo interno é um identificador válido (composto por letras, números ou underscores)
-        if (/^[A-Za-z0-9_]+$/.test(inner)) {
-          return inner;
-        }
+      if (heredoc) {
+        return heredoc.delimiter;
       }
+
+      i += 2;
+      continue;
     }
+
+    // Expressão aritmética: `$((` ou `((`
+    if (trimmed.startsWith('$((', i) || trimmed.startsWith('((', i)) {
+      parens.push(true);
+      i += ch === '$' ? 3 : 2;
+      continue;
+    }
+
+    // Fechamento de expressão aritmética: `))`
+    if (trimmed.startsWith('))', i) && parens[parens.length - 1] === true) {
+      parens.pop();
+      i += 2;
+      continue;
+    }
+
+    // Parênteses comuns (subshell, `$(...)`): heredocs continuam válidos dentro deles
+    if (ch === '(') {
+      parens.push(false);
+    } else if (ch === ')') {
+      parens.pop();
+    }
+
+    i += lexStep(trimmed, i, stack);
   }
 
   return null;

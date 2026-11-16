@@ -166,6 +166,14 @@ describe('ShellRangeFormatter.formatRange', () => {
     expect(edits[0].newText).toBe('if [ true ]; then\n  echo hi\nfi');
   });
 
+  it('formats lines after a quoted substitution with nested quotes (issue #34)', () => {
+    const selected = ['x="$(echo \'"Hello"\' | tr -d \'"\')"', 'if true;then', 'echo   hi', 'fi'].join('\n');
+    const expected = ['x="$(echo \'"Hello"\' | tr -d \'"\')"', 'if true; then', '  echo hi', 'fi'].join('\n');
+
+    expect(formatRange(selected)).toBe(expected);
+    expect(formatRange(selected, { reindent: false })).toBe(['x="$(echo \'"Hello"\' | tr -d \'"\')"', 'if true; then', 'echo hi', 'fi'].join('\n'));
+  });
+
   it('returns empty array when selection is already formatted', () => {
     const formatter = new ShellRangeFormatter(defaultOpts);
     const selected = 'if [ true ]; then\n  echo hi\nfi';

@@ -2,6 +2,16 @@
 
 Todas as mudanças relevantes do pacote `ark-format-powershell` estão documentadas aqui.
 
+## 1.2.4 - 2026-11-16
+
+- Versão do pacote atualizada de `1.2.3` para `1.2.4`.
+- Correção (equivalente PowerShell da [#34](https://github.com/Tooark/vscode-ark-format/issues/34)): o formatador apagava ou deixava de formatar as linhas seguintes a uma string com aspas dentro de uma subexpressão, como `Write-Host "Nome: $($user.Name.Trim('"'))"`. O lexer passa a tratar `$(...)` dentro de aspas duplas como um novo contexto de aspas, incluindo parênteses balanceados, escapes com crase, comentários, here-strings aninhadas (preservadas sem reindentação) e subexpressões em várias linhas.
+- Correção: aspas escapadas com crase fora de strings (`` `" `` e `` `' ``) não abrem mais uma string por engano.
+- Proteção contra perda de dados: se uma string continuar aberta até o fim do arquivo, as linhas pendentes passam a ser preservadas sem alterações em vez de descartadas.
+- Exemplo `samples/example.complex.ps1` com subexpressões com aspas aninhadas.
+- Novos testes de regressão para aspas aninhadas em subexpressões, here-strings aninhadas, aspas escapadas e string aberta até o fim do arquivo.
+- Detalhes: [notes/powershell1.2.4.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.4.md)
+
 ## 1.2.3 - 2026-09-13
 
 - Versão do pacote atualizada de `1.2.2` para `1.2.3`.

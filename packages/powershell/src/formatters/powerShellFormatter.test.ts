@@ -514,4 +514,77 @@ describe('PowerShellFormatter.formatText', () => {
       ''
     ].join('\n'));
   });
+
+  describe('aspas aninhadas em subexpressão "$(...)" (equivalente PowerShell da issue #34)', () => {
+    const line = 'Write-Host "Nome: $($user.Name.Trim(\'"\'))"';
+
+    it.each([1, 2, 3])('formata as linhas seguintes com %i ocorrência(s) da linha', (count) => {
+      const input = [...Array<string>(count).fill(line), 'if ($true) {', 'Write-Host   next', '}', ''].join('\n');
+      const expected = [...Array<string>(count).fill(line), 'if ($true) {', '  Write-Host next', '}', ''].join('\n');
+
+      const result = format(input);
+      expect(result).toBe(expected);
+      expect(format(result)).toBe(result);
+    });
+
+    it('preserva subexpressão multilinha com aspas aninhadas', () => {
+      const input = [
+        '$msg = "Itens: $(',
+        '  $items | ForEach-Object { "\'$_\'" }',
+        ')"',
+        'Write-Host $msg',
+        ''
+      ].join('\n');
+
+      expect(format(input)).toBe(input);
+    });
+
+    it('preserva corpo e terminador de here-string dentro de subexpressão em bloco indentado', () => {
+      const input = [
+        'if ($true) {',
+        "$msg = \"Texto: $(@'",
+        "it's literal",
+        "'@",
+        ')"',
+        'Write-Host   ok',
+        '}',
+        ''
+      ].join('\n');
+
+      const expected = [
+        'if ($true) {',
+        "  $msg = \"Texto: $(@'",
+        "it's literal",
+        "'@",
+        '  )"',
+        '  Write-Host ok',
+        '}',
+        ''
+      ].join('\n');
+
+      const result = format(input);
+      expect(result).toBe(expected);
+      expect(format(result)).toBe(result);
+    });
+  });
+
+  it('formata as linhas seguintes a aspas escapadas com crase fora de strings', () => {
+    const input = ['Write-Host it`\'s', 'if ($true) {', 'Write-Host   next', '}', ''].join('\n');
+    const expected = ['Write-Host it`\'s', 'if ($true) {', '  Write-Host next', '}', ''].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
+  it('não descarta linhas quando uma string fica aberta até o fim do arquivo', () => {
+    // Regressão (issue #34, correção no pacote compartilhado): o buffer de string multilinha
+    // só era descarregado quando a string fechava.
+    const input = [
+      'Write-Host "sem fechamento',
+      'linha2',
+      '  linha3',
+      ''
+    ].join('\n');
+
+    expect(format(input)).toBe(input);
+  });
 });

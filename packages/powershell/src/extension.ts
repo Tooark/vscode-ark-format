@@ -5,7 +5,7 @@ import { createInitialState, dedentBeforeLine, indentAfterLine } from './formatt
 import { getCodePartsOnly, getQuoteModeAfterLine, isShebang, isFullLineComment } from './formatters/powerShellLex';
 import { PowerShellRangeFormatter } from './formatters/powerShellRangeFormatter';
 import { POWERSHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from './formatters/types';
-import type { IndentStyle, LineEnding, PowerShellFormatterOptions, PowerShellLanguageId, QuoteKind } from './formatters/types';
+import type { IndentStyle, LineEnding, PowerShellFormatterOptions, PowerShellLanguageId, QuoteState } from './formatters/types';
 
 /**
  * Função de ativação da extensão. Registra os provedores de formatação para documentos e intervalos.
@@ -148,7 +148,7 @@ function buildFormatterOptions (cfg: vscode.WorkspaceConfiguration, editorOption
  */
 function computeBaseIndent (document: vscode.TextDocument, startLine: number): number {
   const st = createInitialState();
-  let quoteMode: QuoteKind = 'code';
+  let quoteMode: QuoteState = 'code';
 
   // Itera sobre as linhas anteriores à seleção para calcular o estado de indentação
   for (let i = 0; i < startLine; i++) {
