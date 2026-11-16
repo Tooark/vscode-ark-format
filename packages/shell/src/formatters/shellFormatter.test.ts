@@ -340,6 +340,29 @@ describe('ShellFormatter.formatText', () => {
     });
   });
 
+  describe('top-level heredoc detection', () => {
+    it('keeps formatting after a heredoc whose delimiter has other characters', () => {
+      const input = ['cat <<END-MSG', "  it's literal", 'END-MSG', 'if true;then', 'echo ok', 'fi', ''].join('\n');
+      const expected = ['cat <<END-MSG', "  it's literal", 'END-MSG', 'if true; then', '  echo ok', 'fi', ''].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('preserves the body of heredocs with quoted or escaped delimiters', () => {
+      // O corpo é literal: não pode receber espaçamento nem reindentação.
+      const input = ["cat <<'END MSG'", 'if[ x ];then', '    keep   spacing', 'END MSG', 'cat <<\\EOF', 'for(( ;; ))', 'EOF', ''].join('\n');
+
+      expect(format(input)).toBe(input);
+    });
+
+    it('keeps formatting after here-strings and arithmetic shifts', () => {
+      const input = ['tr a b <<< word', 'x=$(( 1 << 2 ))', '(( y = 1 << n ))', 'if true;then', 'echo ok', 'fi', ''].join('\n');
+      const expected = ['tr a b <<< word', 'x=$(( 1 << 2 ))', '(( y = 1 << n ))', 'if true; then', '  echo ok', 'fi', ''].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+  });
+
   it('keeps lines after an escaped quote outside of quotes', () => {
     const input = ['echo it\\\'s', 'case $x in', '(*\\\'*) echo quote;;', 'esac', 'echo "Test"', ''].join('\n');
     const expected = ['echo it\\\'s', 'case $x in', '  (*\\\'*) echo quote;;', 'esac', 'echo "Test"', ''].join('\n');

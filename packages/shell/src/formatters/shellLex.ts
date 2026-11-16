@@ -18,11 +18,66 @@ type LexFrame =
   | { kind: 'hd'; delimiter: string };
 
 /**
- * Expressão regular para o operador de heredoc e seu delimitador: `<<EOF`, `<<-EOF`, `<<'EOF'`,
- * `<<"EOF"` e `<<\EOF`. Sem aspas, o delimitador é a palavra inteira, como no Bash (ex.:
- * `<<END-MSG`), desde que não seja só numérica. O here-string `<<<` é excluído por quem chama.
+ * Função para ler o delimitador de um heredoc a partir da posição logo após o operador `<<`.
+ * Aceita `<<-`, espaços antes da palavra e a palavra inteira, como no Bash: termina em espaço ou
+ * metacaractere (`;&|<>()`) e tem as aspas removidas (`'EOF'`, `"EOF"`, `E"O"F` e `\EOF` → `EOF`;
+ * `END-MSG` e `'END MSG'` são aceitos inteiros).
+ * @param line - A linha em análise.
+ * @param start - A posição logo após `<<`.
+ * @returns O delimitador e a posição logo após ele, ou null se não houver palavra válida.
  */
-const HEREDOC_OPERATOR_RE = /^<<-?[ \t]*(?:'([^']*)'|"([^"]*)"|\\?((?![0-9]+(?:[\s;&|<>()]|$))[^\s;&|<>()'"`\\]+))/;
+function readHeredocDelimiter (line: string, start: number): { delimiter: string; end: number } | null {
+  let i = start;
+
+  // Operador `<<-` e espaços antes da palavra
+  if (line[i] === '-') {
+    i++;
+  }
+
+  while (line[i] === ' ' || line[i] === '\t') {
+    i++;
+  }
+
+  let delimiter = '';
+  let quoted = false;
+
+  // Ler a palavra, removendo aspas e escapes
+  while (i < line.length && !/[\s;&|<>()]/.test(line[i])) {
+    const ch = line[i];
+
+    // Trecho entre aspas: conteúdo literal
+    if (ch === "'" || ch === '"') {
+      const close = line.indexOf(ch, i + 1);
+
+      // Aspas sem fechamento: não é um delimitador válido
+      if (close === -1) {
+        return null;
+      }
+
+      delimiter += line.slice(i + 1, close);
+      quoted = true;
+      i = close + 1;
+      continue;
+    }
+
+    // Barra invertida: o próximo caractere é literal
+    if (ch === '\\' && i + 1 < line.length) {
+      delimiter += line[i + 1];
+      i += 2;
+      continue;
+    }
+
+    delimiter += ch;
+    i++;
+  }
+
+  // Sem palavra (ex.: `<<` no fim da linha) não há heredoc; `<<''` é um delimitador vazio válido
+  if (delimiter === '' && !quoted) {
+    return null;
+  }
+
+  return { delimiter, end: i };
+}
 
 /**
  * Função para converter o estado de aspas recebido da linha anterior em uma pilha de contextos.
@@ -178,12 +233,13 @@ function lexStep (input: string, i: number, stack: LexFrame[]): number {
           return 3;
         }
 
-        const m = HEREDOC_OPERATOR_RE.exec(input.slice(i));
+        const heredoc = readHeredocDelimiter(input, i + 2);
 
-        if (m) {
-          top.heredocs.push(m[1] ?? m[2] ?? m[3]);
+        // Delimitador só numérico é tratado como deslocamento (`<< 2`), pois `((` aninhado não é rastreado aqui
+        if (heredoc && !/^[0-9]+$/.test(heredoc.delimiter)) {
+          top.heredocs.push(heredoc.delimiter);
 
-          return m[0].length;
+          return heredoc.end - i;
         }
       }
     }
@@ -415,45 +471,73 @@ export function getQuoteModeAfterLine (input: string, initialMode: QuoteState = 
 
 /**
  * Função para detectar se um operador `<<` de heredoc aparece na parte de código da linha
- * (ou seja, não dentro de aspas ou comentários).
- * Lida com os seguintes casos: `<<EOF`, `<<-EOF`, `<<'EOF'`, `<<"EOF"`, `<<-'EOF'`
+ * (ou seja, fora de aspas e de comentários) e retornar o seu delimitador.
+ * Lida com `<<EOF`, `<<-EOF`, `<<'EOF'`, `<<"EOF"`, `<<\EOF`, `<<E"O"F` e delimitadores com outros
+ * caracteres (`<<END-MSG`, `<<'END MSG'`). Não são heredocs: o here-string `<<<`, o deslocamento
+ * `<<` em expressões aritméticas (`$(( 1 << 2 ))`, `(( x << n ))`) e `<<` em comentários.
  * @param trimmed - A linha de código já trimada (sem espaços no início ou no final).
- * @returns O identificador do heredoc se encontrado, ou null caso contrário.
+ * @returns O delimitador do heredoc se encontrado, ou null caso contrário.
  */
 export function detectHeredocInCode (trimmed: string): string | null {
-  const parts = splitByQuotesPreserve(trimmed);
+  const stack: LexFrame[] = [];
+  // Parênteses abertos no código normal; `true` marca uma expressão aritmética `((`/`$((`.
+  const parens: boolean[] = [];
 
-  // Iterar por cada parte da linha, procurando por operadores de heredoc na parte de código
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i];
-
-    // Verificar apenas a parte de código, ignorando aspas e comentários
-    if (p.kind !== 'code') {
+  // Iterar pela linha; o lexer cuida de aspas e escapes, e o código normal é analisado aqui
+  for (let i = 0; i < trimmed.length;) {
+    // Dentro de aspas: delegar ao lexer
+    if (stack.length > 0) {
+      i += lexStep(trimmed, i, stack);
       continue;
     }
 
-    // Caso 1: identificador diretamente no código: <<EOF ou <<-EOF ou <<"EOF" ou <<'EOF'
-    const m = p.text.match(/<<-?\s*["']?([A-Za-z0-9_]+)["']?/);
-    if (m) {
-      return m[1];
+    const ch = trimmed[i];
+
+    // Comentário no início de uma palavra: o restante da linha não é código
+    if (ch === '#' && isWordStart(trimmed, i)) {
+      break;
     }
 
-    // Caso 2: << no final da parte do código, identificador na próxima parte entre aspas: <<'EOF' ou <<"EOF"
-    const trailingHeredoc = p.text.match(/<<-?\s*$/);
-    if (trailingHeredoc && i + 1 < parts.length) {
-      const next = parts[i + 1];
+    // Here-string `<<<`: não é heredoc
+    if (trimmed.startsWith('<<<', i)) {
+      i += 3;
+      continue;
+    }
 
-      // Verificar se a próxima parte é uma string entre aspas simples ou duplas contendo um identificador válido
-      if (next.kind === 'sq' || next.kind === 'dq') {
-        // remover aspas ao redor
-        const inner = next.text.slice(1, -1);
+    // Operador de heredoc fora de expressão aritmética
+    if (trimmed.startsWith('<<', i)) {
+      const heredoc = parens.includes(true) ? null : readHeredocDelimiter(trimmed, i + 2);
 
-        // Verificar se o conteúdo interno é um identificador válido (composto por letras, números ou underscores)
-        if (/^[A-Za-z0-9_]+$/.test(inner)) {
-          return inner;
-        }
+      if (heredoc) {
+        return heredoc.delimiter;
       }
+
+      i += 2;
+      continue;
     }
+
+    // Expressão aritmética: `$((` ou `((`
+    if (trimmed.startsWith('$((', i) || trimmed.startsWith('((', i)) {
+      parens.push(true);
+      i += ch === '$' ? 3 : 2;
+      continue;
+    }
+
+    // Fechamento de expressão aritmética: `))`
+    if (trimmed.startsWith('))', i) && parens[parens.length - 1] === true) {
+      parens.pop();
+      i += 2;
+      continue;
+    }
+
+    // Parênteses comuns (subshell, `$(...)`): heredocs continuam válidos dentro deles
+    if (ch === '(') {
+      parens.push(false);
+    } else if (ch === ')') {
+      parens.pop();
+    }
+
+    i += lexStep(trimmed, i, stack);
   }
 
   return null;

@@ -31,7 +31,7 @@ echo "Running as: $user"
 # Process substitution
 while read -r line;do
 echo "Line: $line"
-done <(grep -r "TODO" /path/to/src 2>/dev/null || echo "No TODOs found")
+done < <(grep -r "TODO" /path/to/src 2>/dev/null || echo "No TODOs found")
 
 
 

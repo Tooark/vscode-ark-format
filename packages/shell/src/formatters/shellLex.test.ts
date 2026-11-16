@@ -133,6 +133,35 @@ describe('detectHeredocInCode', () => {
   it('detects heredoc with dash (<<-)', () => {
     expect(detectHeredocInCode('cat <<-INDENT')).toBe('INDENT');
   });
+
+  it('uses the whole word as the delimiter, with quotes and escapes removed', () => {
+    expect(detectHeredocInCode('cat <<END-MSG')).toBe('END-MSG');
+    expect(detectHeredocInCode('cat <<-END-MSG')).toBe('END-MSG');
+    expect(detectHeredocInCode('cat <<END.txt')).toBe('END.txt');
+    expect(detectHeredocInCode("cat <<'END MSG'")).toBe('END MSG');
+    expect(detectHeredocInCode('cat <<E"O"F')).toBe('EOF');
+    expect(detectHeredocInCode('cat <<\\EOF')).toBe('EOF');
+    expect(detectHeredocInCode('cat << EOF')).toBe('EOF');
+  });
+
+  it('stops the delimiter at spaces and metacharacters', () => {
+    expect(detectHeredocInCode('cat <<EOF | tr a b')).toBe('EOF');
+    expect(detectHeredocInCode('cat <<EOF;')).toBe('EOF');
+    expect(detectHeredocInCode('x=$(cat <<EOF')).toBe('EOF');
+    expect(detectHeredocInCode('n=${#arr[@]}; cat <<EOF')).toBe('EOF');
+  });
+
+  it('does not treat here-strings, arithmetic shifts or comments as heredocs', () => {
+    expect(detectHeredocInCode('cat <<< word')).toBe(null);
+    expect(detectHeredocInCode('cat <<< "word"')).toBe(null);
+    expect(detectHeredocInCode('tr a b <<<"$x"')).toBe(null);
+    expect(detectHeredocInCode('echo $(( 1 << 2 ))')).toBe(null);
+    expect(detectHeredocInCode('echo $(( (1 + 2) << n ))')).toBe(null);
+    expect(detectHeredocInCode('(( x = 1 << n ))')).toBe(null);
+    expect(detectHeredocInCode('echo hi # see <<EOF')).toBe(null);
+    expect(detectHeredocInCode('cat <<')).toBe(null);
+    expect(detectHeredocInCode("cat <<'EOF")).toBe(null);
+  });
 });
 
 describe('getCodePartsOnly', () => {
