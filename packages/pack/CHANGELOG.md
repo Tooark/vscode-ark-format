@@ -1,92 +1,103 @@
 # Changelog
 
-Todas as mudanças relevantes do pacote `ark-format` (extension pack) estão documentadas aqui.
+All notable changes to the `ark-format` package (extension pack) are documented here.
+
+🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/packages/pack/CHANGELOG.pt-BR.md)
+
+## 1.1.2 - 2026-11-18
+
+- Package version bumped from `1.1.1` to `1.1.2`.
+- Changelog in English ([#24](https://github.com/Tooark/vscode-ark-format/discussions/24)): `CHANGELOG.md`, the file shown on the Marketplace, is now in English, and the Portuguese version moved to `CHANGELOG.pt-BR.md`, with a language switcher in both files, as in the README.
+- Release notes in `notes/` are now bilingual (English and Portuguese), including those of previous versions.
+- Extension pack aligned with the same documentation update in the extensions (`shell1.0.15`, `powershell1.2.5`, `makefile1.0.2`).
+- No functional changes to the extension pack.
+- Details: [notes/pack1.1.2.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.2.md)
 
 ## 1.1.1 - 2026-07-06
 
-- Versão do pacote atualizada de `1.1.0` para `1.1.1`.
-- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
-- Alinhamento do extension pack com a rodada de atualização das extensões (`shell1.0.12`, `powershell1.2.1`, `makefile1.0.1`): link de sponsor nos manifests e GIFs de demonstração regenerados.
-- Sem alterações funcionais no extension pack.
-- Detalhes: [notes/pack1.1.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.1.md)
+- Package version bumped from `1.1.0` to `1.1.1`.
+- Added the `sponsor` field to the extension manifest, enabling the sponsor button (GitHub Sponsors) on the Marketplace page.
+- Extension pack aligned with the extensions' update round (`shell1.0.12`, `powershell1.2.1`, `makefile1.0.1`): sponsor link in the manifests and regenerated demo GIFs.
+- No functional changes to the extension pack.
+- Details: [notes/pack1.1.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.1.md)
 
 ## 1.1.0 - 2026-07-05
 
-- Versão do pacote atualizada de `1.0.9` para `1.1.0`.
-- Inclusão da extensão `tooark.ark-format-makefile` (versão inicial `1.0.0`) no extension pack.
-- O pack agora instala os formatadores de Shell, PowerShell e Makefile em conjunto.
-- Atualização de READMEs (EN/PT-BR) e keywords para refletir o suporte a Makefile.
-- Seção de apoio (Support) adicionada aos READMEs (EN/PT-BR).
-- Detalhes: [notes/pack1.1.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.0.md)
+- Package version bumped from `1.0.9` to `1.1.0`.
+- Added the `tooark.ark-format-makefile` extension (initial version `1.0.0`) to the extension pack.
+- The pack now installs the Shell, PowerShell and Makefile formatters together.
+- Updated the READMEs (EN/PT-BR) and keywords to reflect Makefile support.
+- Support section added to the READMEs (EN/PT-BR).
+- Details: [notes/pack1.1.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.1.0.md)
 
 ## 1.0.9 - 2026-06-27
 
-- Versão do pacote atualizada de `1.0.8` para `1.0.9`.
-- Alinhamento do extension pack com a rodada de manutenção de segurança dos formatadores (`ark-format-shell` e `ark-format-powershell` com atualização de dependências vulneráveis dos avisos do Dependabot).
-- Sem alterações de configuração do extension pack além do alinhamento de release.
-- Detalhes: [notes/pack1.0.9.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.9.md)
+- Package version bumped from `1.0.8` to `1.0.9`.
+- Extension pack aligned with the formatters' security maintenance round (`ark-format-shell` and `ark-format-powershell` with vulnerable dependencies from Dependabot alerts updated).
+- No extension pack configuration changes beyond the release alignment.
+- Details: [notes/pack1.0.9.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.9.md)
 
 ## 1.0.8 - 2026-05-31
 
-- Versão do pacote atualizada de `1.0.7` para `1.0.8`.
-- Alinhamento do extension pack com a release de manutenção dos formatadores:
-  - Shell com correções de `fi` inline e `case` aninhado.
-  - PowerShell com reforço de cobertura de regressão para cenários análogos.
-- Sem mudanças funcionais adicionais no extension pack além do alinhamento de release.
-- Detalhes: [notes/pack1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.8.md)
+- Package version bumped from `1.0.7` to `1.0.8`.
+- Extension pack aligned with the formatters' maintenance release:
+  - Shell with fixes for inline `fi` and nested `case`.
+  - PowerShell with strengthened regression coverage for analogous scenarios.
+- No additional functional changes to the extension pack beyond the release alignment.
+- Details: [notes/pack1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.8.md)
 
 ## 1.0.7 - 2026-05-31
 
-- Versão do pacote atualizada de `1.0.6` para `1.0.7`.
-- Ajuste no pipeline de publicação para remover passagem explícita de token nas chamadas de `vsce` e `ovsx`, reduzindo exposição de segredos em linha de comando.
-- Detalhes: [notes/pack1.0.7.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.7.md)
+- Package version bumped from `1.0.6` to `1.0.7`.
+- Publishing pipeline adjusted to stop passing the token explicitly in the `vsce` and `ovsx` calls, reducing exposure of secrets on the command line.
+- Details: [notes/pack1.0.7.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.7.md)
 
 ## 1.0.6 - 2026-05-27
 
-- Ajuste de documentação bilíngue: links de idioma do README migrados de `raw.githubusercontent.com` para `github.com/.../blob/...`.
-- Versão do pacote atualizada de `1.0.5` para `1.0.6`.
-- Endurecimento de segurança no workspace de build/publicação: override de `tmp` para `>=0.2.6` no lockfile do monorepo.
-- Detalhes: [notes/pack1.0.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.6.md)
+- Bilingual documentation adjustment: README language links moved from `raw.githubusercontent.com` to `github.com/.../blob/...`.
+- Package version bumped from `1.0.5` to `1.0.6`.
+- Security hardening in the build/publish workspace: `tmp` overridden to `>=0.2.6` in the monorepo lockfile.
+- Details: [notes/pack1.0.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.6.md)
 
 ## 1.0.5 - 2026-05-27
 
-- Reestruturação completa do README do extension pack para o novo padrão de documentação.
-- Inclusão de `README.pt-BR.md` com navegação de idiomas EN/PT-BR.
-- Melhoria na apresentação dos links de instalação (VS Marketplace e Open VSX).
-- Alinhamento da descrição do pacote com o objetivo do extension pack (Shell + PowerShell).
-- Versão do pacote atualizada de `1.0.4` para `1.0.5`.
-- Detalhes: [notes/pack1.0.5.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.5.md)
+- Complete restructuring of the extension pack README to the new documentation standard.
+- Added `README.pt-BR.md` with EN/PT-BR language navigation.
+- Improved presentation of the install links (VS Marketplace and Open VSX).
+- Package description aligned with the purpose of the extension pack (Shell + PowerShell).
+- Package version bumped from `1.0.4` to `1.0.5`.
+- Details: [notes/pack1.0.5.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.5.md)
 
 ## 1.0.4 - 2026-05-23
 
-- Alinhamento da versão do extension pack com as releases de Shell e PowerShell.
-- Atualização de dependência do workspace (`qs` para `6.15.2`).
-- Versão do pacote atualizada de `1.0.3` para `1.0.4`.
-- Detalhes: [notes/pack1.0.4.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.4.md)
+- Extension pack version aligned with the Shell and PowerShell releases.
+- Workspace dependency update (`qs` to `6.15.2`).
+- Package version bumped from `1.0.3` to `1.0.4`.
+- Details: [notes/pack1.0.4.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.4.md)
 
 ## 1.0.3 - 2026-05-22
 
-- README atualizado com links de instalação para VS Marketplace e Open VSX.
-- Adição de nota de compatibilidade entre VS Code e VSCodium/compatíveis.
-- Remoção da seção Autor do README.
-- Versão do pacote atualizada de `1.0.2` para `1.0.3`.
-- Detalhes: [notes/pack1.0.3.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.3.md)
+- README updated with install links for VS Marketplace and Open VSX.
+- Added a compatibility note covering VS Code and VSCodium/compatible editors.
+- Removed the Author section from the README.
+- Package version bumped from `1.0.2` to `1.0.3`.
+- Details: [notes/pack1.0.3.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.3.md)
 
 ## 1.0.2 - 2026-05-21
 
-- Alinhamento de versão com os pacotes relacionados (`ark-format-shell` e `ark-format-powershell`).
-- Versão do pacote atualizada de `1.0.1` para `1.0.2`.
-- Detalhes: [notes/pack1.0.2.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.2.md)
+- Version aligned with the related packages (`ark-format-shell` and `ark-format-powershell`).
+- Package version bumped from `1.0.1` to `1.0.2`.
+- Details: [notes/pack1.0.2.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.2.md)
 
 ## 1.0.1 - 2026-05-21
 
-- Atualização do link da imagem no README para URL absoluta no repositório.
-- Ajustes visuais na seção de autor do README (avatar e espaçamento).
-- Versão do pacote atualizada de `1.0.0` para `1.0.1`.
-- Detalhes: [notes/pack1.0.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.1.md)
+- README image link updated to an absolute URL in the repository.
+- Visual tweaks to the README author section (avatar and spacing).
+- Package version bumped from `1.0.0` to `1.0.1`.
+- Details: [notes/pack1.0.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.1.md)
 
 ## 1.0.0 - 2026-05-21
 
-- Primeira versão do extension pack Ark Format.
-- Instalação conjunta dos formatadores Shell e PowerShell.
-- Detalhes: [notes/pack1.0.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.0.md)
+- First version of the Ark Format extension pack.
+- Installs the Shell and PowerShell formatters together.
+- Details: [notes/pack1.0.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/pack1.0.0.md)

@@ -1,6 +1,29 @@
 # Release makefile1.0.0
 
-## Alterações desta versão
+## Notes in en-US
+
+### Changes in this version
+
+- Initial version of the `ark-format-makefile` package (`1.0.0`), following the structure of the Shell and PowerShell extensions and reusing the `@tooark/ark-format-shared` package (config, editorConfig, document and types).
+- Full document and selection formatting (range formatting), with the base conditional depth calculated from the document context.
+- Safety invariants:
+  - Recipe lines (prefixed with TAB) never have their body changed.
+  - `define ... endef` blocks preserved unchanged.
+  - Line continuations (`\`) preserved.
+  - The whole document is preserved when `.RECIPEPREFIX` is redefined.
+- Spacing rules: assignment operators (`=`, `:=`, `::=`, `?=`, `+=`, `!=`), target separator (`:`/`::`), conditional keywords (`ifeq (`) and comment marker (`#`/`##`).
+- Alignment of assignment line continuations (`\`) with the start of the value on the first line.
+- Optional vertical alignment of assignment operators in contiguous variable blocks (`alignAssignments`, off by default to avoid diff noise; padding always uses spaces, never TAB).
+- Configurable indentation of conditional blocks using spaces (TAB is never used, since it has its own meaning in Makefiles).
+- Optional recipe prefix normalization: recipes indented with spaces get the required TAB (only when the content is not Makefile syntax), and excessive leading whitespace (multiple TABs or mixtures) is reduced to exactly 1 TAB, preserving the inner indentation of continuations.
+- Configurable cleanup: trailing spaces, consecutive blank lines, leading blank lines, final newline and line ending style (LF/CRLF/Auto).
+- Optional `.editorconfig` support, EN/PT-BR localization and samples in `samples/`.
+- Unit tests for the formatter and the extension layer (activation, providers and conditional depth calculation, ignoring recipes and `define` blocks), integrated into the monorepo's consolidated coverage.
+- Support section in the READMEs (EN/PT-BR).
+
+## Notas em pt-BR
+
+### Alterações desta versão
 
 - Versão inicial do pacote `ark-format-makefile` (`1.0.0`), seguindo a estrutura das extensões Shell e PowerShell e reutilizando o pacote `@tooark/ark-format-shared` (config, editorConfig, document e types).
 - Formatação de documento completo e de seleção (range formatting), com cálculo da profundidade base de condicionais a partir do contexto do documento.
@@ -19,7 +42,7 @@
 - Testes de unidade do formatador e da camada de extensão (ativação, providers e cálculo da profundidade de condicionais, ignorando recipes e blocos `define`), integrados à cobertura consolidada do monorepo.
 - Seção de apoio (Support) nos READMEs (EN/PT-BR).
 
-## Informações Adicionais
+## Additional Information / Informações Adicionais
 
-- Tag relacionada: `makefile1.0.0`
-- Data de lançamento: **2026-07-05**
+- Tag: `makefile1.0.0`
+- Release date / Data de lançamento: **2026-07-05**

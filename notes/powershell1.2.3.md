@@ -1,6 +1,25 @@
 # Release powershell1.2.3
 
-## Alterações desta versão
+## Notes in en-US
+
+### Changes in this version
+
+- Package version bumped from `1.2.2` to `1.2.3`.
+- **Fix**: spacing rules were applied to the line's entire code segment, and that segment included the line comment (`#`) up to the end of the line. Consequences:
+  - `collapseSpaces` removed column-alignment spaces inside comments — for example, `Uso:`/`Env:` blocks in script headers lost their visual tabulation (`#   ./build.ps1 -Target Test      executa apenas os testes` became `# ./build.ps1 -Target Test executa apenas os testes`).
+  - The space-before-opening-brace rule changed code quoted in comments: `function Test{` → `function Test {`, `if ($x){` → `if ($x) {`.
+- Comment text is now preserved literally. The rest of the behavior is unchanged:
+  - The rules still apply to the code that precedes the comment (`if ($x){ # nota` → `if ($x) { # nota`).
+  - The space between the code and the `#` of an inline comment is still collapsed (`$x = 1    # nota` → `$x = 1 # nota`).
+  - The space after the marker is still normalized (`#texto` → `# texto`), without touching the rest of the comment; `#>` is still preserved.
+  - Backtick-escaped `#` (`` `# ``) and shebangs are still recognized as non-comments.
+- Block comments (`<# ... #>`) were already exempt from these rules and remain governed exclusively by `formatBlockComments`.
+- Tests: new regression cases in `applyPowerShellSpacing` (alignment in full-line and inline comments, code quoted in a comment, rules still applied to the code before the `#`, marker spacing, backtick-escaped `#`) and a document case with a `Uso:`/`Env:` header verified as a fixed point of the formatter.
+- No new settings. The same fix was applied to the Shell formatter in version `1.0.13`.
+
+## Notas em pt-BR
+
+### Alterações desta versão
 
 - Versão do pacote atualizada de `1.2.2` para `1.2.3`.
 - **Correção**: as regras de espaçamento eram aplicadas ao trecho de código da linha inteiro, e esse trecho incluía o comentário de linha (`#`) até o fim da linha. Consequências:
@@ -15,7 +34,7 @@
 - Testes: novos casos de regressão em `applyPowerShellSpacing` (alinhamento em comentário de linha inteira e inline, código citado em comentário, regras ainda aplicadas ao código antes do `#`, espaço do marcador, `#` escapado por crase) e um caso de documento com cabeçalho `Uso:`/`Env:` verificado como ponto fixo do formatador.
 - Sem novas opções de configuração. Mesma correção aplicada ao formatador de Shell na versão `1.0.13`.
 
-## Informações Adicionais
+## Additional Information / Informações Adicionais
 
-- Tag relacionada: `powershell1.2.3`
-- Data de lançamento: **2026-09-13**
+- Tag: `powershell1.2.3`
+- Release date / Data de lançamento: **2026-09-13**

@@ -1,0 +1,136 @@
+# Changelog
+
+Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas aqui.
+
+🌍 **Idiomas:** [![USA Flag](https://flagcdn.com/w20/us.png) English](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/CHANGELOG.md) · ![Brazil Flag](https://flagcdn.com/w20/br.png) **Português (este arquivo)**
+
+## 1.0.15 - 2026-11-18
+
+- Versão do pacote atualizada de `1.0.14` para `1.0.15`.
+- Changelog em inglês ([#24](https://github.com/Tooark/vscode-ark-format/discussions/24)): o `CHANGELOG.md`, arquivo exibido no Marketplace, passa a ser em inglês, e a versão em português foi movida para `CHANGELOG.pt-BR.md`, com seletor de idioma nos dois arquivos, como no README.
+- Notas de release em `notes/` passam a ser bilíngues (inglês e português), incluindo as das versões anteriores.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.15.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.15.md)
+
+## 1.0.14 - 2026-11-16
+
+- Versão do pacote atualizada de `1.0.13` para `1.0.14`.
+- Correção ([#34](https://github.com/Tooark/vscode-ark-format/issues/34)): o formatador apagava as linhas seguintes a uma substituição de comando entre aspas duplas que contém aspas aninhadas, como `x="$(echo '"Hello"' | tr -d '"')"`. O lexer passa a tratar `$(...)` dentro de aspas duplas como um novo contexto de aspas, como o Bash, incluindo parênteses balanceados, `$((...))`, escapes, comentários, heredocs e here-strings dentro da substituição e substituições em várias linhas.
+- Correção: aspas escapadas fora de strings (`it\'s`, `\"texto\"`, `(*\'*)`) não abrem mais uma string por engano.
+- Correção: o corpo e o delimitador de um heredoc declarado dentro de `"$(...)"` multilinha em um bloco indentado eram reindentados, quebrando o script. Passam a ser preservados como no original.
+- Correção: detecção de heredoc no código normal. O delimitador passa a ser a palavra inteira, como no Bash (`<<END-MSG`, `<<'END MSG'`, `<<\EOF`, `<<E"O"F`), e o here-string `<<<`, o deslocamento `<<` em expressões aritméticas e `<<` em comentários deixam de ser tratados como heredoc. Antes, esses casos deixavam o restante do arquivo sem formatar ou formatavam o corpo do heredoc como código.
+- Proteção contra perda de dados: se uma string continuar aberta até o fim do arquivo, as linhas pendentes passam a ser preservadas sem alterações em vez de descartadas.
+- Exemplo `samples/example.bash` com os casos da issue e um heredoc dentro de `"$(...)"`; corrigida a substituição de processo do exemplo (`done < <(...)`).
+- Novos testes de regressão para os casos da issue, aspas aninhadas, heredocs, aspas escapadas e string aberta até o fim do arquivo.
+- Detalhes: [notes/shell1.0.14.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.14.md)
+
+## 1.0.13 - 2026-09-13
+
+- Versão do pacote atualizada de `1.0.12` para `1.0.13`.
+- Correção: as regras de espaçamento eram aplicadas também ao texto dos comentários (`#`). O `collapseSpaces` removia espaços de alinhamento em colunas (ex.: blocos `Usage:`/`Env:` em cabeçalhos de script) e as regras de palavras-chave alteravam código citado em comentários (`for(` → `for (`, `if[` → `if [`, `;then` → `; then`).
+- O texto do comentário passa a ser preservado literalmente; as regras continuam valendo para o código que o precede, o espaço entre o código e o `#` de um comentário inline continua sendo colapsado e o espaço após o marcador (`#texto` → `# texto`) continua sendo normalizado.
+- Novos testes de regressão: alinhamento em comentários de linha inteira e inline, código citado em comentário, e cabeçalho de script como ponto fixo do formatador.
+- Detalhes: [notes/shell1.0.13.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.13.md)
+
+## 1.0.12 - 2026-07-06
+
+- Versão do pacote atualizada de `1.0.11` para `1.0.12`.
+- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
+- GIFs de demonstração do README regenerados (`shell-settings.gif` e `shell-using.gif`) com capturas atualizadas e maior qualidade.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.12.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.12.md)
+
+## 1.0.11 - 2026-07-05
+
+- Correção na formatação de seleção (range formatting): strings multilinha passam a ser rastreadas como no formatador de documento — o conteúdo literal é preservado sem reprocessamento e palavras-chave dentro de strings (ex.: `do`, `then`) não alteram mais a indentação das linhas seguintes.
+- Correção na formatação de seleção: conteúdo de heredocs preservado também no modo sem reindentação (antes sofria colapso de espaços).
+- Correção no cálculo do nível base de contexto (`rangeFormatting.useDocumentContext`): as linhas anteriores à seleção passam a ser analisadas apenas pelas partes de código, ignorando conteúdo de strings.
+- Refatoração interna sem mudança de comportamento: helpers de edição e espaçamento promovidos ao pacote compartilhado (`@tooark/ark-format-shared/edits` e `/spacing`) e remoção de código sem uso.
+- Novos testes: regressões da formatação de seleção e testes da camada de extensão (ativação, providers, engine `shfmt` e proteção de `shfmt.path`/`shfmt.flags` contra escopos de workspace).
+- Seção de apoio (Support) adicionada aos READMEs (EN/PT-BR).
+- Versão do pacote atualizada de `1.0.10` para `1.0.11`.
+- Detalhes: [notes/shell1.0.11.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.11.md)
+
+## 1.0.10 - 2026-07-05
+
+- Versão do pacote atualizada de `1.0.9` para `1.0.10`.
+- Atualização da descrição da extensão para refletir suporte a scripts Shell (`.sh`, `.bash`, `.bats`, `.zsh`).
+- Descrição ajustada para explicitar suporte aos engines `internal` e `shfmt`.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.10.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.10.md)
+
+## 1.0.9 - 2026-06-27
+
+- Versão do pacote atualizada de `1.0.8` para `1.0.9`.
+- Rodada de manutenção de segurança nas dependências (avisos do Dependabot) aplicada via `overrides` no workspace.
+- Sem alterações funcionais no motor de formatação.
+- Detalhes: [notes/shell1.0.9.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.9.md)
+
+## 1.0.8 - 2026-05-31
+
+- Versão do pacote atualizada de `1.0.7` para `1.0.8`.
+- Correção de indentação para fechamento inline de `if` com `fi`/`endif` na mesma linha (ex.: `return; fi`), evitando drift no próximo bloco irmão.
+- Correção de contexto para `case` aninhado, preservando corretamente labels e terminadores `;;` no `case` externo após `esac` interno.
+- Inclusão de testes de regressão para cenários de `fi` inline e `case` aninhado.
+- Atualização de amostra complexa com cenário dedicado de `case` aninhado para validação manual.
+- Detalhes: [notes/shell1.0.8.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.8.md)
+
+## 1.0.7 - 2026-05-31
+
+- Versão do pacote atualizada de `1.0.6` para `1.0.7`.
+- Endurecimento de segurança na integração com `shfmt`: configurações `arkFormatShell.shfmt.path` e `arkFormatShell.shfmt.flags` passam a ignorar escopos de `workspace` e `workspaceFolder`, priorizando apenas valores em nível de usuário.
+- Remoção de log de ativação no `activate`, reduzindo ruído no host da extensão.
+- Ajuste no pipeline de publicação para remover passagem explícita de token nas chamadas de `vsce` e `ovsx`.
+- Detalhes: [notes/shell1.0.7.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.7.md)
+
+## 1.0.6 - 2026-05-27
+
+- Ajuste de documentação bilíngue: links de idioma do README migrados de `raw.githubusercontent.com` para `github.com/.../blob/...`.
+- Versão do pacote atualizada de `1.0.5` para `1.0.6`.
+- Endurecimento de segurança no workspace de build/publicação: override de `tmp` para `>=0.2.6` no lockfile do monorepo.
+- Detalhes: [notes/shell1.0.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.6.md)
+
+## 1.0.5 - 2026-05-27
+
+- Reestruturação completa do README para o novo padrão de documentação.
+- Inclusão de `README.pt-BR.md` com navegação de idiomas EN/PT-BR.
+- Correções de consistência na documentação (`lineEnding` e dica de uso para Shell).
+- Versão do pacote atualizada de `1.0.4` para `1.0.5`.
+- Detalhes: [notes/shell1.0.5.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.5.md)
+
+## 1.0.4 - 2026-05-23
+
+- Correções do motor de indentação para blocos `if/elif/else` e ramos `case` inline (`;;`, `;&`, `;;&`).
+- Adição de testes de regressão para os cenários corrigidos.
+- Limpeza de comandos não utilizados no manifesto e arquivos de localização.
+- Atualização de dependência do workspace (`qs` para `6.15.2`).
+- Versão do pacote atualizada de `1.0.3` para `1.0.4`.
+- Detalhes: [notes/shell1.0.4.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.4.md)
+
+## 1.0.3 - 2026-05-22
+
+- Revisão da documentação para refletir defaults reais da extensão.
+- Remoção da seção Autor do README.
+- Versão do pacote atualizada de `1.0.2` para `1.0.3`.
+- Detalhes: [notes/shell1.0.3.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.3.md)
+
+## 1.0.2 - 2026-05-21
+
+- Nova regra de formatação para comandos multilinha com `\` dentro de `"$(...)"`.
+- Correção de integração com VS Code removendo `contributes.languages` (evita impacto em syntax highlighting).
+- Versão do pacote atualizada de `1.0.1` para `1.0.2`.
+- Detalhes: [notes/shell1.0.2.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.2.md)
+
+## 1.0.1 - 2026-05-21
+
+- Inclusão de traduções ausentes para comandos no `package.nls.json`.
+- Ajustes visuais na seção de autor do README (avatar e espaçamento).
+- Versão do pacote atualizada de `1.0.0` para `1.0.1`.
+- Detalhes: [notes/shell1.0.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.1.md)
+
+## 1.0.0 - 2026-05-21
+
+- Primeira versão estável do formatador Shell.
+- Suporte a engine interna e integração opcional com `shfmt`.
+- Suporte a formatação completa e por seleção, regras de indentação e `.editorconfig`.
+- Detalhes: [notes/shell1.0.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.0.md)

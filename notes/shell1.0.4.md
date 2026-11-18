@@ -1,6 +1,23 @@
 # Release shell1.0.4
 
-## Alterações desta versão
+## Notes in en-US
+
+### Changes in this version
+
+- Version bump of the `ark-format-shell` package: `1.0.3` -> `1.0.4`.
+- Extension manifest cleanup:
+  - removed unused command definitions from `package.json`.
+  - removed the localization keys associated with those commands from `package.nls.json` and `package.nls.pt-br.json`.
+- Fix in the internal indentation engine for scenarios with `if`/`else` blocks and inline `case` branches:
+  - now correctly detects when `if`, `elif` and `else` open a block on the next line.
+  - now correctly closes `case` branches terminated inline with `;;`, `;&` and `;;&`, including with a comment at the end of the line.
+  - avoids an incorrect dedent when a line merely ends with a branch terminator after other commands.
+- Added regression tests covering the new Shell indentation and formatting scenarios.
+- Workspace dependency maintenance: `qs` updated to `6.15.2` in the pnpm lockfile/resolution to fix a Dependabot alert.
+
+## Notas em pt-BR
+
+### Alterações desta versão
 
 - Bump de versão do pacote `ark-format-shell`: `1.0.3` -> `1.0.4`.
 - Limpeza do manifesto da extensão:
@@ -13,7 +30,7 @@
 - Adicionados testes de regressão para cobrir os novos cenários de indentação e formatação Shell.
 - Manutenção de dependências do workspace: atualização de `qs` para `6.15.2` no lockfile/resolução do pnpm para corrigir alerta do Dependabot.
 
-## Informações Adicionais
+## Additional Information / Informações Adicionais
 
-- Tag relacionada: `shell1.0.4`
-- Data de lançamento: **2026-05-23**
+- Tag: `shell1.0.4`
+- Release date / Data de lançamento: **2026-05-23**

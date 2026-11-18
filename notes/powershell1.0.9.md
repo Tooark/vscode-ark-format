@@ -1,6 +1,24 @@
 # Release powershell1.0.9
 
-## Alterações desta versão
+## Notes in en-US
+
+### Changes in this version
+
+- Version bump of the `ark-format-powershell` package: `1.0.8` -> `1.0.9`.
+- Round of security maintenance on dependencies (Dependabot alerts):
+  - `esbuild` updated to `0.28.1` (arbitrary file read in the dev server on Windows).
+  - `vite` updated to `>=8.0.16` (`server.fs.deny` bypass via alternate paths on Windows and NTLMv2 hash disclosure via `launch-editor`).
+  - `undici` updated to `>=7.28.0` (HTTP response queue poisoning, `SameSite` downgrade, header injection, cache leakage and SOCKS5 proxy flaws).
+  - `markdown-it` updated to `>=14.2.0` (quadratic-complexity DoS in the smartquotes rule).
+  - `tmp` updated to `>=0.2.7` (path traversal via type confusion in `_assertPath`).
+  - `form-data` updated to `>=4.0.6` (CRLF injection in multipart field/file names).
+- Fixes applied via `overrides` in the workspace (transitive dependencies of `@vscode/vsce` and `vitest`).
+- Updated the demo GIFs (`media/powershell-settings.gif` and `media/powershell-using.gif`) used in the README/Marketplace.
+- No functional changes to the formatting engine; build and test suite validated.
+
+## Notas em pt-BR
+
+### Alterações desta versão
 
 - Bump de versão do pacote `ark-format-powershell`: `1.0.8` -> `1.0.9`.
 - Rodada de manutenção de segurança nas dependências (avisos do Dependabot):
@@ -14,7 +32,7 @@
 - Atualização dos GIFs de demonstração (`media/powershell-settings.gif` e `media/powershell-using.gif`) usados no README/Marketplace.
 - Sem alterações funcionais no motor de formatação; build e suíte de testes validados.
 
-## Informações Adicionais
+## Additional Information / Informações Adicionais
 
-- Tag relacionada: `powershell1.0.9`
-- Data de lançamento: **2026-06-27**
+- Tag: `powershell1.0.9`
+- Release date / Data de lançamento: **2026-06-27**

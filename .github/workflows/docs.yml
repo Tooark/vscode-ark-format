@@ -49,7 +49,7 @@ jobs:
             !**/dist/**
             !**/out/**
             !**/coverage/**
-            !**/CHANGELOG.md
+            !**/CHANGELOG*.md
 
   lychee:
     name: Link check (lychee)
