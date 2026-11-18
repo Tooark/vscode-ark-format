@@ -1,27 +1,37 @@
 # Changelog
 
-Todas as mudanças relevantes do pacote `ark-format-makefile` estão documentadas aqui.
+All notable changes to the `ark-format-makefile` package are documented here.
+
+🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/packages/makefile/CHANGELOG.pt-BR.md)
+
+## 1.0.2 - 2026-11-18
+
+- Package version bumped from `1.0.1` to `1.0.2`.
+- Changelog in English ([#24](https://github.com/Tooark/vscode-ark-format/discussions/24)): `CHANGELOG.md`, the file shown on the Marketplace, is now in English, and the Portuguese version moved to `CHANGELOG.pt-BR.md`, with a language switcher in both files, as in the README.
+- Release notes in `notes/` are now bilingual (English and Portuguese), including those of previous versions.
+- No functional changes to the formatting engine.
+- Details: [notes/makefile1.0.2.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/makefile1.0.2.md)
 
 ## 1.0.1 - 2026-07-06
 
-- Versão do pacote atualizada de `1.0.0` para `1.0.1`.
-- Campo `sponsor` adicionado ao manifesto da extensão, habilitando o botão de apoio (GitHub Sponsors) na página do Marketplace.
-- GIFs de demonstração do README regenerados (`makefile-settings.gif` e `makefile-using.gif`) com capturas atualizadas e maior qualidade.
-- Sem alterações funcionais no motor de formatação.
-- Detalhes: [notes/makefile1.0.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/makefile1.0.1.md)
+- Package version bumped from `1.0.0` to `1.0.1`.
+- Added the `sponsor` field to the extension manifest, enabling the sponsor button (GitHub Sponsors) on the Marketplace page.
+- Regenerated the README demo GIFs (`makefile-settings.gif` and `makefile-using.gif`) with updated, higher-quality captures.
+- No functional changes to the formatting engine.
+- Details: [notes/makefile1.0.1.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/makefile1.0.1.md)
 
 ## 1.0.0 - 2026-07-05
 
-- Versão inicial do formatador de Makefile, seguindo a estrutura das extensões Shell e PowerShell.
-- Formatação de documento completo e de seleção (range formatting), com cálculo de contexto do documento.
-- Invariantes de segurança: prefixo TAB de recipes preservado, blocos `define ... endef` intocados, continuações de linha (`\`) preservadas e preservação integral quando `.RECIPEPREFIX` é redefinido.
-- Regras de espaçamento: operadores de atribuição (`=`, `:=`, `::=`, `?=`, `+=`, `!=`), separador de alvos (`:`/`::`), palavras-chave condicionais (`ifeq (`) e marcador de comentário (`#`/`##`).
-- Alinhamento de continuações de linha (`\`) de atribuições com o início do valor da primeira linha.
-- Alinhamento vertical opcional dos operadores de atribuição em blocos contíguos de variáveis (`alignAssignments`, desligado por padrão para evitar ruído de diff).
-- Indentação configurável de blocos condicionais (`ifeq`/`ifneq`/`ifdef`/`ifndef` ... `else` ... `endif`) usando espaços.
-- Normalização opcional do prefixo de recipe: recipes indentadas com espaços recebem o TAB obrigatório (apenas quando o conteúdo não é sintaxe de Makefile) e whitespace inicial excessivo (múltiplos TABs ou misturas) é reduzido para exatamente 1 TAB, preservando a indentação interna de continuações.
-- Limpeza configurável: espaços finais, linhas em branco consecutivas, linhas em branco iniciais, nova linha final e estilo de fim de linha (LF/CRLF/Auto).
-- Suporte opcional a `.editorconfig` e localização EN/PT-BR.
-- Testes de unidade do formatador e da camada de extensão (ativação, providers e cálculo da profundidade de condicionais, ignorando recipes e blocos `define`), integrados à cobertura consolidada do monorepo.
-- Seção de apoio (Support) nos READMEs (EN/PT-BR).
-- Detalhes: [notes/makefile1.0.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/makefile1.0.0.md)
+- Initial version of the Makefile formatter, following the structure of the Shell and PowerShell extensions.
+- Full document and selection formatting (range formatting), with document context calculation.
+- Safety invariants: recipe TAB prefix preserved, `define ... endef` blocks left untouched, line continuations (`\`) preserved, and the whole document preserved when `.RECIPEPREFIX` is redefined.
+- Spacing rules: assignment operators (`=`, `:=`, `::=`, `?=`, `+=`, `!=`), target separator (`:`/`::`), conditional keywords (`ifeq (`) and comment marker (`#`/`##`).
+- Alignment of assignment line continuations (`\`) with the start of the value on the first line.
+- Optional vertical alignment of assignment operators in contiguous variable blocks (`alignAssignments`, off by default to avoid diff noise).
+- Configurable indentation of conditional blocks (`ifeq`/`ifneq`/`ifdef`/`ifndef` ... `else` ... `endif`) using spaces.
+- Optional recipe prefix normalization: recipes indented with spaces get the required TAB (only when the content is not Makefile syntax), and excessive leading whitespace (multiple TABs or mixtures) is reduced to exactly 1 TAB, preserving the inner indentation of continuations.
+- Configurable cleanup: trailing spaces, consecutive blank lines, leading blank lines, final newline and line ending style (LF/CRLF/Auto).
+- Optional `.editorconfig` support and EN/PT-BR localization.
+- Unit tests for the formatter and the extension layer (activation, providers and conditional depth calculation, ignoring recipes and `define` blocks), integrated into the monorepo's consolidated coverage.
+- Support section in the READMEs (EN/PT-BR).
+- Details: [notes/makefile1.0.0.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/makefile1.0.0.md)

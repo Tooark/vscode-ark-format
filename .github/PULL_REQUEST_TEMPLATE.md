@@ -37,7 +37,7 @@ Example: "Closes #42 — fix heredoc indentation in the PowerShell formatter."
 - [ ] `pnpm test` passes
 - [ ] `pnpm build` passes
 - [ ] New/changed behavior has tests
-- [ ] The affected package's `CHANGELOG.md` and `version` were bumped (if this ships a release)
+- [ ] The affected package's `version`, `CHANGELOG.md` (EN) and `CHANGELOG.pt-BR.md` were updated, plus bilingual `notes/<pkg><version>.md` (if this ships a release)
 - [ ] Documentation updated (README / `docs`)
 
 ## Notes for reviewers

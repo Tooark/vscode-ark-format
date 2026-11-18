@@ -158,8 +158,33 @@ Releases are **per package** and automated by
 [`.github/workflows/publish.yml`](.github/workflows/publish.yml):
 
 1. Bump the `version` in the package's `package.json`.
-2. Update that package's `CHANGELOG.md`.
+2. Add the new version to both changelogs of that package: `CHANGELOG.md`
+   (English, shown on the Marketplace) and `CHANGELOG.pt-BR.md` (Portuguese),
+   with the same entries in the same order.
 3. Add release notes at `notes/<pkg><version>.md` (e.g. `notes/powershell1.2.2.md`).
+   They become the GitHub Release body and are bilingual, English first:
+
+   ```markdown
+   # Release <pkg><version>
+
+   ## Notes in en-US
+
+   ### Changes in this version
+
+   - ...
+
+   ## Notas em pt-BR
+
+   ### Alterações desta versão
+
+   - ...
+
+   ## Additional Information / Informações Adicionais
+
+   - Tag: `<pkg><version>`
+   - Release date / Data de lançamento: **YYYY-MM-DD**
+   ```
+
 4. Merge to `main`. The workflow tags `<pkg><version>`, builds, scans, and
    publishes the `.vsix` to the Marketplace.
 
@@ -175,7 +200,7 @@ Before opening a PR, confirm:
 - [ ] Every commit is signed off (`git commit -s`)
 - [ ] `pnpm lint`, `pnpm build`, and `pnpm test` pass locally
 - [ ] Tests cover the change
-- [ ] Documentation is updated (README, package `CHANGELOG.md`, `notes/`)
+- [ ] Documentation is updated (README, package `CHANGELOG.md` and `CHANGELOG.pt-BR.md`, `notes/`)
 - [ ] PR title follows Conventional Commits
 - [ ] Linked to at least one issue (`Closes #123`)
 
