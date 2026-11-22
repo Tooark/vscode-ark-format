@@ -38,36 +38,56 @@ describe('dedentBeforeLine', () => {
     expect(st.indent).toBe(0);
   });
 
-  it('dedents on else', () => {
+  it.each([
+    'else {',
+    'ElseIf ($x) {',
+    'CATCH {',
+    'finally { Close-Thing }',
+    'Catch-Errors $x',
+    'Else = 2',
+  ])('não dedenta em "%s": o bloco anterior já foi fechado pelas chaves', (line) => {
     const st = createInitialState();
     st.indent = 1;
-    dedentBeforeLine('else {', st);
-    expect(st.indent).toBe(0);
-  });
-
-  it('dedents on elseif/catch/finally (case-insensitive)', () => {
-    const st = createInitialState();
-    st.indent = 2;
-    dedentBeforeLine('ElseIf ($x) {', st);
+    dedentBeforeLine(line, st);
     expect(st.indent).toBe(1);
-
-    dedentBeforeLine('CATCH {', st);
-    expect(st.indent).toBe(0);
   });
 
-  it('não dedenta cláusula em linha própria quando a linha anterior foi um } isolado', () => {
+  it('mantém a cláusula em linha própria no nível do bloco após um } isolado', () => {
     const st = createInitialState();
     st.indent = 2;
     dedentBeforeLine('}', st);
     indentAfterLine('}', st);
     expect(st.indent).toBe(1);
-    expect(st.afterCloseBrace).toBe(true);
 
     dedentBeforeLine('catch {', st);
     expect(st.indent).toBe(1);
     indentAfterLine('catch {', st);
     expect(st.indent).toBe(2);
-    expect(st.afterCloseBrace).toBe(false);
+  });
+
+  it('mantém a cláusula em linha própria no nível do bloco após um bloco de uma linha', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    dedentBeforeLine('try { Get-Item x }', st);
+    indentAfterLine('try { Get-Item x }', st);
+    expect(st.indent).toBe(1);
+
+    dedentBeforeLine('catch { Write-Host err }', st);
+    expect(st.indent).toBe(1);
+    indentAfterLine('catch { Write-Host err }', st);
+    expect(st.indent).toBe(1);
+  });
+
+  it('dedenta um nível para cada fechamento no início da linha', () => {
+    const st = createInitialState();
+    st.indent = 3;
+    st.parenDepth = 1;
+    dedentBeforeLine('})', st);
+    expect(st.indent).toBe(1);
+
+    indentAfterLine('})', st);
+    expect(st.indent).toBe(1);
+    expect(st.parenDepth).toBe(0);
   });
 
   it('does not dedent on prefix words', () => {
@@ -233,5 +253,43 @@ describe('indentAfterLine', () => {
     indentAfterLine('$value', st);
     expect(st.indent).toBe(0);
     expect(st.continuation).toBe(false);
+  });
+});
+
+describe('saldo de chaves em linhas de continuação', () => {
+  it('conta o bloco aberto em uma linha terminada em crase', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    indentAfterLine('Invoke-Command -ScriptBlock { Get-Service `', st);
+    expect(st.indent).toBe(3);
+    expect(st.continuation).toBe(true);
+
+    dedentBeforeLine('-Name foo }', st);
+    indentAfterLine('-Name foo }', st);
+    expect(st.indent).toBe(1);
+    expect(st.continuation).toBe(false);
+  });
+
+  it('conta o bloco fechado em uma linha terminada em |', () => {
+    const st = createInitialState();
+    st.indent = 1;
+    indentAfterLine('$a = $items | Where-Object { $_.A -and', st);
+    expect(st.indent).toBe(2);
+
+    dedentBeforeLine('$_.B } |', st);
+    indentAfterLine('$_.B } |', st);
+    expect(st.indent).toBe(2);
+    expect(st.continuation).toBe(true);
+
+    dedentBeforeLine('Sort-Object', st);
+    indentAfterLine('Sort-Object', st);
+    expect(st.indent).toBe(1);
+  });
+
+  it('não conta delimitadores escapados por crase', () => {
+    const st = createInitialState();
+    indentAfterLine('Write-Host `{ `(', st);
+    expect(st.indent).toBe(0);
+    expect(st.parenDepth).toBe(0);
   });
 });

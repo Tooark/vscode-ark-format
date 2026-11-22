@@ -83,14 +83,52 @@ function serializeQuoteState (stack: LexFrame[]): QuoteState {
 }
 
 /**
- * Função para verificar se a posição informada está no início de um token, onde `#` inicia um
- * comentário dentro de uma subexpressão.
- * @param input - A linha em análise.
- * @param i - A posição do caractere `#`.
- * @returns `true` se o caractere estiver no início da linha ou após espaço ou separador.
+ * Função para verificar se o `#` (ou o `<#`) na posição informada inicia um comentário.
+ * No PowerShell o comentário só começa no início de um token: no meio de uma palavra, como em
+ * `C#`, `a#b`, `https://host/#/rota` ou `--cor=#fff`, o `#` faz parte do argumento. Aqui o início
+ * de token é o começo da linha ou a posição após espaço, separador, parêntese, chave, colchete ou
+ * aspas de fechamento. A crase escapa o `#` (`` `# ``).
+ * @param input - A linha (ou o trecho de código) em análise.
+ * @param i - A posição do caractere `#` ou do `<` de `<#`.
+ * @returns `true` se a posição estiver no início de um token.
  */
-function isTokenStart (input: string, i: number): boolean {
-  return i === 0 || /[\s;(){}|&,]/.test(input[i - 1]);
+export function isCommentStart (input: string, i: number): boolean {
+  return i === 0 || /[\s;(){}[\]|&,"']/.test(input[i - 1]);
+}
+
+/**
+ * Função para medir, a partir da posição informada no código normal, um trecho que não é código
+ * e deve ser mantido como está:
+ * - variável entre chaves `${...}`, cujo nome aceita qualquer caractere (`${#}`, `${a b}`,
+ *   `${env:ProgramFiles(x86)}`); a crase escapa o próximo caractere;
+ * - comentário de bloco `<# ... #>` no início de um token. Sem o `#>` na mesma linha, o restante
+ *   da linha é comentário.
+ * @param input - A linha em análise.
+ * @param i - A posição atual.
+ * @returns O tipo e o tamanho do trecho, ou null se a posição não inicia um trecho desses.
+ */
+function readVerbatimSpan (input: string, i: number): { kind: 'variable' | 'comment'; length: number } | null {
+  // Variável entre chaves: termina na primeira `}` não escapada
+  if (input[i] === '$' && input[i + 1] === '{') {
+    for (let j = i + 2; j < input.length; j++) {
+      if (input[j] === '`') {
+        j++;
+      } else if (input[j] === '}') {
+        return { kind: 'variable', length: j + 1 - i };
+      }
+    }
+
+    return null;
+  }
+
+  // Comentário de bloco: termina em `#>` ou no fim da linha
+  if (input[i] === '<' && input[i + 1] === '#' && isCommentStart(input, i)) {
+    const close = input.indexOf('#>', i + 2);
+
+    return { kind: 'comment', length: (close === -1 ? input.length : close + 2) - i };
+  }
+
+  return null;
 }
 
 /**
@@ -123,8 +161,15 @@ function lexStep (input: string, i: number, stack: LexFrame[], hereStrings: bool
       return 2;
     }
 
+    // Variável entre chaves ou comentário de bloco: consumido inteiro, sem alterar o estado
+    const span = readVerbatimSpan(input, i);
+
+    if (span) {
+      return span.length;
+    }
+
     // Comentário dentro da subexpressão: resto da linha não altera o estado
-    if (top !== undefined && ch === '#' && isTokenStart(input, i)) {
+    if (top !== undefined && ch === '#' && isCommentStart(input, i)) {
       return input.length - i;
     }
 
@@ -229,16 +274,31 @@ export function isHereStringLine (state: QuoteState): boolean {
  * @returns Um array de objetos, onde cada objeto tem uma propriedade `kind` indicando o
  * tipo da parte (code, sq, dq) e uma propriedade `text` com o conteúdo original dessa parte.
  */
-export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; text: string }> {
-  const parts: Array<{ kind: QuoteKind; text: string }> = [];
+export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind | 'verbatim'; text: string }> {
+  const parts: Array<{ kind: QuoteKind | 'verbatim'; text: string }> = [];
   const stack: LexFrame[] = [];
   let buf = '';
   let kind: QuoteKind = 'code';
 
   // Iterar pela linha, avançando o lexer a cada passo
   for (let i = 0; i < input.length;) {
-    // Comentário inline no código normal: resto da linha não é processado como código
-    if (stack.length === 0 && input[i] === '#') {
+    // Variável entre chaves ou comentário de bloco no código normal: parte própria, mantida como está
+    const span = stack.length === 0 ? readVerbatimSpan(input, i) : null;
+
+    if (span) {
+      if (buf) {
+        parts.push({ kind: 'code', text: buf });
+        buf = '';
+      }
+
+      parts.push({ kind: 'verbatim', text: input.slice(i, i + span.length) });
+      i += span.length;
+      continue;
+    }
+
+    // Comentário inline no código normal: resto da linha não é processado como código.
+    // `#` no meio de uma palavra (`C#`, `a#b`) não é comentário: as strings seguintes continuam protegidas.
+    if (stack.length === 0 && input[i] === '#' && isCommentStart(input, i)) {
       buf += input.slice(i);
       break;
     }
@@ -290,8 +350,19 @@ export function getCodePartsOnly (input: string, initialMode: QuoteState = 'code
 
   // Iterar pela linha, mantendo apenas o que está fora de qualquer string
   for (let i = 0; i < input.length;) {
-    // Comentário inline no código normal: o restante da linha não é código
-    if (stack.length === 0 && input[i] === '#') {
+    // Variável entre chaves ou comentário de bloco no código normal: não é código. A variável
+    // deixa um marcador, para que a linha não pareça vazia nem comece por outro caractere.
+    const span = stack.length === 0 ? readVerbatimSpan(input, i) : null;
+
+    if (span) {
+      code += span.kind === 'variable' ? '$_' : '';
+      i += span.length;
+      continue;
+    }
+
+    // Comentário inline no código normal: o restante da linha não é código.
+    // `#` no meio de uma palavra (`C#`, `https://host/#/rota`) não é comentário.
+    if (stack.length === 0 && input[i] === '#' && isCommentStart(input, i)) {
       return code;
     }
 
@@ -321,8 +392,9 @@ export function getQuoteModeAfterLine (input: string, initialMode: QuoteState = 
 
   // Iterar pela linha, avançando o lexer a cada passo
   for (let i = 0; i < input.length;) {
-    // Comentário fora de aspas: resto da linha não altera o estado de aspas
-    if (stack.length === 0 && input[i] === '#') {
+    // Comentário fora de aspas: resto da linha não altera o estado de aspas.
+    // `#` no meio de uma palavra (`C#`, `a#b`) não é comentário: uma string aberta depois dele conta.
+    if (stack.length === 0 && input[i] === '#' && isCommentStart(input, i)) {
       break;
     }
 

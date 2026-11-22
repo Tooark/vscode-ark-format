@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { applyEditorConfigOverrides, formatterConfigKeys, getConfig, parseEditorConfig, powerShellConfigKeys } from './formatters/editorConfigReader';
 import { PowerShellFormatter } from './formatters/powerShellFormatter';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './formatters/powerShellIndent';
-import { getCodePartsOnly, getQuoteModeAfterLine, isShebang, isFullLineComment } from './formatters/powerShellLex';
+import { getCodePartsOnly, getQuoteModeAfterLine, isBlockCommentEnd, isBlockCommentStart, isShebang, isFullLineComment } from './formatters/powerShellLex';
 import { PowerShellRangeFormatter } from './formatters/powerShellRangeFormatter';
 import { POWERSHELL_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from './formatters/types';
 import type { IndentStyle, LineEnding, PowerShellFormatterOptions, PowerShellLanguageId, QuoteState } from './formatters/types';
@@ -149,11 +149,20 @@ function buildFormatterOptions (cfg: vscode.WorkspaceConfiguration, editorOption
 function computeBaseIndent (document: vscode.TextDocument, startLine: number): number {
   const st = createInitialState();
   let quoteMode: QuoteState = 'code';
+  let inBlockComment = false;
 
   // Itera sobre as linhas anteriores à seleção para calcular o estado de indentação
   for (let i = 0; i < startLine; i++) {
     const raw = document.lineAt(i).text;
     const rawTrimmed = raw.trim();
+
+    // Bloco de comentário multilinha (<# ... #>): o texto não é código e não afeta o contexto
+    if (inBlockComment || (quoteMode === 'code' && isBlockCommentStart(rawTrimmed))) {
+      inBlockComment = !(inBlockComment && isBlockCommentEnd(rawTrimmed));
+
+      continue;
+    }
+
     const controlText = getCodePartsOnly(raw, quoteMode).trim();
     const nextQuoteMode = getQuoteModeAfterLine(raw, quoteMode);
 

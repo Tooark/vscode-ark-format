@@ -141,3 +141,42 @@ describe('applyPowerShellSpacing', () => {
     });
   });
 });
+
+describe('applyPowerShellSpacing: diretivas, # no meio de palavras e trechos mantidos', () => {
+  const cfg = { spaceBeforeFunctionBrace: true, collapseSpaces: true };
+
+  it.each([
+    '#Requires -Version 7.0',
+    '#requires -RunAsAdministrator',
+    '#region Setup',
+    '#REGION Setup',
+    '#endregion',
+    '#endregion Setup',
+  ])('não insere espaço na diretiva "%s"', (line) => {
+    expect(applyPowerShellSpacing(line, cfg)).toBe(line);
+  });
+
+  it('insere espaço em comentários comuns, mesmo parecidos com diretivas', () => {
+    expect(applyPowerShellSpacing('#regional', cfg)).toBe('# regional');
+    expect(applyPowerShellSpacing('#requirements', cfg)).toBe('# requirements');
+    expect(applyPowerShellSpacing('$x = 1 #region', cfg)).toBe('$x = 1 #region');
+    expect(applyPowerShellSpacing('$x = 1 #nota', cfg)).toBe('$x = 1 # nota');
+  });
+
+  it('não trata o # no meio de uma palavra como comentário', () => {
+    expect(applyPowerShellSpacing('dotnet   new -lang C# -o "My   App"', cfg)).toBe('dotnet new -lang C# -o "My   App"');
+    expect(applyPowerShellSpacing('cmd   a#b   c', cfg)).toBe('cmd a#b c');
+    expect(applyPowerShellSpacing('cmd   `#   c', cfg)).toBe('cmd `# c');
+  });
+
+  it('preserva o texto do comentário que inicia um token', () => {
+    expect(applyPowerShellSpacing('$x = 1   # a   b', cfg)).toBe('$x = 1 # a   b');
+    expect(applyPowerShellSpacing('$a = @(1,#a   b', cfg)).toBe('$a = @(1,# a   b');
+  });
+
+  it('mantém variáveis entre chaves e comentários de bloco e colapsa os espaços ao redor', () => {
+    expect(applyPowerShellSpacing('cmd   ${a  b}   ${#c}   -P   1', cfg)).toBe('cmd ${a  b} ${#c} -P 1');
+    expect(applyPowerShellSpacing('if ($a)   <# c   d #>   {', cfg)).toBe('if ($a) <# c   d #> {');
+    expect(applyPowerShellSpacing('cmd   ${a  b}   -P', { ...cfg, collapseSpaces: false })).toBe('cmd   ${a  b}   -P');
+  });
+});

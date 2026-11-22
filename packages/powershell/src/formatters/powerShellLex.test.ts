@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { splitByQuotesPreserve, getCodePartsOnly, getQuoteModeAfterLine, detectHeredocInCode, isShebang, isFullLineComment, isHereStringLine } from './powerShellLex';
+import { splitByQuotesPreserve, getCodePartsOnly, getQuoteModeAfterLine, detectHeredocInCode, isCommentStart, isShebang, isFullLineComment, isHereStringLine } from './powerShellLex';
 
 describe('splitByQuotesPreserve', () => {
   it('retorna código puro sem aspas', () => {
@@ -316,5 +316,83 @@ describe('aspas escapadas com crase fora de strings', () => {
   it('mantém a crase de continuação no fim da linha como código', () => {
     expect(getCodePartsOnly('Get-Item `')).toBe('Get-Item `');
     expect(getQuoteModeAfterLine('Get-Item `')).toBe('code');
+  });
+});
+
+describe('# no início de um token, variáveis entre chaves e comentários de bloco', () => {
+  it.each(['C#', 'a#b', 'https://x.io/#/api', '--cor=#fff', '$a#b', '`#'])('splitByQuotesPreserve mantém como string o texto após "%s"', (word) => {
+    expect(splitByQuotesPreserve(`cmd ${word} "a   b"`)).toEqual([
+      { kind: 'code', text: `cmd ${word} ` },
+      { kind: 'dq', text: '"a   b"' },
+    ]);
+  });
+
+  it('splitByQuotesPreserve para no comentário que inicia um token', () => {
+    expect(splitByQuotesPreserve('cmd C# # it\'s "a   b"')).toEqual([
+      { kind: 'code', text: 'cmd C# # it\'s "a   b"' },
+    ]);
+    expect(splitByQuotesPreserve('$x = "a"# it\'s')).toEqual([
+      { kind: 'code', text: '$x = ' },
+      { kind: 'dq', text: '"a"' },
+      { kind: 'code', text: '# it\'s' },
+    ]);
+  });
+
+  it('splitByQuotesPreserve separa variáveis entre chaves e comentários de bloco', () => {
+    expect(splitByQuotesPreserve('if (${#x#}) <# it\'s #> { # c')).toEqual([
+      { kind: 'code', text: 'if (' },
+      { kind: 'verbatim', text: '${#x#}' },
+      { kind: 'code', text: ') ' },
+      { kind: 'verbatim', text: '<# it\'s #>' },
+      { kind: 'code', text: ' { # c' },
+    ]);
+  });
+
+  it('splitByQuotesPreserve mantém como código o <# no meio de uma palavra', () => {
+    expect(splitByQuotesPreserve('Write-Output a<#b#>c')).toEqual([
+      { kind: 'code', text: 'Write-Output a<#b#>c' },
+    ]);
+  });
+
+  it.each([
+    ['cmd C# {', 'cmd C# {'],
+    ['cmd https://x.io/#/api | ForEach-Object {', 'cmd https://x.io/#/api | ForEach-Object {'],
+    ['if (${#x#}) <# c { #> {', 'if ($_)  {'],
+    ['$x = 1 <# sem fim {', '$x = 1 '],
+    ['$x = "a"# c {', '$x = '],
+    ['$x = ${a{b} # c {', '$x = $_ '],
+    ['$x = ${a`}b} {', '$x = $_ {'],
+  ])('getCodePartsOnly de "%s"', (line, expected) => {
+    expect(getCodePartsOnly(line)).toBe(expected);
+  });
+
+  it('getQuoteModeAfterLine enxerga a string aberta após um # no meio de uma palavra', () => {
+    expect(getQuoteModeAfterLine('cmd C# "aberta')).toBe('dq');
+    expect(getQuoteModeAfterLine('cmd # "aberta')).toBe('code');
+  });
+
+  it('getQuoteModeAfterLine ignora aspas em variáveis entre chaves e comentários de bloco', () => {
+    expect(getQuoteModeAfterLine('cmd ${a"b} x')).toBe('code');
+    expect(getQuoteModeAfterLine('cmd <# don\'t #> x')).toBe('code');
+    expect(getQuoteModeAfterLine('cmd <# don\'t #> "aberta')).toBe('dq');
+    expect(getQuoteModeAfterLine('cmd <# don\'t')).toBe('code');
+  });
+
+  it('getQuoteModeAfterLine trata comentário de bloco dentro de subexpressão em string', () => {
+    expect(getQuoteModeAfterLine('"a $(cmd <# ) " #> b) c"')).toBe('code');
+  });
+
+  it('detectHeredocInCode reconhece a here-string após um # no meio de uma palavra', () => {
+    expect(detectHeredocInCode('New-Snippet -Lang C# -Body @"')).toBe('"@');
+  });
+
+  it('isCommentStart segue o início de token do PowerShell', () => {
+    for (const line of ['# c', 'x # c', 'x;# c', 'f(1)# c', '$a[0]# c', '"a"# c', "'a'# c", '@{# c', '1,# c', '1|# c']) {
+      expect(isCommentStart(line, line.indexOf('#'))).toBe(true);
+    }
+
+    for (const line of ['C#', 'a#b', 'x/#/y', '--cor=#fff', '$a#b', '`#']) {
+      expect(isCommentStart(line, line.indexOf('#'))).toBe(false);
+    }
   });
 });

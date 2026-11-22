@@ -4,6 +4,21 @@ Todas as mudanças relevantes do pacote `ark-format-powershell` estão documenta
 
 🌍 **Idiomas:** [![USA Flag](https://flagcdn.com/w20/us.png) English](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/CHANGELOG.md) · ![Brazil Flag](https://flagcdn.com/w20/br.png) **Português (este arquivo)**
 
+## 1.2.6 - 2026-11-21
+
+- Versão do pacote atualizada de `1.2.5` para `1.2.6`.
+- Correção: `else`, `elseif`, `catch` e `finally` em linha própria depois de um bloco de uma linha (`try { ... }` seguido de `catch { ... }`) perdiam um nível e deixavam o restante da função deslocado. A indentação passa a seguir o saldo de `{` e `}` de cada linha, então blocos que abrem ou fecham no meio da linha (`function f { param($a)`, `Write-Host 1 }`) também são acompanhados.
+- Correção: comandos e chaves de hashtable que começam com uma palavra-chave de cláusula (`Catch-Errors`, `Else = 2`, `Finally = 4`) não são mais lidos como cláusulas.
+- Correção: `#Requires`, `#region` e `#endregion` não recebem mais espaço depois do `#`. `# Requires` é um comentário comum, então o requisito era descartado sem aviso, e `# region` não é um marcador de dobra.
+- Correção: o `#` no meio de uma palavra (`C#`, `a#b`, `https://host/#/rota`, `--cor=#fff`) era tratado como comentário. Os espaços dentro de uma string seguinte eram colapsados, um `{` no fim da linha não era visto e uma here-string aberta naquela linha era reformatada.
+- Correção: variáveis entre chaves, como `${#nome#}` ou `${a  b}`, são mantidas como escritas. Antes, um `#` ou espaços repetidos no nome eram alterados, o que renomeava a variável.
+- Correção: comentários de bloco no meio da linha (`if ($a) <# motivo #> {`) não escondem mais o código depois deles.
+- Correção: `})` e `}}` no início da linha ficam alinhados com a linha que abriu os blocos, e `) -join (` mantém as linhas seguintes indentadas.
+- Correção (formatação de seleção): o texto de um bloco `<# ... #>` era lido como código. Um apóstrofo no texto de ajuda (`Don't`) congelava o restante da seleção, e chaves nele alteravam o contexto calculado. O bloco passa a ser preservado, como na formatação de documento.
+- Exemplo `samples/example.complex.ps1` com esses casos.
+- Novos testes de regressão para os formatadores de documento e de seleção, o lexer, a indentação, o espaçamento e o contexto da seleção.
+- Detalhes: [notes/powershell1.2.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.6.md)
+
 ## 1.2.5 - 2026-11-18
 
 - Versão do pacote atualizada de `1.2.4` para `1.2.5`.

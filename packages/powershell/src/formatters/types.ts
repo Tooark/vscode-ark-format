@@ -42,8 +42,6 @@ export type QuoteState = QuoteKind | `${Exclude<QuoteKind, 'code'>}>${string}`;
  * Estado de indentação para o formatador PowerShell.
  * - `parenDepth`: Profundidade de parênteses multilinha pendentes (`(`, `@(`, `$(`, `param (`),
  *   usada para indentar o conteúdo interno e alinhar o `)` de fechamento com a linha que abriu.
- * - `afterCloseBrace`: Indica se a última linha de código foi um `}` isolado (que já dedentou),
- *   evitando que uma cláusula `else`/`elseif`/`catch`/`finally` em linha própria dedentar de novo.
  */
 export interface IndentState {
   indent: number;
@@ -51,7 +49,6 @@ export interface IndentState {
   heredocEnd: string;
   continuation: boolean;
   parenDepth: number;
-  afterCloseBrace: boolean;
 }
 
 /**
