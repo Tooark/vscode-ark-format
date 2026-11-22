@@ -1,6 +1,5 @@
 import { alignAssignmentBlocks as alignAssignmentBlocksGeneric, AlignableAssignmentParts, AssignmentAlignMeta } from '@tooark/ark-format-shared/align';
-import { collapseDoubleSpaces } from '@tooark/ark-format-shared/spacing';
-import { findCommentStart } from './makefileLex';
+import { findCommentStart, findTargetSeparator, maskReferences } from './makefileLex';
 import type { MakefileLineKind, MakefileSpacingOptions } from './types';
 
 export type { AssignmentAlignMeta } from '@tooark/ark-format-shared/align';
@@ -18,7 +17,7 @@ export interface MakefileSpacingConfig extends MakefileSpacingOptions {
  * Expressão regular para capturar uma atribuição: prefixos opcionais, nome da variável,
  * operador e valor. Grupos: 1 = prefixos (`export` etc.), 2 = nome, 3 = operador, 4 = valor.
  */
-const ASSIGNMENT_PARTS_RE = /^((?:(?:export|override|private|unexport)\s+)*)([^\s:#=]+?)\s*(:{1,3}=|\?=|\+=|!=|=)[ \t]*(.*)$/;
+const ASSIGNMENT_PARTS_RE = /^((?:(?:export|override|private|unexport)\s+)*)([^\s:#=]+?)\s*(:{1,3}=|\?=|\+=|!=|=)[ \t]*(.*)$/d;
 
 /**
  * Expressão regular para capturar o trecho de uma linha de atribuição que antecede o valor:
@@ -39,7 +38,26 @@ export type FormattedAssignmentParts = AlignableAssignmentParts;
  * Expressão regular para decompor uma linha de atribuição formatada em indentação,
  * nome (com prefixos), operador e valor.
  */
-const FORMATTED_ASSIGNMENT_RE = /^([ \t]*)((?:(?:export|override|private|unexport)\s+)*[^\s:#=]+?)\s*(:{1,3}=|\?=|\+=|!=|=)[ \t]*(.*)$/;
+const FORMATTED_ASSIGNMENT_RE = /^([ \t]*)((?:(?:export|override|private|unexport)\s+)*[^\s:#=]+?)\s*(:{1,3}=|\?=|\+=|!=|=)[ \t]*(.*)$/d;
+
+/**
+ * Função para aplicar uma expressão regular (com a flag `d`) à linha com as referências mascaradas
+ * e devolver os grupos com o texto original. Assim `=`, `:`, `#` e espaços dentro de `$(...)` não
+ * são confundidos com o operador de atribuição nem com o início do valor.
+ * @param re A expressão regular, com a flag `d` (índices dos grupos).
+ * @param text O texto original.
+ * @returns Os grupos capturados (índice 0 = casamento completo) com o texto original, ou null.
+ */
+function matchOutsideReferences (re: RegExp, text: string): string[] | null {
+  const match = re.exec(maskReferences(text));
+
+  // Sem casamento (ou sem índices) não há grupos a devolver
+  if (!match?.indices) {
+    return null;
+  }
+
+  return match.indices.map((range) => (range ? text.slice(range[0], range[1]) : ''));
+}
 
 /**
  * Função para decompor uma linha de atribuição já formatada em suas partes.
@@ -47,7 +65,7 @@ const FORMATTED_ASSIGNMENT_RE = /^([ \t]*)((?:(?:export|override|private|unexpor
  * @returns As partes da atribuição, ou null se a linha não for uma atribuição.
  */
 export function parseFormattedAssignment (line: string): FormattedAssignmentParts | null {
-  const match = line.match(FORMATTED_ASSIGNMENT_RE);
+  const match = matchOutsideReferences(FORMATTED_ASSIGNMENT_RE, line);
 
   // Se a linha não corresponder ao padrão de atribuição, retorna null
   if (!match) {
@@ -87,7 +105,7 @@ export function alignAssignmentBlocks (lines: string[], meta: AssignmentAlignMet
  * @returns A coluna (base 0) onde o valor começa, ou null se a linha não for uma atribuição.
  */
 export function getAssignmentValueColumn (line: string): number | null {
-  const match = line.match(ASSIGNMENT_VALUE_COLUMN_RE);
+  const match = maskReferences(line).match(ASSIGNMENT_VALUE_COLUMN_RE);
 
   return match ? match[1].length : null;
 }
@@ -107,14 +125,25 @@ export function applyMakefileSpacing (trimmedLine: string, kind: MakefileLineKin
     return normalizeCommentMarker(trimmedLine, cfg.spaceAfterCommentMarker);
   }
 
-  // Separa a parte de código do comentário inline (o `#` não escapado inicia comentário fora de recipes)
+  // Separa a parte de código do comentário inline (o `#` não escapado e fora de referências
+  // inicia comentário fora de recipes)
   const commentStart = findCommentStart(trimmedLine);
-  let code = commentStart >= 0 ? trimmedLine.slice(0, commentStart).trimEnd() : trimmedLine;
+  const beforeComment = commentStart >= 0 ? trimmedLine.slice(0, commentStart) : trimmedLine;
+  let code = commentStart >= 0 ? beforeComment.trimEnd() : trimmedLine;
   const comment = commentStart >= 0 ? normalizeCommentMarker(trimmedLine.slice(commentStart), cfg.spaceAfterCommentMarker) : '';
+
+  // Espaço entre o código e o comentário inline: um único espaço. Em uma atribuição com valor, o
+  // make inclui no valor os espaços antes do `#` (`DIR := /usr # x` vale `/usr ` e `DIR := /usr#x`
+  // vale `/usr`), então o espaçamento original é mantido exatamente.
+  let separator = ' ';
 
   // Aplica as regras específicas por tipo de linha
   switch (kind) {
     case 'assignment':
+      if ((matchOutsideReferences(ASSIGNMENT_PARTS_RE, code)?.[4] ?? '') !== '') {
+        separator = beforeComment.slice(code.length);
+      }
+
       code = transformAssignment(code, cfg);
       break;
     case 'target':
@@ -129,9 +158,9 @@ export function applyMakefileSpacing (trimmedLine: string, kind: MakefileLineKin
       break;
   }
 
-  // Junta código e comentário inline com um único espaço de separação
+  // Junta código e comentário inline
   if (comment !== '') {
-    return code === '' ? comment : `${code} ${comment}`;
+    return code === '' ? comment : `${code}${separator}${comment}`;
   }
 
   return code;
@@ -151,7 +180,7 @@ function transformAssignment (code: string, cfg: MakefileSpacingConfig): string 
     return code;
   }
 
-  const match = code.match(ASSIGNMENT_PARTS_RE);
+  const match = matchOutsideReferences(ASSIGNMENT_PARTS_RE, code);
 
   // Se a linha não corresponder ao padrão de atribuição, retorna o código original
   if (!match) {
@@ -183,14 +212,15 @@ function transformTarget (code: string, cfg: MakefileSpacingConfig): string {
 
   // Verifica se a normalização do separador de alvo está habilitada
   if (cfg.spaceAfterTargetColon) {
-    // Localiza o primeiro `:` que não faz parte de um operador de atribuição
-    const match = s.match(/^([^:=]+?)[ \t]*(::?)(?!=)[ \t]*(.*)$/);
+    // Localiza o primeiro `:` que separa alvos de pré-requisitos (fora de referências, de
+    // operadores de atribuição e de letras de unidade)
+    const separator = findTargetSeparator(s);
 
-    // Aplica a normalização apenas se o padrão de alvo for encontrado
-    if (match) {
-      const targets = collapseInternalSpaces(match[1].trimEnd(), cfg.collapseSpaces);
-      const colon = match[2];
-      const rest = collapseInternalSpaces(match[3], cfg.collapseSpaces);
+    // Aplica a normalização apenas se houver alvo antes do separador
+    if (separator && s.slice(0, separator.index).trim() !== '') {
+      const targets = collapseInternalSpaces(s.slice(0, separator.index).trimEnd(), cfg.collapseSpaces);
+      const colon = s.slice(separator.index, separator.index + separator.length);
+      const rest = collapseInternalSpaces(s.slice(separator.index + separator.length).replace(/^[ \t]+/, ''), cfg.collapseSpaces);
 
       s = rest === '' ? `${targets}${colon}` : `${targets}${colon} ${rest}`;
 
@@ -203,17 +233,24 @@ function transformTarget (code: string, cfg: MakefileSpacingConfig): string {
 
 /**
  * Função para normalizar o espaçamento em condicionais do make.
- * Garante um único espaço entre a palavra-chave (`ifeq`, `ifneq`, `else ifeq`, etc.) e o `(`,
- * conforme exigido pela sintaxe do GNU make.
+ * Garante um único espaço entre a palavra-chave (`ifeq`, `ifneq`, `else ifeq`, etc.) e os
+ * argumentos, conforme exigido pela sintaxe do GNU make. Os argumentos de `ifeq`/`ifneq` são
+ * mantidos como estão: os espaços dentro deles fazem parte da comparação (`ifeq (a  b,a b)` é falso).
  * @param code A parte de código da linha condicional.
  * @param cfg Configurações de espaçamento a serem aplicadas.
  * @returns A linha condicional com o espaçamento normalizado.
  */
 function transformConditional (code: string, cfg: MakefileSpacingConfig): string {
-  // Garante espaço entre a palavra-chave condicional e o parêntese de abertura
-  const s = code.replace(/^((?:else\s+)?(?:ifeq|ifneq))\s*\(/, '$1 (');
+  const comparison = /^(else\s+)?(ifeq|ifneq)\s*(.*)$/.exec(code);
 
-  return collapseInternalSpaces(s, cfg.collapseSpaces);
+  // Comparações: normaliza apenas a palavra-chave e o espaço antes dos argumentos
+  if (comparison) {
+    const keyword = `${comparison[1] ? 'else ' : ''}${comparison[2]}`;
+
+    return comparison[3] === '' ? keyword : `${keyword} ${comparison[3]}`;
+  }
+
+  return collapseInternalSpaces(code, cfg.collapseSpaces);
 }
 
 /**
@@ -252,7 +289,9 @@ function normalizeCommentMarker (comment: string, enabled: boolean): string {
 
 /**
  * Função para colapsar múltiplos espaços internos em um único espaço, preservando TABs.
- * TABs internos são preservados pois podem ser significativos em valores do make.
+ * TABs internos são preservados pois podem ser significativos em valores do make. Espaços dentro
+ * de referências (`$(...)`, `${...}`) também são preservados: são argumentos de funções, como o
+ * texto de `$(info a   b)`.
  * @param code O trecho de código a ser processado.
  * @param enabled Um booleano indicando se o colapso de espaços deve ser aplicado.
  * @returns O trecho de código com os espaços internos colapsados, se habilitado.
@@ -263,5 +302,14 @@ function collapseInternalSpaces (code: string, enabled: boolean): string {
     return code;
   }
 
-  return collapseDoubleSpaces(code);
+  let result = '';
+  let last = 0;
+
+  // As sequências de espaços são localizadas na máscara e removidas do texto original
+  for (const match of maskReferences(code).matchAll(/(?<=\S) {2,}(?=\S)/g)) {
+    result += `${code.slice(last, match.index)} `;
+    last = match.index + match[0].length;
+  }
+
+  return result + code.slice(last);
 }

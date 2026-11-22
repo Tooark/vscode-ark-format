@@ -2,7 +2,7 @@ import type * as vscode from 'vscode';
 import type { MakefileRangeFormatterOptions } from './types';
 import { buildRangeEdits } from '@tooark/ark-format-shared/edits';
 import { alignAssignmentBlocks, applyMakefileSpacing, AssignmentAlignMeta, MakefileSpacingConfig } from './makefileSpacing';
-import { classifyLine, hasRecipePrefix, usesCustomRecipePrefix } from './makefileLex';
+import { classifyLine, defineDepthChange, hasRecipePrefix, usesCustomRecipePrefix } from './makefileLex';
 import { MakefileFormatter } from './makefileFormatter';
 import { normalizeToLf } from './utils';
 
@@ -55,7 +55,7 @@ export class MakefileRangeFormatter {
     };
 
     // Estado mínimo para preservar blocos define e linhas de continuação dentro da seleção
-    let inDefine = false;
+    let defineDepth = 0;
     let inContinuation = false;
     let blankRun = 0;
     const out: string[] = [];
@@ -72,15 +72,11 @@ export class MakefileRangeFormatter {
     for (const raw of rawLines) {
       const classified = classifyLine(raw);
 
-      // Conteúdo de define ... endef é preservado sem alterações
-      if (inDefine) {
+      // Conteúdo de define ... endef é preservado sem alterações, inclusive em blocos aninhados
+      if (defineDepth > 0) {
         emit(raw);
         blankRun = 0;
-
-        // Verifica se a linha atual encerra o bloco define
-        if (classified.kind === 'define-end') {
-          inDefine = false;
-        }
+        defineDepth += defineDepthChange(raw);
 
         continue;
       }
@@ -118,7 +114,7 @@ export class MakefileRangeFormatter {
 
       // Verifica se a linha abre um bloco define para preservar o conteúdo até endef
       if (classified.kind === 'define-open') {
-        inDefine = true;
+        defineDepth = 1;
       }
 
       // Aplica o espaçamento preservando a indentação original da linha

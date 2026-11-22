@@ -2,7 +2,7 @@ import type * as vscode from 'vscode';
 import type { MakefileFormatterOptions } from './types';
 import { buildFullDocumentEdits } from '@tooark/ark-format-shared/edits';
 import { alignAssignmentBlocks, applyMakefileSpacing, AssignmentAlignMeta, getAssignmentValueColumn, MakefileSpacingConfig } from './makefileSpacing';
-import { classifyLine, findCommentStart, hasRecipePrefix, looksLikeRecipeCommand, usesCustomRecipePrefix } from './makefileLex';
+import { classifyLine, defineDepthChange, findCommentStart, hasRecipePrefix, isStandaloneFunctionCall, looksLikeRecipeCommand, usesCustomRecipePrefix } from './makefileLex';
 import { applyLineEnding, ensureFinalNewline, normalizeToLf, removeLeadingBlankLines } from './utils';
 
 /**
@@ -55,7 +55,7 @@ export class MakefileFormatter {
 
     // Inicializa o estado da formatação: profundidade de condicionais, blocos define, continuação e contexto de recipe.
     let conditionalDepth = Math.max(0, baseIndent);
-    let inDefine = false;
+    let defineDepth = 0;
     let inContinuation = false;
     let inRecipe = false;
     let blankRun = 0;
@@ -77,12 +77,14 @@ export class MakefileFormatter {
       // Conteúdo da linha para formatação: preserva espaços finais quando o trim está desabilitado
       const lineForFormatting = this.opts.trimTrailingWhitespace ? classified.trimmed : raw.trimStart();
 
-      // Conteúdo de define ... endef é preservado sem alterações (apenas o endef é realinhado)
-      if (inDefine) {
-        // Verifica se a linha atual encerra o bloco define
-        if (classified.kind === 'define-end') {
+      // Conteúdo de define ... endef é preservado sem alterações (apenas o endef é realinhado).
+      // Blocos define podem ser aninhados: só o endef que fecha o bloco externo encerra a preservação.
+      if (defineDepth > 0) {
+        defineDepth += defineDepthChange(raw);
+
+        // Verifica se a linha atual encerra o bloco define externo
+        if (defineDepth === 0) {
           emit(this.conditionalIndent(conditionalDepth, raw) + classified.trimmed);
-          inDefine = false;
           blankRun = 0;
 
           continue;
@@ -160,7 +162,11 @@ export class MakefileFormatter {
       // quando o conteúdo não é interpretável como sintaxe de Makefile. Linhas classificadas
       // como alvo, mas com cara de comando (modificador @/-/+ ou `:` apenas entre aspas),
       // também são tratadas como recipe.
-      if (inRecipe && (classified.kind === 'other' || (classified.kind === 'target' && looksLikeRecipeCommand(classified.trimmed)))) {
+      // Uma linha formada só por chamadas de função (`$(eval ...)`, `$(call ...)`, `$(info ...)`)
+      // não entra aqui: sem TAB, o make a avalia na leitura do arquivo, mesmo depois de uma regra.
+      const standaloneCall = isStandaloneFunctionCall(classified.trimmed);
+
+      if (inRecipe && !standaloneCall && (classified.kind === 'other' || (classified.kind === 'target' && looksLikeRecipeCommand(classified.trimmed)))) {
         // Verifica se a normalização do prefixo de recipe está habilitada
         if (this.opts.normalizeRecipePrefix) {
           emit(this.maybeTrimTrailing(`\t${raw.replace(/^[ \t]+/, '')}`));
@@ -195,7 +201,7 @@ export class MakefileFormatter {
       // Abertura de bloco define: o conteúdo até endef será preservado sem alterações
       if (classified.kind === 'define-open') {
         emit(this.conditionalIndent(conditionalDepth, raw) + applyMakefileSpacing(lineForFormatting, 'define-open', spacingCfg));
-        inDefine = true;
+        defineDepth = 1;
         inRecipe = false;
         inContinuation = false;
 
@@ -237,7 +243,11 @@ export class MakefileFormatter {
       // Atribuições, diretivas e demais linhas de sintaxe do make: encerram o contexto de recipe
       const emitted = this.conditionalIndent(conditionalDepth, raw) + applyMakefileSpacing(lineForFormatting, classified.kind, spacingCfg);
       emit(emitted, classified.kind === 'assignment' ? 'head' : 'other');
-      inRecipe = false;
+
+      // Uma chamada de função isolada não é regra nem atribuição: o contexto de recipe continua
+      if (!standaloneCall) {
+        inRecipe = false;
+      }
       inContinuation = classified.endsWithContinuation;
 
       // Habilita o alinhamento das continuações com o início do valor da atribuição.

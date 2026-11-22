@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { applyEditorConfigOverrides, formatterConfigKeys, getConfig, makefileConfigKeys, parseEditorConfig } from './formatters/editorConfigReader';
 import { MakefileFormatter } from './formatters/makefileFormatter';
-import { classifyTrimmedLine, hasRecipePrefix } from './formatters/makefileLex';
+import { classifyTrimmedLine, defineDepthChange, hasRecipePrefix } from './formatters/makefileLex';
 import { MakefileRangeFormatter } from './formatters/makefileRangeFormatter';
 import { MAKEFILE_LANGUAGE_IDS, SUPPORTED_DOCUMENT_SCHEMES } from './formatters/types';
 import type { LineEnding, MakefileFormatterOptions, MakefileLanguageId } from './formatters/types';
@@ -153,7 +153,7 @@ function buildFormatterOptions (cfg: vscode.WorkspaceConfiguration, editorOption
  */
 function computeBaseIndent (document: vscode.TextDocument, startLine: number): number {
   let depth = 0;
-  let inDefine = false;
+  let defineDepth = 0;
 
   // Itera sobre as linhas anteriores à seleção para calcular a profundidade de condicionais
   for (let i = 0; i < startLine; i++) {
@@ -167,19 +167,16 @@ function computeBaseIndent (document: vscode.TextDocument, startLine: number): n
 
     const kind = classifyTrimmedLine(trimmed);
 
-    // Ignora o conteúdo de blocos define ... endef
-    if (inDefine) {
-      // Verifica se a linha atual encerra o bloco define
-      if (kind === 'define-end') {
-        inDefine = false;
-      }
+    // Ignora o conteúdo de blocos define ... endef, que podem ser aninhados
+    if (defineDepth > 0) {
+      defineDepth += defineDepthChange(raw);
 
       continue;
     }
 
     // Verifica se a linha abre um bloco define
     if (kind === 'define-open') {
-      inDefine = true;
+      defineDepth = 1;
 
       continue;
     }

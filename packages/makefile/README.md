@@ -28,7 +28,9 @@ Keep your Makefiles consistently formatted without ever breaking the strict whit
 Makefiles have strict whitespace semantics. The formatter is built around invariants that guarantee it never changes what `make` executes:
 
 - **Recipe lines** (TAB-prefixed) keep their prefix and their body is never modified — recipe content belongs to the shell.
-- **`define ... endef` blocks** are preserved verbatim.
+- **`define ... endef` blocks** are preserved verbatim, including nested blocks and the `export`, `override` and `private` prefixes.
+- **References (`$(...)`, `${...}`)** are never changed: `:`, `#`, `=` and spaces inside a function call are arguments.
+- **Inline comments on assignments** keep the original spacing before the `#`, because make includes those spaces in the value.
 - **Line continuations** (`\`) are preserved; only whitespace after the backslash is trimmed.
 - **`.RECIPEPREFIX`**: if the file redefines the recipe prefix, the document is left untouched (TAB detection no longer applies).
 
@@ -125,7 +127,7 @@ Customize the formatter in `settings.json`:
 | `maxConsecutiveBlankLines`           | `1`            | Maximum number of consecutive blank lines                                |
 | `removeLeadingBlankLines`            | `true`         | Removes blank lines at the beginning of the file                         |
 | `insertFinalNewline`                 | `true`         | Inserts a new line at the end of the file                                |
-| `collapseSpaces`                     | `true`         | Collapses multiple spaces (never in recipes, comments, values, `define`) |
+| `collapseSpaces`                     | `true`         | Collapses spaces (not in recipes, comments, values, `$(...)`, `define`)  |
 | `spacing.spaceAroundAssignment`      | `true`         | Adds a single space around assignment operators                          |
 | `spacing.spaceAfterTargetColon`      | `true`         | Adds a single space after `:` in target declarations                     |
 | `spacing.spaceAfterCommentMarker`    | `true`         | Adds a space between `#` and the comment text                            |
