@@ -588,3 +588,238 @@ describe('PowerShellFormatter.formatText', () => {
     expect(format(input)).toBe(input);
   });
 });
+
+describe('PowerShellFormatter.formatText: blocos de uma linha, # no meio de palavras e diretivas', () => {
+  // Os casos ficam dentro de uma função: no nível 0 o deslocamento para a esquerda não aparece.
+  const inFunction = (...lines: string[]): string => ['function Test {', ...lines.map((line) => `  ${line}`), '}', 'Write-Host end', ''].join('\n');
+
+  it.each([
+    [['try { Get-Item x }', 'catch { Write-Host err }', 'finally { Write-Host done }']],
+    [['if ($a) { 1 }', 'elseif ($b) { 2 }', 'else { 3 }']],
+    [['if ($a) { 1 }', 'else {', '  2', '}']],
+    [['try {', '  Get-Item x', '}', 'catch {', '  Write-Host err', '}']],
+    [['try {', '  Get-Item x', '} catch { Write-Host err }']],
+    [['if ($a) { 1 } else {', '  2', '}']],
+    [['switch ($x) {', "  'a' { 1 }", "  'b' { 2 }", '  default { 3 }', '}']],
+  ])('mantém o nível das cláusulas em %j', (lines) => {
+    const input = inFunction(...lines, 'Write-Host after');
+    expect(format(input)).toBe(input);
+  });
+
+  it('reconstrói a indentação de cláusulas após blocos de uma linha', () => {
+    const expected = inFunction('try { Get-Item x }', 'catch { Write-Host err }', 'if ($a) { 1 }', 'else { 2 }', 'Write-Host after');
+    const flattened = expected.split('\n').map((line) => line.trimStart()).join('\n');
+    expect(format(flattened)).toBe(expected);
+  });
+
+  it.each([
+    'Catch-Errors $x',
+    'Finally-Cleanup',
+    'else-branch 1',
+    'ElseIf-Thing',
+  ])('não trata o comando "%s" como cláusula', (line) => {
+    const input = inFunction(line, 'Write-Host after');
+    expect(format(input)).toBe(input);
+  });
+
+  it('não trata chaves de hashtable com nome de palavra-chave como cláusulas', () => {
+    const input = inFunction('$map = @{', '  If = 1', '  Else = 2', '  Catch = 3', '  Finally = 4', '}', 'Write-Host after');
+    expect(format(input)).toBe(input);
+  });
+
+  it('acompanha o saldo de chaves quando o bloco abre ou fecha no meio da linha', () => {
+    const input = [
+      'function Test { param($a)',
+      'Write-Host $a }',
+      '$items | Where-Object { $_.A -and',
+      '$_.B }',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'function Test { param($a)',
+      '  Write-Host $a }',
+      '$items | Where-Object { $_.A -and',
+      '  $_.B }',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+    expect(format(expected)).toBe(expected);
+  });
+
+  it('alinha "})" e "}}" com a linha que abriu os blocos', () => {
+    const input = [
+      'function Test {',
+      '$items.ForEach({',
+      'Write-Host $_',
+      '})',
+      'if ($a) { if ($b) {',
+      'Write-Host 1',
+      '}}',
+      '$x = (Get-Item a',
+      ') -join (',
+      "','",
+      ')',
+      '}',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'function Test {',
+      '  $items.ForEach({',
+      '      Write-Host $_',
+      '  })',
+      '  if ($a) { if ($b) {',
+      '      Write-Host 1',
+      '  }}',
+      '  $x = (Get-Item a',
+      '  ) -join (',
+      "    ','",
+      '  )',
+      '}',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+    expect(format(expected)).toBe(expected);
+  });
+
+  it.each([
+    'dotnet new console -lang C# -o "My   App"',
+    'Write-Host a#b "x   y"',
+    'git config color.ui=#ff0000 "a   b"',
+    'Invoke-RestMethod https://x.io/#/api -Body "a   b"',
+    'Write-Host `# "a   b"',
+  ])('não trata o # no meio de uma palavra como comentário em "%s"', (line) => {
+    const input = `${line}\n`;
+    expect(format(input)).toBe(input);
+  });
+
+  it('abre o bloco em uma linha com # no meio de uma palavra', () => {
+    const input = ['Invoke-RestMethod https://x.io/#/api | ForEach-Object {', '$_', '}', 'Write-Host end', ''].join('\n');
+    const expected = ['Invoke-RestMethod https://x.io/#/api | ForEach-Object {', '  $_', '}', 'Write-Host end', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('reconhece a here-string aberta em uma linha com # no meio de uma palavra', () => {
+    const input = [
+      'function Test {',
+      '  $code = New-Snippet -Lang C# -Body @"',
+      'class   A { }',
+      "    // it's kept",
+      '"@',
+      '  Write-Host after',
+      '}',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(input);
+  });
+
+  it.each([
+    '$x = 1    # texto   alinhado',
+    '$x = "a"# cola   na string',
+    'foo(1)# após   parêntese',
+    '$a = @(1,# após   vírgula',
+  ])('continua tratando como comentário em "%s"', (line) => {
+    const result = format(`${line}\n2)\n`).split('\n')[0];
+    expect(result.slice(result.indexOf('#'))).toBe(line.slice(line.indexOf('#')));
+  });
+
+  it.each([
+    '#Requires -Version 7.0',
+    '#requires -Modules Az',
+    '#region Setup',
+    '#Region Setup',
+    '#endregion',
+    '#endregion Setup',
+  ])('mantém a diretiva "%s" sem espaço após o #', (line) => {
+    const input = inFunction(line, 'Write-Host after');
+    expect(format(input)).toBe(input);
+  });
+
+  it('continua inserindo espaço em comentários comuns que começam como uma diretiva', () => {
+    expect(format('#regional settings\n#requirements\n#comentário\n')).toBe('# regional settings\n# requirements\n# comentário\n');
+  });
+
+  it('mantém variáveis entre chaves como estão', () => {
+    const input = inFunction('if (${#CANCAPTUREARGS#}) {', '  ${a  b} = ${env:ProgramFiles(x86)}', '}', '${x} = ${function:Test} -Params @{ A = 1 }', 'Write-Host after');
+    expect(format(input)).toBe(input);
+  });
+
+  it('colapsa espaços ao redor de variáveis entre chaves', () => {
+    expect(format('Start-Thread   ${function:Detail}   -Params   ${p}   # c   d\n')).toBe('Start-Thread ${function:Detail} -Params ${p} # c   d\n');
+  });
+
+  it('trata comentários de bloco no meio da linha como comentário', () => {
+    const input = [
+      'function Test {',
+      'if ($a) { <# why   {{ #>',
+      'Write-Host 1',
+      '}',
+      "if ($b) <# don't   } #> {",
+      'Write-Host 2',
+      '}',
+      '$x = 1 <# c   d #> + 2   # e   f',
+      '}',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'function Test {',
+      '  if ($a) { <# why   {{ #>',
+      '    Write-Host 1',
+      '  }',
+      "  if ($b) <# don't   } #> {",
+      '    Write-Host 2',
+      '  }',
+      '  $x = 1 <# c   d #> + 2 # e   f',
+      '}',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+    expect(format(expected)).toBe(expected);
+  });
+});
+
+describe('PowerShellFormatter.formatText: chaves em linhas de continuação', () => {
+  it.each([
+    [['Invoke-Command -ScriptBlock { Get-Service `', '    -Name foo }']],
+    [['$a = $items | Where-Object { $_.A -and', '  $_.B } |', '  Sort-Object']],
+    [['$items | ForEach-Object { $_.Group |', '    Sort-Object Name }']],
+    [['$x = @{ A = 1 `', '    B = 2 }']],
+    [['$items | ForEach-Object {', '  $_', '} |', '  Sort-Object']],
+    [['$x = (Get-Item a |', '  Sort-Object)']],
+  ])('mantém o restante da função no nível em %j', (lines) => {
+    const input = ['function Test {', ...lines.map((line) => `  ${line}`), '  Write-Host after', '}', 'Write-Host end', ''].join('\n');
+
+    expect(format(input)).toBe(input);
+  });
+
+  it('reconstrói a indentação de um bloco aberto em linha de continuação', () => {
+    const expected = [
+      'function Test {',
+      '  Invoke-Command -ScriptBlock { Get-Service `',
+      '      -Name foo }',
+      '  $a = $items | Where-Object { $_.A -and',
+      '    $_.B } |',
+      '    Sort-Object',
+      '  Write-Host after',
+      '}',
+      'Write-Host end',
+      '',
+    ].join('\n');
+
+    const flattened = expected.split('\n').map((line) => line.trimStart()).join('\n');
+
+    expect(format(flattened)).toBe(expected);
+  });
+});

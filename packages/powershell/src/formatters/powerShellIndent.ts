@@ -2,33 +2,58 @@ import { hasContinuationLine } from '@tooark/ark-format-shared/indent';
 import { isFullLineComment, isShebang } from './powerShellLex';
 import { IndentState } from './types';
 
-// Expressões regulares para identificar padrões de início de blocos e outros elementos que afetam a indentação
-const END_WITH_OPTIONAL_INLINE_COMMENT = '(?:\\s*(?:#.*)?)$';
-const CLOSE_BRACE_LINE_RE = /^\}/;
-const SAME_LEVEL_CLAUSE_RE = /^(else|elseif|catch|finally)\b/i;
-const OPEN_BRACE_LINE_RE = new RegExp(`\\{${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const CLOSE_PAREN_LINE_RE = /^\)/;
-
 /**
- * Função para calcular o saldo de parênteses de uma linha (aberturas menos fechamentos).
- * Recebe apenas as partes de código da linha (strings e comentários já removidos pelo
- * chamador via `getCodePartsOnly`), então parênteses literais não contam.
+ * Função para calcular o saldo de um par de delimitadores em uma linha (aberturas menos fechamentos).
+ * Recebe apenas as partes de código da linha (strings, comentários e variáveis `${...}` já removidos
+ * pelo chamador via `getCodePartsOnly`), então delimitadores literais não contam. Um delimitador
+ * escapado por crase (`` `{ ``) também não conta.
  * @param text O texto de controle da linha (apenas código).
- * @returns O saldo: positivo quando a linha abre parênteses sem fechar, negativo quando fecha.
+ * @param open O caractere de abertura (`(` ou `{`).
+ * @param close O caractere de fechamento (`)` ou `}`).
+ * @returns O saldo: positivo quando a linha abre sem fechar, negativo quando fecha.
  */
-function netParenBalance (text: string): number {
+function netBalance (text: string, open: string, close: string): number {
   let balance = 0;
 
   // Percorre os caracteres somando aberturas e subtraindo fechamentos
-  for (const ch of text) {
-    if (ch === '(') {
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+
+    if (ch === '`') {
+      i++;
+    } else if (ch === open) {
       balance++;
-    } else if (ch === ')') {
+    } else if (ch === close) {
       balance--;
     }
   }
 
   return balance;
+}
+
+/**
+ * Função para contar os fechamentos (`}` e `)`) que iniciam uma linha, como em `}`, `})` ou `))`.
+ * Esses fechamentos alinham a linha com a que abriu o bloco, por isso reduzem o nível antes de a
+ * linha ser escrita.
+ * @param trimmed A linha de código já trimada.
+ * @returns A quantidade de `}` e de `)` na sequência inicial de fechamentos.
+ */
+function countLeadingClosers (trimmed: string): { braces: number; parens: number } {
+  let braces = 0;
+  let parens = 0;
+
+  // Percorre a sequência inicial de fechamentos, aceitando espaços entre eles
+  for (const ch of trimmed) {
+    if (ch === '}') {
+      braces++;
+    } else if (ch === ')') {
+      parens++;
+    } else if (ch !== ' ' && ch !== '	') {
+      break;
+    }
+  }
+
+  return { braces, parens };
 }
 
 /**
@@ -41,8 +66,7 @@ export function createInitialState (): IndentState {
     inHeredoc: false,
     heredocEnd: '',
     continuation: false,
-    parenDepth: 0,
-    afterCloseBrace: false
+    parenDepth: 0
   };
 }
 
@@ -58,8 +82,10 @@ export function isLineContinuation (trimmed: string): boolean {
 
 /**
  * Função para ajustar a indentação antes de processar uma linha de código.
- * Esta função verifica se a linha atual é um terminador de bloco (como `else`, `elseif`, `catch`, `finally` ou `}`) e,
- * se for, reduz a indentação para a próxima linha.
+ * Esta função verifica se a linha atual começa fechando blocos (`}`) ou parênteses multilinha (`)`)
+ * e, se for o caso, reduz a indentação para que a linha fique alinhada com a que os abriu.
+ * Cláusulas `else`, `elseif`, `catch` e `finally` em linha própria não precisam de ajuste: o bloco
+ * anterior já foi fechado pelas chaves, seja em `}` isolado, em `... }` ou em `{ ... }` de uma linha.
  * @param trimmed A linha de código já trimada (sem espaços em branco no início e no fim).
  * @param st O estado atual de indentação.
  */
@@ -74,40 +100,22 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
     return;
   }
 
-  // Alinha o fechamento de bloco.
-  if (CLOSE_BRACE_LINE_RE.test(trimmed)) {
-    st.indent = Math.max(0, st.indent - 1);
+  // Alinha os fechamentos no início da linha: cada `}` fecha um bloco e cada `)` fecha um
+  // parêntese multilinha (arrays `@(...)`, subexpressões `$(...)`, chamadas com argumentos
+  // quebrados e blocos `param (...)`). A profundidade rastreada evita dedentar em `)` sem
+  // abertura pendente.
+  const leading = countLeadingClosers(trimmed);
+  const closes = leading.braces + Math.min(leading.parens, st.parenDepth);
 
-    return;
-  }
-
-  // Alinha o fechamento de parênteses multilinha (`)` de arrays `@(...)`, subexpressões
-  // `$(...)`, chamadas com argumentos quebrados e blocos `param (...)`), no mesmo nível
-  // da linha que abriu. A profundidade rastreada evita dedentar em `)` sem abertura pendente.
-  if (st.parenDepth > 0 && CLOSE_PAREN_LINE_RE.test(trimmed)) {
-    st.indent = Math.max(0, st.indent - 1);
-
-    return;
-  }
-
-  // Cláusulas que fecham e abrem bloco no mesmo nível. Quando a cláusula está escrita
-  // na mesma linha do fechamento (`} catch {`), o dedent vem do próprio `}`; quando vem
-  // em linha própria após um `}` isolado, o dedent já aconteceu na linha anterior e não
-  // deve ser aplicado de novo.
-  if (SAME_LEVEL_CLAUSE_RE.test(trimmed)) {
-    // Aplica o dedent apenas quando a linha anterior não foi um `}` isolado
-    if (!st.afterCloseBrace) {
-      st.indent = Math.max(0, st.indent - 1);
-    }
-
-    return;
+  if (closes > 0) {
+    st.indent = Math.max(0, st.indent - closes);
   }
 }
 
 /**
  * Função para ajustar a indentação após processar uma linha de código.
- * Esta função verifica se a linha atual é um iniciador de bloco (como `{`, `continuation`) e,
- * se for, aumenta a indentação para a próxima linha.
+ * Esta função aplica à próxima linha o saldo de chaves e de parênteses da linha atual e a
+ * indentação temporária de uma continuação de linha.
  * @param trimmed A linha de código já trimada (sem espaços em branco no início e no fim).
  * @param st O estado atual de indentação.
  */
@@ -122,9 +130,14 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
     return;
   }
 
-  // Registra se esta linha foi um `}` isolado (fechamento que já dedentou e não abriu
-  // outro bloco), para a cláusula `else`/`catch`/`finally` em linha própria não dedentar de novo
-  st.afterCloseBrace = CLOSE_BRACE_LINE_RE.test(trimmed) && !OPEN_BRACE_LINE_RE.test(trimmed);
+  // Fechamentos no início da linha já reduziram o nível em dedentBeforeLine — não reduzem de novo
+  const leading = countLeadingClosers(trimmed);
+
+  // Blocos PowerShell delimitados por chaves: o nível acompanha o saldo de `{` e `}` da linha.
+  // Assim `if ($a) { 1 }` não altera o nível, `function f { param($a)` abre um bloco e
+  // `Write-Host 1 }` fecha um. O saldo vale também em linhas de continuação: um bloco aberto
+  // em uma linha terminada em crase ou `|` e fechado na linha seguinte precisa fechar a conta.
+  st.indent = Math.max(0, st.indent + netBalance(trimmed, '{', '}') + leading.braces);
 
   // Continuação de linha — mantém o estado de indentação para a próxima linha
   if (isLineContinuation(trimmed)) {
@@ -143,27 +156,16 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
     st.continuation = false;
   }
 
+  const leadingParens = Math.min(leading.parens, st.parenDepth);
+
   // Parênteses multilinha: `(`, `@(` ou `$(` abertos sem fechamento na mesma linha
   // (arrays, subexpressões, chamadas com argumentos quebrados, blocos `param (...)`)
   // aumentam o nível para o conteúdo interno; fechamentos correspondentes reduzem.
-  const parenBalance = netParenBalance(trimmed);
+  const parenBalance = netBalance(trimmed, '(', ')');
 
-  // Verifica se a linha abre ou fecha parênteses multilinha
-  if (parenBalance > 0) {
-    st.indent += parenBalance;
-    st.parenDepth += parenBalance;
-  } else if (parenBalance < 0) {
-    // Fecha no máximo a profundidade pendente, ignorando `)` sem abertura rastreada
-    const closes = Math.min(-parenBalance, st.parenDepth);
+  // Fecha no máximo a profundidade pendente, ignorando `)` sem abertura rastreada
+  const parenDelta = parenBalance < 0 ? -Math.min(-parenBalance, st.parenDepth) : parenBalance;
 
-    // O `)` no início da linha já dedentou em dedentBeforeLine — não reduz de novo
-    const alreadyDedented = closes > 0 && CLOSE_PAREN_LINE_RE.test(trimmed) ? 1 : 0;
-    st.parenDepth -= closes;
-    st.indent = Math.max(0, st.indent - Math.max(0, closes - alreadyDedented));
-  }
-
-  // Blocos PowerShell delimitados por chaves.
-  if (OPEN_BRACE_LINE_RE.test(trimmed)) {
-    st.indent += 1;
-  }
+  st.parenDepth += parenDelta;
+  st.indent = Math.max(0, st.indent + parenDelta + leadingParens);
 }

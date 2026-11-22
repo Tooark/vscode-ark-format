@@ -197,3 +197,95 @@ describe('PowerShellRangeFormatter.formatSelectedText (no reindent)', () => {
     expect(result).toBe('function Test {');
   });
 });
+
+describe('PowerShellRangeFormatter: blocos de uma linha, # no meio de palavras e diretivas', () => {
+  it('reconstrói a indentação com cláusulas após blocos de uma linha', () => {
+    const expected = [
+      'function Test {',
+      '  #region Setup',
+      '  try { Get-Item x }',
+      '  catch { Write-Host err }',
+      '  if ($a) { 1 }',
+      '  else { 2 }',
+      '  $map = @{',
+      '    Else = 2',
+      '  }',
+      '  Invoke-RestMethod https://x.io/#/api | ForEach-Object {',
+      '    dotnet new console -lang C# -o "My   App"',
+      '  }',
+      '  #endregion',
+      '}',
+      'Write-Host end',
+    ].join('\n');
+
+    const flattened = expected.split('\n').map((line) => line.trimStart()).join('\n');
+
+    expect(formatRange(flattened, { reindent: true, baseIndent: 0 })).toBe(expected);
+    expect(formatRange(expected, { reindent: true, baseIndent: 0 })).toBe(expected);
+  });
+
+  it('mantém strings, diretivas e variáveis entre chaves sem reindentar', () => {
+    const input = ['  #Requires -Version 7.0', '  dotnet   new -lang C# -o "My   App"', '  if (${#x#})   { 1 }'].join('\n');
+    const expected = ['  #Requires -Version 7.0', '  dotnet new -lang C# -o "My   App"', '  if (${#x#}) { 1 }'].join('\n');
+
+    expect(formatRange(input, { reindent: false })).toBe(expected);
+  });
+});
+
+describe('PowerShellRangeFormatter: blocos de comentário <# ... #>', () => {
+  const input = [
+    'function Test {',
+    '  <#',
+    '  .SYNOPSIS',
+    "    Don't   do this {",
+    '  #>',
+    'if ($a) {',
+    '$x   =   1',
+    '}',
+    '}',
+  ].join('\n');
+
+  it('preserva o bloco e continua formatando o código depois dele', () => {
+    const expected = [
+      'function Test {',
+      '  <#',
+      '  .SYNOPSIS',
+      "    Don't   do this {",
+      '  #>',
+      '  if ($a) {',
+      '    $x = 1',
+      '  }',
+      '}',
+    ].join('\n');
+
+    expect(formatRange(input, { reindent: true, baseIndent: 0 })).toBe(expected);
+  });
+
+  it('preserva o bloco e continua aplicando o espaçamento quando reindent é false', () => {
+    const lines = formatRange(input, { reindent: false }).split('\n');
+
+    expect(lines[3]).toBe("    Don't   do this {");
+    expect(lines[6]).toBe('$x = 1');
+  });
+});
+
+describe('PowerShellRangeFormatter: chaves em linhas de continuação', () => {
+  it('fecha a conta de um bloco aberto ou fechado em linha de continuação', () => {
+    const expected = [
+      'function Test {',
+      '  Invoke-Command -ScriptBlock { Get-Service `',
+      '      -Name foo }',
+      '  $a = $items | Where-Object { $_.A -and',
+      '    $_.B } |',
+      '    Sort-Object',
+      '  Write-Host after',
+      '}',
+      'Write-Host end',
+    ].join('\n');
+
+    const flattened = expected.split('\n').map((line) => line.trimStart()).join('\n');
+
+    expect(formatRange(flattened, { reindent: true, baseIndent: 0 })).toBe(expected);
+    expect(formatRange(expected, { reindent: true, baseIndent: 0 })).toBe(expected);
+  });
+});

@@ -1,6 +1,9 @@
 import { collapseDoubleSpaces, normalizeCommentSpacing } from '@tooark/ark-format-shared/spacing';
-import { splitByQuotesPreserve } from './powerShellLex';
+import { isCommentStart, splitByQuotesPreserve } from './powerShellLex';
 import { PowerShellFormatterOptions, PowerShellSpacingConfig } from './types';
+
+// Diretivas que só valem sem espaço após o `#`: `#Requires`, `#region` e `#endregion`.
+const COMMENT_DIRECTIVE_RE = /^#(?:requires|region|endregion)(?![A-Za-z0-9_])/i;
 
 /**
  * Função para construir a configuração de espaçamento efetiva a partir das opções do formatador.
@@ -25,7 +28,28 @@ export function toPowerShellSpacingConfig (opts: PowerShellFormatterOptions): Po
 export function applyPowerShellSpacing (trimmedLine: string, cfg: PowerShellSpacingConfig): string {
   const parts = splitByQuotesPreserve(trimmedLine);
 
-  return parts.map(p => (p.kind === 'code' ? transformCode(p.text, cfg) : p.text)).join('');
+  return parts.map((p, idx) => {
+    // Strings, variáveis `${...}` e comentários de bloco são mantidos como estão
+    if (p.kind !== 'code') {
+      return p.text;
+    }
+
+    let text = transformCode(p.text, cfg);
+
+    // Uma variável `${...}` ou um comentário de bloco divide o código em partes; os espaços
+    // repetidos ao redor deles são colapsados aqui, como no restante do código.
+    if (cfg.collapseSpaces) {
+      if (parts[idx - 1]?.kind === 'verbatim') {
+        text = text.replace(/^ {2,}/, ' ');
+      }
+
+      if (parts[idx + 1]?.kind === 'verbatim') {
+        text = text.replace(/ {2,}$/, ' ');
+      }
+    }
+
+    return text;
+  }).join('');
 }
 
 /**
@@ -59,37 +83,33 @@ function transformCode (code: string, cfg: PowerShellSpacingConfig): string {
     s = collapseDoubleSpaces(s);
   }
 
+  // Diretivas escritas como comentário não aceitam espaço após o `#`: `# Requires` deixa de ser a
+  // instrução `#Requires` e `# region`/`# endregion` deixam de marcar uma região dobrável.
+  if (commentStart !== -1 && COMMENT_DIRECTIVE_RE.test(code.slice(commentStart))) {
+    return s + comment;
+  }
+
   // Normaliza o espaçamento em comentários, preservando o fechamento de comentário em bloco (#>)
   return normalizeCommentSpacing(s + comment, findCommentStart, ['>']);
 }
 
 /**
- * Função para encontrar a posição do início de um comentário em uma linha de código PowerShell.
- * Retorna a posição do início de comentário PowerShell (`#`) quando ele de fato atua como comentário.
- * Ignora `#` usados em expansões como `${#var}` e `${var##pattern}`.
- * @param code A linha de código PowerShell a ser analisada.
+ * Função para encontrar a posição do início de um comentário em um trecho de código PowerShell.
+ * Usa a mesma regra do lexer (`isCommentStart`): o `#` só é comentário no início de um token,
+ * então `C#`, `a#b` e `` `# `` não iniciam comentário.
+ * @param code O trecho de código PowerShell a ser analisado (fora de strings).
  * @returns A posição do início do comentário ou -1 se não houver comentário.
  */
 function findCommentStart (code: string): number {
-  // Itera sobre a linha para encontrar um `#` que seja um comentário
+  // Itera sobre o trecho para encontrar um `#` que seja um comentário
   for (let i = 0; i < code.length; i++) {
-    // Verifica se o caractere atual é `#`
-    if (code[i] !== '#') {
+    // Crase escapa o próximo caractere
+    if (code[i] === '`') {
+      i++;
       continue;
     }
 
-    // Comentário em linha inteira
-    if (i === 0) {
-      return i;
-    }
-
-    // `#` escapado por crase não inicia comentário.
-    if (code[i - 1] === '`') {
-      continue;
-    }
-
-    // Comentário inline típico: espaço/tab ou separadores de instrução/bloco.
-    if (/[\s;{}()\[\]]/.test(code[i - 1])) {
+    if (code[i] === '#' && isCommentStart(code, i)) {
       return i;
     }
   }

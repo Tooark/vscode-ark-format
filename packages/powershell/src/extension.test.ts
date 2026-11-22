@@ -136,3 +136,47 @@ describe('provider de intervalo', () => {
     expect(edits).toEqual([]);
   });
 });
+
+describe('provider de intervalo: contexto com blocos de uma linha e # no meio de palavras', () => {
+  it('não desloca o contexto após cláusulas que seguem blocos de uma linha', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument(
+      'function Test {\n  try { Get-Item x }\n  catch { Write-Host err }\n  if ($a) { 1 }\n  else { 2 }\nWrite-Host "hi"\n}',
+      'Write-Host "hi"'
+    );
+    const selection = { start: { line: 5, character: 0 }, end: { line: 5, character: 15 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('  Write-Host "hi"');
+  });
+
+  it('conta o bloco aberto em uma linha com # no meio de uma palavra', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument('Invoke-RestMethod https://x.io/#/api | ForEach-Object {\nWrite-Host "hi"\n}', 'Write-Host "hi"');
+    const selection = { start: { line: 1, character: 0 }, end: { line: 1, character: 15 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('  Write-Host "hi"');
+  });
+});
+
+describe('provider de intervalo: contexto após bloco de comentário', () => {
+  it('não conta o texto de um bloco <# ... #> no cálculo do contexto', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument(
+      "function Test {\n  <#\n  .SYNOPSIS\n    Don't do this {\n    ) }\n  #>\n  if ($a) {\nWrite-Host \"hi\"\n  }\n}",
+      'Write-Host "hi"'
+    );
+    const selection = { start: { line: 7, character: 0 }, end: { line: 7, character: 15 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    // function { +1 e if { +1: o texto do bloco de comentário não participa do contexto
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('    Write-Host "hi"');
+  });
+});

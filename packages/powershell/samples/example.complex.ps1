@@ -117,3 +117,36 @@ $checks |
     Format-Table -AutoSize
 
 Write-Host "=== Fim da rotina de validacao ===" -ForegroundColor Cyan
+
+# Blocos de uma linha seguidos de catch/else, # no meio de palavras e diretivas (1.2.6)
+# As clausulas ficam no nivel do bloco, o # de C# e de URLs nao inicia comentario,
+# ${...} e mantido como esta e #region/#endregion continuam sem espaco apos o #.
+#region Blocos de uma linha
+function Test-InlineBlocks {
+    param([int]$Value)
+
+    try { $result = 10 / $Value }
+    catch { $result = 0 }
+
+    if ($result -gt 1) { $label = 'alto' }
+    elseif ($result -eq 1) { $label = 'um' }
+    else { $label = 'baixo' }
+
+    $map = @{
+        If = 1
+        Else = 2
+        Catch = 3
+    }
+
+    ${total geral} = $map.If + $map.Else + $map.Catch
+
+    $languages = @('C#', 'F#') | ForEach-Object {
+        "{0}   ({1})" -f $_, $label
+    }
+
+    Write-Output C# "a   b" https://example.com/#/rota ${total geral}
+    $languages
+}
+#endregion
+
+Test-InlineBlocks -Value 5

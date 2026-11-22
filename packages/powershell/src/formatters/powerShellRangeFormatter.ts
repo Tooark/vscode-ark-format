@@ -5,7 +5,7 @@ import { normalizeToLf, trimTrailingWhitespace, reduceBlankLines } from './utils
 import { alignPowerShellAssignments } from './powerShellAlign';
 import { applyPowerShellSpacing, toPowerShellSpacingConfig } from './powerShellSpacing';
 import { createInitialState, dedentBeforeLine, indentAfterLine } from './powerShellIndent';
-import { getCodePartsOnly, getQuoteModeAfterLine } from './powerShellLex';
+import { getCodePartsOnly, getQuoteModeAfterLine, isBlockCommentEnd, isBlockCommentStart } from './powerShellLex';
 
 /**
  * Classe para formatar um intervalo de texto em um documento do Visual Studio Code usando as opções fornecidas.
@@ -39,11 +39,21 @@ export class PowerShellRangeFormatter {
     const indentUnit = this.opts.indentStyle === 'tab' ? '\t' : ' '.repeat(Math.max(0, this.opts.indentSize));
     const out: string[] = [];
     let quoteMode: QuoteState = 'code';
+    let inBlockComment = false;
 
     // Verifica se a opção de reindentação está desativada.
     if (!this.opts.reindent) {
       // Itera sobre cada linha do texto selecionado
       for (const raw of rawLines) {
+        // Bloco de comentário multilinha (<# ... #>): preservado como está. O texto do comentário
+        // não é código, então apóstrofos e chaves dentro dele não alteram o estado de aspas.
+        if (inBlockComment || (quoteMode === 'code' && isBlockCommentStart(raw.trim()))) {
+          out.push(raw);
+          inBlockComment = !(inBlockComment && isBlockCommentEnd(raw.trim()));
+
+          continue;
+        }
+
         const nextQuoteMode = getQuoteModeAfterLine(raw, quoteMode);
 
         // Preserva conteúdo literal de strings multilinha sem reprocessamento.
@@ -91,6 +101,17 @@ export class PowerShellRangeFormatter {
     for (const raw of rawLines) {
       // Carrega a linha sem espaços à direita para formatação
       const rawTrimmed = raw.trim();
+
+      // Bloco de comentário multilinha (<# ... #>): preservado como está, como no formatador de
+      // documento. O texto do comentário não é código, então apóstrofos, chaves e parênteses
+      // dentro dele não alteram o estado de aspas nem a indentação.
+      if (inBlockComment || (quoteMode === 'code' && isBlockCommentStart(rawTrimmed))) {
+        out.push(raw);
+        inBlockComment = !(inBlockComment && isBlockCommentEnd(rawTrimmed));
+
+        continue;
+      }
+
       const lineForFormatting = this.opts.trimTrailingWhitespace ? rawTrimmed : raw.trimStart();
       const controlText = getCodePartsOnly(raw, quoteMode).trim();
       const nextQuoteMode = getQuoteModeAfterLine(raw, quoteMode);

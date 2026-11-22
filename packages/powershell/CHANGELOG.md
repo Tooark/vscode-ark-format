@@ -4,6 +4,21 @@ All notable changes to the `ark-format-powershell` package are documented here.
 
 🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/packages/powershell/CHANGELOG.pt-BR.md)
 
+## 1.2.6 - 2026-11-21
+
+- Package version bumped from `1.2.5` to `1.2.6`.
+- Fix: `else`, `elseif`, `catch` and `finally` on their own line after a one-line block (`try { ... }` followed by `catch { ... }`) lost one level and left the rest of the function shifted. Indentation now follows the balance of `{` and `}` on each line, so blocks that open or close in the middle of a line (`function f { param($a)`, `Write-Host 1 }`) are tracked too.
+- Fix: commands and hashtable keys that start with a clause keyword (`Catch-Errors`, `Else = 2`, `Finally = 4`) are no longer read as clauses.
+- Fix: `#Requires`, `#region` and `#endregion` no longer get a space after the `#`. `# Requires` is a plain comment, so the requirement was silently dropped, and `# region` is not a folding marker.
+- Fix: `#` in the middle of a word (`C#`, `a#b`, `https://host/#/path`, `--color=#fff`) was treated as a comment. Spaces inside a string that followed were collapsed, a `{` at the end of the line was not seen, and a here-string opened on that line was reformatted.
+- Fix: braced variables such as `${#name#}` or `${a  b}` are kept as written. Previously a `#` or repeated spaces in the name were changed, which renamed the variable.
+- Fix: inline block comments (`if ($a) <# why #> {`) no longer hide the code after them.
+- Fix: `})` and `}}` at the start of a line are aligned with the line that opened the blocks, and `) -join (` keeps the following lines indented.
+- Fix (selection formatting): the text of a `<# ... #>` block was read as code. An apostrophe in the help text (`Don't`) froze the rest of the selection, and braces in it changed the computed context. The block is now preserved as in document formatting.
+- Example `samples/example.complex.ps1` with these cases.
+- New regression tests for the document and selection formatters, the lexer, indentation, spacing and the selection context.
+- Details: [notes/powershell1.2.6.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/powershell1.2.6.md)
+
 ## 1.2.5 - 2026-11-18
 
 - Package version bumped from `1.2.4` to `1.2.5`.
