@@ -2,11 +2,15 @@ import { describe, expect, it } from 'vitest';
 import {
   classifyLine,
   classifyTrimmedLine,
+  defineDepthChange,
   endsWithLineContinuation,
   findCommentStart,
+  findTargetSeparator,
   hasRecipePrefix,
   isFullLineComment,
+  isStandaloneFunctionCall,
   looksLikeRecipeCommand,
+  maskReferences,
   usesCustomRecipePrefix
 } from './makefileLex';
 
@@ -180,5 +184,131 @@ describe('usesCustomRecipePrefix', () => {
   it('não detecta em Makefiles comuns', () => {
     expect(usesCustomRecipePrefix('all:\n\techo ok\n')).toBe(false);
     expect(usesCustomRecipePrefix('# .RECIPEPREFIX citado em comentário nao conta')).toBe(false);
+  });
+});
+
+describe('maskReferences', () => {
+  const visible = (text: string): string => maskReferences(text).replace(/\u0001/g, '_');
+
+  it('mascara referências entre parênteses e chaves, com aninhamento', () => {
+    expect(visible('a $(b c) d')).toBe('a ______ d');
+    expect(visible('a ${b:c} d')).toBe('a ______ d');
+    expect(visible('$(call f,$(x),(y)): z')).toBe('__________________: z');
+    expect(visible('${a{b}c} = 1')).toBe('________ = 1');
+  });
+
+  it('mascara variáveis de um caractere e o escape $$', () => {
+    expect(visible('$@: $<')).toBe('__: __');
+    expect(visible('$$(not a ref): x')).toBe('__(not a ref): x');
+  });
+
+  it('mascara até o fim da linha quando a referência não fecha', () => {
+    expect(visible('X := $(call f,a:b \\')).toBe('X := ______________');
+  });
+
+  it('mantém o tamanho e o texto fora das referências', () => {
+    const text = 'all: $(OBJS) # c $(x)';
+    expect(maskReferences(text)).toHaveLength(text.length);
+    expect(visible('a $ b')).toBe('a __b');
+    expect(visible('fim$')).toBe('fim$');
+  });
+});
+
+describe('findCommentStart com referências', () => {
+  it('ignora o # dentro de referências', () => {
+    expect(findCommentStart("N := $(shell grep -c '^#' f)")).toBe(-1);
+    expect(findCommentStart('X := ${subst #,,$(Y)}')).toBe(-1);
+    expect(findCommentStart('X := $(subst #,,$(Y)) # c')).toBe(22);
+  });
+
+  it('continua reconhecendo o # fora de referências e ignorando o escapado', () => {
+    expect(findCommentStart('DIR := /usr#c')).toBe(11);
+    expect(findCommentStart('X := a\\#b # c')).toBe(10);
+    expect(findCommentStart('X := a\\\\#b')).toBe(8);
+  });
+});
+
+describe('findTargetSeparator', () => {
+  it('encontra o primeiro separador fora de referências', () => {
+    expect(findTargetSeparator('all: deps')).toEqual({ index: 3, length: 1 });
+    expect(findTargetSeparator('all :: deps')).toEqual({ index: 4, length: 2 });
+    expect(findTargetSeparator('$(M:%=t_%): t_%: x')).toEqual({ index: 10, length: 1 });
+    expect(findTargetSeparator('a b &: c')).toEqual({ index: 5, length: 1 });
+  });
+
+  it('não confunde com atribuição, escape, letra de unidade ou referência', () => {
+    expect(findTargetSeparator('X := 1')).toBeNull();
+    expect(findTargetSeparator('X ::= 1')).toBeNull();
+    expect(findTargetSeparator('$(info a: b)')).toBeNull();
+    expect(findTargetSeparator('C:/out/a.o')).toBeNull();
+    expect(findTargetSeparator('C:/out/a.o: C:/src/a.c')).toEqual({ index: 10, length: 1 });
+    expect(findTargetSeparator('lib D:\\x.o: y')).toEqual({ index: 10, length: 1 });
+    expect(findTargetSeparator('a\\:b: c')).toEqual({ index: 4, length: 1 });
+  });
+});
+
+describe('classifyTrimmedLine com referências e prefixos', () => {
+  it.each([
+    ['$(eval $(call tmpl,a,b:c))', 'other'],
+    ['$(info ver http://example.com/a)', 'other'],
+    ['$(foreach v,$(VARS),$(eval $(v) := 1))', 'other'],
+    ['$(MODULES:%=test_%): test_%:', 'target'],
+    ['$(OBJDIR)/%.o: %.c', 'target'],
+    ['$(PREFIX)_VAR := $(subst =,:,x)', 'assignment'],
+    ['export define BODY', 'define-open'],
+    ['private define BODY', 'define-open'],
+    ['override export define BODY', 'define-open'],
+    ['export DEFINE_X = 1', 'assignment'],
+    ['endif# fim', 'conditional-end'],
+    ['else# senao', 'conditional-else'],
+    ['endef # fim', 'define-end'],
+    ['endef# fim', 'other'],
+    ['endif-foo: x', 'target'],
+  ])('classifica "%s" como %s', (line, kind) => {
+    expect(classifyTrimmedLine(line)).toBe(kind);
+  });
+
+  it('defineDepthChange conta só o define sem prefixos e o endef seguido de espaço ou fim de linha', () => {
+    expect(defineDepthChange('define INNER')).toBe(1);
+    expect(defineDepthChange('  define INNER')).toBe(1);
+    expect(defineDepthChange('endef')).toBe(-1);
+    expect(defineDepthChange('  endef # fim')).toBe(-1);
+
+    // Como no make: prefixos, comentário colado e linhas com TAB são texto do corpo
+    expect(defineDepthChange('override define X')).toBe(0);
+    expect(defineDepthChange('export define X')).toBe(0);
+    expect(defineDepthChange('endef# fim')).toBe(0);
+    expect(defineDepthChange('\tendef')).toBe(0);
+    expect(defineDepthChange('\tdefine X')).toBe(0);
+    expect(defineDepthChange('defined = 1')).toBe(0);
+  });
+
+  it.each([
+    '$(eval $(call regra,a,b:c))',
+    '$(foreach t,a b,$(eval $(t): ; @echo $(t)))',
+    '$(info ver http://example.com/a)',
+    '${warning falta algo}',
+    '$(eval X := 1) # comentário',
+    '$(info a) $(info b)',
+    '$(call setup)',
+  ])('isStandaloneFunctionCall reconhece "%s"', (line) => {
+    expect(isStandaloneFunctionCall(line)).toBe(true);
+  });
+
+  it.each([
+    '$(CC) -o x x.c',
+    '$(MAKE)',
+    '$(Q)echo done',
+    '$(OBJ): $(SRC)',
+    'X := $(shell date)',
+    'echo $(info a)',
+    '$@',
+  ])('isStandaloneFunctionCall rejeita "%s"', (line) => {
+    expect(isStandaloneFunctionCall(line)).toBe(false);
+  });
+
+  it('looksLikeRecipeCommand ignora o ":" dentro de referências', () => {
+    expect(looksLikeRecipeCommand('$(info a: b)')).toBe(true);
+    expect(looksLikeRecipeCommand('$(OBJ): $(SRC)')).toBe(false);
   });
 });

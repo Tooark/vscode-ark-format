@@ -28,7 +28,9 @@ Mantenha seus Makefiles formatados de forma consistente sem nunca quebrar as reg
 Makefiles têm semântica estrita de espaços em branco. O formatador é construído sobre invariantes que garantem que ele nunca altera o que o `make` executa:
 
 - **Linhas de recipe** (prefixadas com TAB) mantêm o prefixo e o corpo nunca é modificado — o conteúdo da recipe pertence ao shell.
-- **Blocos `define ... endef`** são preservados sem alterações.
+- **Blocos `define ... endef`** são preservados sem alterações, incluindo blocos aninhados e os prefixos `export`, `override` e `private`.
+- **Referências (`$(...)`, `${...}`)** nunca são alteradas: `:`, `#`, `=` e espaços dentro de uma chamada de função são argumentos.
+- **Comentários inline em atribuições** mantêm o espaçamento original antes do `#`, porque o make inclui esses espaços no valor.
 - **Continuações de linha** (`\`) são preservadas; apenas espaços após a barra invertida são removidos.
 - **`.RECIPEPREFIX`**: se o arquivo redefinir o prefixo de recipe, o documento é preservado integralmente (a detecção por TAB deixa de valer).
 
@@ -125,7 +127,7 @@ Personalize o formatador no `settings.json`:
 | `maxConsecutiveBlankLines`           | `1`          | Número máximo de linhas em branco consecutivas                                 |
 | `removeLeadingBlankLines`            | `true`       | Remove linhas em branco no início do arquivo                                   |
 | `insertFinalNewline`                 | `true`       | Insere uma nova linha no fim do arquivo                                        |
-| `collapseSpaces`                     | `true`       | Colapsa múltiplos espaços (nunca em recipes, comentários, valores ou `define`) |
+| `collapseSpaces`                     | `true`       | Colapsa múltiplos espaços (nunca em recipes, comentários, valores, `$(...)` ou `define`) |
 | `spacing.spaceAroundAssignment`      | `true`       | Adiciona um único espaço em torno dos operadores de atribuição                 |
 | `spacing.spaceAfterTargetColon`      | `true`       | Adiciona um único espaço após `:` em declarações de alvo                       |
 | `spacing.spaceAfterCommentMarker`    | `true`       | Adiciona um espaço entre `#` e o texto do comentário                           |

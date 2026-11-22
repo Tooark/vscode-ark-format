@@ -681,3 +681,160 @@ describe('MakefileFormatter - formatDocument', () => {
     expect(formatter.formatDocument(document)).toHaveLength(0);
   });
 });
+
+describe('MakefileFormatter.formatText: referências, comentários inline e define', () => {
+  it.each([
+    '$(eval $(call tmpl,a,b:c))',
+    '$(eval $(ARGS):;@:)',
+    '$(info ver   http://example.com/a)',
+    '$(warning "nao achei em $(PATH), rode: go get x")',
+    '$(foreach v,$(VARS),$(eval $(v) := 1))',
+    '${info a   =   b}',
+  ])('mantém a chamada de função "%s" como está', (line) => {
+    const input = `${line}\n`;
+    expect(format(input)).toBe(input);
+  });
+
+  it('não lê o ":" de uma referência de substituição como separador de alvo', () => {
+    const input = ['$(MODULES:%=test_%): test_%:', '\t@echo $@', '$(OBJS:.o=.d)  :   %.d:%.c', '\t@echo $@', ''].join('\n');
+    const expected = ['$(MODULES:%=test_%): test_%:', '\t@echo $@', '$(OBJS:.o=.d): %.d:%.c', '\t@echo $@', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('indenta chamadas de função com ":" dentro de condicionais, sem tratá-las como alvo', () => {
+    const input = ['ifeq (,$(shell which tool))', '$(warning "faltou: tool")', 'endif', 'all:', '\t@echo ok', ''].join('\n');
+    const expected = ['ifeq (,$(shell which tool))', '  $(warning "faltou: tool")', 'endif', 'all:', '\t@echo ok', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('não lê a letra de unidade do Windows como separador de alvo', () => {
+    const input = ['C:/out/a.o  :  C:/src/a.c', '\tcc -c $<', 'D:\\out\\b.o: b.c', '\tcc -c $<', ''].join('\n');
+    const expected = ['C:/out/a.o: C:/src/a.c', '\tcc -c $<', 'D:\\out\\b.o: b.c', '\tcc -c $<', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it.each([
+    "N := $(shell grep -c '^#' file)",
+    'X := $(subst #,,$(Y))',
+    'Y := ${subst #,_,a#b}',
+    'Z := a\\#b',
+  ])('não trata como comentário o # literal em "%s"', (line) => {
+    const input = `${line}\n`;
+    expect(format(input)).toBe(input);
+  });
+
+  it.each([
+    'DIR := /usr#install dir',
+    'DIR := /usr # install dir',
+    'DIR := /usr    # install dir',
+    'CC = gcc\t# compiler',
+    'OPTS += -v              # Be verbose',
+  ])('preserva o espaço entre o valor e o comentário em "%s"', (line) => {
+    const result = format(`${line}\n`);
+    const hash = line.indexOf('#');
+
+    // O valor (tudo antes do `#`) não muda; o comentário só ganha o espaço após o marcador
+    expect(result.slice(0, hash)).toBe(line.slice(0, hash));
+    expect(result).toBe(`${line.slice(0, hash)}# ${line.slice(hash + 1).trimStart()}\n`);
+  });
+
+  it('usa um único espaço antes do comentário quando a atribuição não tem valor ou a linha não é atribuição', () => {
+    const input = ['EMPTY :=    # nada', 'all:   deps    # alvo', '\t@echo ok', 'include a.mk    # inclui', ''].join('\n');
+    const expected = ['EMPTY := # nada', 'all: deps # alvo', '\t@echo ok', 'include a.mk # inclui', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('mantém os argumentos de ifeq/ifneq e normaliza só a palavra-chave', () => {
+    const input = ['ifeq($(A),a  b)', 'X = 1', 'else   ifneq   ( a,$(B))', 'X = 2', 'else ifeq "a  b" "$(C)"', 'X = 3', 'endif', ''].join('\n');
+    const expected = ['ifeq ($(A),a  b)', '  X = 1', 'else ifneq ( a,$(B))', '  X = 2', 'else ifeq "a  b" "$(C)"', '  X = 3', 'endif', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('reconhece endif e else com comentário colado', () => {
+    const input = ['ifdef A', 'X = 1', 'else# senao', 'X = 2', 'endif# fim', 'Y=1', ''].join('\n');
+    const expected = ['ifdef A', '  X = 1', 'else # senao', '  X = 2', 'endif # fim', 'Y = 1', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('dentro de um define, segue o make: "endef#" e define com prefixo são texto do corpo', () => {
+    const input = [
+      'define A',
+      'corpo',
+      'endef# não fecha',
+      'X=1',
+      'endef',
+      'define T',
+      'override define X',
+      'endef',
+      'Z=1',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'define A',
+      'corpo',
+      'endef# não fecha',
+      'X=1',
+      'endef',
+      'define T',
+      'override define X',
+      'endef',
+      'Z = 1',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
+  it('não transforma em recipe uma chamada de função sem TAB depois de uma regra', () => {
+    const input = [
+      'all:',
+      '\t@echo ok',
+      '',
+      '$(foreach t,a b,$(eval $(t): ; @echo $(t)))',
+      '$(info ver http://example.com/a)',
+      '$(eval X := 1)   # comentário',
+      '$(call setup)',
+      '\t@echo ainda na recipe',
+      '',
+    ].join('\n');
+
+    const expected = [
+      'all:',
+      '\t@echo ok',
+      '',
+      '$(foreach t,a b,$(eval $(t): ; @echo $(t)))',
+      '$(info ver http://example.com/a)',
+      '$(eval X := 1) # comentário',
+      '$(call setup)',
+      '\t@echo ainda na recipe',
+      '',
+    ].join('\n');
+
+    expect(format(input)).toBe(expected);
+  });
+
+  it('continua normalizando para TAB os comandos de recipe sem TAB', () => {
+    const input = ['all:', '$(CC) -o x x.c', '  $(Q)echo done', '$(MAKE)', ''].join('\n');
+    const expected = ['all:', '\t$(CC) -o x x.c', '\t$(Q)echo done', '\t$(MAKE)', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it.each(['export define', 'private define', 'override define', 'override export define'])('preserva o corpo de "%s"', (prefix) => {
+    const input = [`${prefix} BODY`, '  echo   "a   b"', '    indentado', 'endef', 'X=1', ''].join('\n');
+    const expected = [`${prefix} BODY`, '  echo   "a   b"', '    indentado', 'endef', 'X = 1', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('preserva o corpo de blocos define aninhados até o endef externo', () => {
+    const input = ['define OUTER', 'antes', 'define INNER', '  dentro   literal', 'endef', '  depois   literal', '\tendef', 'X=1', 'endef', 'Y=1', ''].join('\n');
+    const expected = ['define OUTER', 'antes', 'define INNER', '  dentro   literal', 'endef', '  depois   literal', '\tendef', 'X=1', 'endef', 'Y = 1', ''].join('\n');
+    expect(format(input)).toBe(expected);
+  });
+
+  it('alinha atribuições cujo nome ou valor contém referências com operadores', () => {
+    const input = ['$(call name,a=b) := 1', 'LONG_NAME := $(subst =,:,x)', ''].join('\n');
+    const expected = ['$(call name,a=b) := 1', 'LONG_NAME        := $(subst =,:,x)', ''].join('\n');
+    expect(format(input, { alignAssignments: true })).toBe(expected);
+  });
+});

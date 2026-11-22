@@ -138,3 +138,29 @@ describe('provider de intervalo', () => {
     expect(edits[0].newText).toBe('  VAR = 1');
   });
 });
+
+describe('provider de intervalo: contexto com define aninhado, prefixos e comentário colado', () => {
+  it('ignora blocos define com prefixo e aninhados no cálculo do contexto', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const fullText = 'export define OUTER\nifeq (a,a)\ndefine INNER\nifeq (b,b)\nendef\nifeq (c,c)\nendef\nifeq ($(OS),Windows_NT)\nVAR=1\nendif';
+    const document = makeDocument(fullText, 'VAR=1');
+    const selection = { start: { line: 8, character: 0 }, end: { line: 8, character: 5 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    // Apenas o ifeq da linha 7 conta: os três dentro do define externo são ignorados
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('  VAR = 1');
+  });
+
+  it('fecha a condicional em endif com comentário colado', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument('ifdef A\nX = 1\nendif# fim\nVAR=1', 'VAR=1');
+    const selection = { start: { line: 3, character: 0 }, end: { line: 3, character: 5 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('VAR = 1');
+  });
+});

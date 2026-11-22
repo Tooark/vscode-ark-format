@@ -168,3 +168,50 @@ describe('MakefileRangeFormatter - formatRange', () => {
     expect(edits[0].newText).toBe('VAR := 1');
   });
 });
+
+describe('MakefileRangeFormatter: referências, comentários inline e define', () => {
+  const input = [
+    '$(eval $(call tmpl,a,b:c))',
+    "N:=$(shell grep -c '^#' file)",
+    'DIR:=/usr#install dir',
+    'ifeq($(A),a  b)',
+    'export define BODY',
+    '  echo   "a   b"',
+    'define INNER',
+    '  dentro   literal',
+    'endef',
+    'endef',
+    'X=1',
+    'endif# fim',
+  ].join('\n');
+
+  it('aplica as mesmas regras sem reindentar', () => {
+    const expected = [
+      '$(eval $(call tmpl,a,b:c))',
+      "N := $(shell grep -c '^#' file)",
+      'DIR := /usr# install dir',
+      'ifeq ($(A),a  b)',
+      'export define BODY',
+      '  echo   "a   b"',
+      'define INNER',
+      '  dentro   literal',
+      'endef',
+      'endef',
+      'X = 1',
+      'endif # fim',
+    ].join('\n');
+
+    expect(formatRange(input, { reindent: false })).toBe(expected);
+  });
+
+  it('aplica as mesmas regras ao reindentar', () => {
+    const lines = formatRange(input, { reindent: true, baseIndent: 0 }).split('\n');
+
+    expect(lines[0]).toBe('$(eval $(call tmpl,a,b:c))');
+    expect(lines[2]).toBe('DIR := /usr# install dir');
+    expect(lines[5]).toBe('  echo   "a   b"');
+    expect(lines[7]).toBe('  dentro   literal');
+    expect(lines[10]).toBe('  X = 1');
+    expect(lines[11]).toBe('endif # fim');
+  });
+});

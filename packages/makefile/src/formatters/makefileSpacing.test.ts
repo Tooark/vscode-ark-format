@@ -144,3 +144,48 @@ describe('applyMakefileSpacing - diretivas e outras linhas', () => {
     expect(spacing('VAR := a\\#b', 'assignment')).toBe('VAR := a\\#b');
   });
 });
+
+describe('applyMakefileSpacing - referências, comentários inline e condicionais', () => {
+  it('não altera o texto dentro de referências', () => {
+    expect(spacing('$(info a   b:   c)', 'other')).toBe('$(info a   b:   c)');
+    expect(spacing('all:   $(patsubst %.c,%.o,a   b)   x', 'target')).toBe('all: $(patsubst %.c,%.o,a   b) x');
+    expect(spacing('include   $(wildcard a   b)   c.mk', 'directive')).toBe('include $(wildcard a   b) c.mk');
+    expect(spacing('$(M:%=t_%)  :  t_%:   x', 'target')).toBe('$(M:%=t_%): t_%: x');
+  });
+
+  it('não trata como comentário o # dentro de referências', () => {
+    expect(spacing("N:=$(shell grep -c '^#' f)", 'assignment')).toBe("N := $(shell grep -c '^#' f)");
+    expect(spacing('X=$(subst #,,$(Y))#c', 'assignment')).toBe('X = $(subst #,,$(Y))# c');
+  });
+
+  it('preserva o espaço entre o valor da atribuição e o comentário', () => {
+    expect(spacing('DIR:=/usr#c', 'assignment')).toBe('DIR := /usr# c');
+    expect(spacing('DIR:=/usr #c', 'assignment')).toBe('DIR := /usr # c');
+    expect(spacing('DIR:=/usr    #c', 'assignment')).toBe('DIR := /usr    # c');
+    expect(spacing('DIR:=/usr\t#c', 'assignment')).toBe('DIR := /usr\t# c');
+  });
+
+  it('usa um único espaço antes do comentário nas demais linhas', () => {
+    expect(spacing('EMPTY:=    #c', 'assignment')).toBe('EMPTY := # c');
+    expect(spacing('all:deps    #c', 'target')).toBe('all: deps # c');
+    expect(spacing('endif#c', 'conditional-end')).toBe('endif # c');
+    expect(spacing('$(info a)    #c', 'other')).toBe('$(info a) # c');
+  });
+
+  it('separa o operador quando o nome ou o valor contém referências com operadores', () => {
+    expect(spacing('$(call n,a=b):=$(subst =,:,x)', 'assignment')).toBe('$(call n,a=b) := $(subst =,:,x)');
+    expect(getAssignmentValueColumn('$(call n,a=b) := x')).toBe(17);
+  });
+
+  it('mantém os argumentos de ifeq/ifneq', () => {
+    expect(spacing('ifeq($(A),a  b)', 'conditional-open')).toBe('ifeq ($(A),a  b)');
+    expect(spacing('ifneq   ( a,$(B))', 'conditional-open')).toBe('ifneq ( a,$(B))');
+    expect(spacing('else   ifeq   "a  b"   "c"', 'conditional-else')).toBe('else ifeq "a  b"   "c"');
+    expect(spacing('ifdef    VAR', 'conditional-open')).toBe('ifdef VAR');
+  });
+
+  it('não trata a letra de unidade do Windows como separador de alvo', () => {
+    expect(spacing('C:/out/a.o  :  C:/src/a.c', 'target')).toBe('C:/out/a.o: C:/src/a.c');
+    expect(spacing('C:/tools/run.exe', 'target')).toBe('C:/tools/run.exe');
+  });
+});
