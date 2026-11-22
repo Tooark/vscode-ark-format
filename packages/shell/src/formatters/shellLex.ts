@@ -366,8 +366,9 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
 
   // Iterar pela linha, avançando o lexer a cada passo
   for (let i = 0; i < input.length;) {
-    // Comentário inline no código normal: resto da linha não é processado como código
-    if (stack.length === 0 && input[i] === '#') {
+    // Comentário inline no código normal: resto da linha não é processado como código.
+    // `#` no meio de uma palavra (`$#`, `${#var}`) não é comentário: as strings seguintes continuam protegidas.
+    if (stack.length === 0 && input[i] === '#' && isWordStart(input, i)) {
       buf += input.slice(i);
       break;
     }
@@ -407,8 +408,51 @@ export function splitByQuotesPreserve (input: string): Array<{ kind: QuoteKind; 
 }
 
 /**
+ * Função para verificar se o `#` na posição informada inicia, com certeza, um comentário inline:
+ * no início da linha ou após espaço. Usada para descartar o texto do comentário nas decisões de
+ * indentação, por isso é mais restrita que `isWordStart`: após `(` ou `)` o `#` pode ser código,
+ * como nas flags e operadores de glob do zsh (`(#b)`, `*(#qN)`, `(dir)#`), e cortar a linha ali
+ * esconderia o `then`/`do` que vem depois.
+ * @param input - A linha em análise.
+ * @param i - A posição do caractere `#`.
+ * @returns `true` se o caractere estiver no início da linha ou após espaço.
+ */
+function isInlineCommentStart (input: string, i: number): boolean {
+  return i === 0 || /\s/.test(input[i - 1]);
+}
+
+/**
+ * Função para localizar o início do comentário de uma linha: o primeiro `#` no código normal
+ * (fora de aspas) que está no início da linha ou após espaço.
+ * @param input - Linha original de shell.
+ * @param initialMode - Estado de aspas de entrada (vindo da linha anterior).
+ * @returns A posição do `#` que inicia o comentário, ou -1 se a linha não tiver comentário.
+ */
+export function findCommentStartInLine (input: string, initialMode: QuoteState = 'code'): number {
+  const stack = parseQuoteState(initialMode);
+
+  // Linha de corpo de heredoc dentro de substituição de comando: é literal, não há comentário
+  if (consumeHeredocLine(input, stack)) {
+    return -1;
+  }
+
+  // Iterar pela linha até o primeiro `#` de comentário fora de qualquer string
+  for (let i = 0; i < input.length;) {
+    if (stack.length === 0 && input[i] === '#' && isInlineCommentStart(input, i)) {
+      return i;
+    }
+
+    i += lexStep(input, i, stack);
+  }
+
+  return -1;
+}
+
+/**
  * Retorna apenas as partes de código fora de aspas, útil para decisões de indentação.
- * Caracteres literais dentro de strings não devem abrir ou fechar blocos shell.
+ * Caracteres literais dentro de strings não devem abrir ou fechar blocos shell, e o texto de um
+ * comentário inline também não: em `exit 0 # nothing to do`, o `do` não abre um laço.
+ * Um comentário de linha inteira é mantido, para continuar reconhecido como comentário.
  * @param input - Linha original de shell.
  * @param initialMode - Estado de aspas de entrada (vindo da linha anterior).
  * @returns O conteúdo concatenado das partes classificadas como código.
@@ -424,6 +468,16 @@ export function getCodePartsOnly (input: string, initialMode: QuoteState = 'code
 
   // Iterar pela linha, mantendo apenas o que está fora de qualquer string
   for (let i = 0; i < input.length;) {
+    // Comentário no código normal: o texto após o código não participa das decisões de indentação
+    if (stack.length === 0 && input[i] === '#' && isInlineCommentStart(input, i)) {
+      // Linha sem código antes do `#`: comentário de linha inteira, mantido como está
+      if (code.trim() === '') {
+        code += input.slice(i);
+      }
+
+      break;
+    }
+
     const wasCode = stack.length === 0;
     const consumed = lexStep(input, i, stack);
 
@@ -455,8 +509,9 @@ export function getQuoteModeAfterLine (input: string, initialMode: QuoteState = 
 
   // Iterar pela linha, avançando o lexer a cada passo
   for (let i = 0; i < input.length;) {
-    // Comentário fora de aspas: resto da linha não altera o estado de aspas
-    if (stack.length === 0 && input[i] === '#') {
+    // Comentário fora de aspas: resto da linha não altera o estado de aspas.
+    // `#` no meio de uma palavra (`$#`, `${#var}`) não é comentário: uma string aberta depois dele conta.
+    if (stack.length === 0 && input[i] === '#' && isWordStart(input, i)) {
       break;
     }
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createInitialState, dedentBeforeLine, indentAfterLine, isLineContinuation } from './shellIndent';
+import { continuesOnNextLine, createInitialState, dedentBeforeLine, indentAfterLine, isLineContinuation } from './shellIndent';
 
 describe('isLineContinuation', () => {
   it('detects trailing backslash', () => {
@@ -419,5 +419,175 @@ describe('indentAfterLine', () => {
     indentAfterLine('breaksw', st);
     expect(st.indent).toBe(1);
     expect(st.inCasePatternBody).toBe(false);
+  });
+});
+
+describe('shell word boundaries (issue #39)', () => {
+  it.each([
+    'end-of-line',
+    'end=5',
+    'end.sh',
+    'done=1',
+    'done-task',
+    'fi-tool',
+    'endif=1',
+    'esac-x',
+    'endsw=1',
+    'else-x',
+    'elif=1',
+  ])('does NOT dedent before "%s"', (line) => {
+    const st = createInitialState();
+    st.indent = 1;
+    dedentBeforeLine(line, st);
+    expect(st.indent).toBe(1);
+  });
+
+  it.each([
+    'fi;',
+    'fi)',
+    'fi # comment',
+    'fi && echo ok',
+    'done<f',
+    'done|sort',
+    'done)',
+    'done &',
+    'done < <(cmd)',
+    'esac;',
+    'else echo no',
+    'elif[ -f a ];then',
+    'end',
+    '} ;',
+  ])('dedents before "%s"', (line) => {
+    const st = createInitialState();
+    st.indent = 1;
+    dedentBeforeLine(line, st);
+    expect(st.indent).toBe(0);
+  });
+
+  it.each(['end \\', 'done \\', 'fi \\', 'esac \\'])('does NOT dedent before "%s" in the middle of a continued command', (line) => {
+    const st = createInitialState();
+    st.indent = 2;
+    st.continuation = true;
+    dedentBeforeLine(line, st);
+    expect(st.indent).toBe(2);
+  });
+
+  it.each(['done', 'fi', 'esac', '}'])('dedents before "%s" even when the continuation state is still pending', (line) => {
+    const st = createInitialState();
+    st.indent = 2;
+    st.continuation = true;
+    dedentBeforeLine(line, st);
+    expect(st.indent).toBe(1);
+  });
+
+  it.each([
+    'CURSOR=${#BUFFER}',
+    'echo ${#}',
+    'while-x',
+    'foreach-x',
+    'switch-user root',
+    'case-x in',
+    'echo foo-then',
+    'echo foo-do',
+    'to-do',
+  ])('does NOT indent after "%s"', (line) => {
+    const st = createInitialState();
+    indentAfterLine(line, st);
+    expect(st.indent).toBe(0);
+  });
+
+  it.each([
+    'f() { # ${#x}',
+    'if[ -f a ];then',
+    'if [ -f a ]; then # comment',
+    'if true; then echo a',
+    'for x in a b;do',
+    'for ((i = 0; i < 3; i++)) do',
+    'case $x in',
+    'while ($i < 5)',
+    'while($i < 5)',
+    'foreach f (a b)',
+    'else',
+  ])('indents after "%s"', (line) => {
+    const st = createInitialState();
+    indentAfterLine(line, st);
+    expect(st.indent).toBe(1);
+  });
+
+  it('does not treat a word that contains "then" as the keyword in an inline if', () => {
+    const st = createInitialState();
+    indentAfterLine('if authenticate; then echo ok; fi', st);
+    expect(st.indent).toBe(0);
+  });
+});
+
+describe('while without "do" at the end of the line', () => {
+  it('undoes the level of "while" when "do" comes on the next line', () => {
+    const st = createInitialState();
+    indentAfterLine('while read -r x', st);
+    expect(st.indent).toBe(1);
+
+    dedentBeforeLine('do', st);
+    expect(st.indent).toBe(0);
+
+    indentAfterLine('do', st);
+    expect(st.indent).toBe(1);
+
+    dedentBeforeLine('done', st);
+    expect(st.indent).toBe(0);
+  });
+
+  it('keeps waiting for "do" across full-line comments', () => {
+    const st = createInitialState();
+    indentAfterLine('while read -r x', st);
+    dedentBeforeLine('# comment', st);
+    indentAfterLine('# comment', st);
+    dedentBeforeLine('do # comment', st);
+    expect(st.indent).toBe(0);
+  });
+
+  it('keeps the level of a tcsh while when the next line is not "do"', () => {
+    const st = createInitialState();
+    indentAfterLine('while ($i < 5)', st);
+    dedentBeforeLine('echo $i', st);
+    indentAfterLine('echo $i', st);
+    expect(st.indent).toBe(1);
+
+    // Um `do` posterior não desfaz mais o nível do while
+    dedentBeforeLine('do', st);
+    expect(st.indent).toBe(1);
+  });
+
+  it.each([
+    'while true; do sleep 1; done',
+    'while read -r l; do echo; done < file',
+    'while a; do while b; do c; done; done',
+  ])('does NOT indent after the one-line loop "%s"', (line) => {
+    const st = createInitialState();
+    indentAfterLine(line, st);
+    expect(st.indent).toBe(0);
+  });
+
+  it('indents after "while ...; do" with the body on the same line', () => {
+    const st = createInitialState();
+    indentAfterLine('while true; do sleep 1', st);
+    expect(st.indent).toBe(1);
+    dedentBeforeLine('do', st);
+    expect(st.indent).toBe(1);
+  });
+});
+
+describe('continuesOnNextLine', () => {
+  it.each(['cmd --one \\', 'cmd |', 'cmd &&', 'cmd ||', 'echo "a # b" \\'])('detects continuation in "%s"', (line) => {
+    expect(continuesOnNextLine(line)).toBe(true);
+  });
+
+  it.each(['x=1 # a | b |', 'x=1 # a && b &&', 'x=1 # path C:\\', '# comment \\', 'echo ok'])('ignores the comment text in "%s"', (line) => {
+    expect(continuesOnNextLine(line)).toBe(false);
+  });
+
+  it('respects the quote state from the previous line', () => {
+    expect(continuesOnNextLine('still # in string \\', 'dq')).toBe(true);
+    expect(continuesOnNextLine('end" # comment \\', 'dq')).toBe(false);
   });
 });

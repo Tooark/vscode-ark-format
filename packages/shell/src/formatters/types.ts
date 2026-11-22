@@ -51,6 +51,7 @@ export type QuoteState = QuoteKind | `${Exclude<QuoteKind, 'code'>}>${string}`;
  * - `inCase`: Se o processador está atualmente dentro de um bloco `case`.
  * - `inCasePatternBody`: Se o processador está dentro do corpo de um padrão em um bloco `case`.
  * - `continuation`: Se a linha anterior terminou com uma continuação (`\`).
+ * - `whileAwaitingDo`: Se a última linha de código foi um `while` sem `do`; o `do` pode vir na linha seguinte.
  */
 export interface IndentState {
   indent: number;
@@ -59,6 +60,7 @@ export interface IndentState {
   inCase: boolean;
   inCasePatternBody: boolean;
   continuation: boolean;
+  whileAwaitingDo?: boolean;
 }
 
 /**

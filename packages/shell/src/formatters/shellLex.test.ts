@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isShebang, isFullLineComment, splitByQuotesPreserve, detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine, isNestedHeredocLine } from './shellLex';
+import { isShebang, isFullLineComment, splitByQuotesPreserve, detectHeredocInCode, findCommentStartInLine, getCodePartsOnly, getQuoteModeAfterLine, isNestedHeredocLine } from './shellLex';
 
 describe('isShebang', () => {
   it('detects shebang lines', () => {
@@ -212,6 +212,69 @@ describe('getCodePartsOnly', () => {
 
   it('respects initialMode=bt (starts inside backtick)', () => {
     expect(getCodePartsOnly('still quoted` code after', 'bt')).toBe(' code after');
+  });
+});
+
+describe('# inside a word is not a comment (issue #39)', () => {
+  it.each(['$#', '${#x}', '${x#*/}', 'a#b'])('splitByQuotesPreserve keeps the string after %s as a string', (word) => {
+    expect(splitByQuotesPreserve(`echo ${word} "a   b" c`)).toEqual([
+      { kind: 'code', text: `echo ${word} ` },
+      { kind: 'dq', text: '"a   b"' },
+      { kind: 'code', text: ' c' },
+    ]);
+  });
+
+  it('splitByQuotesPreserve still stops at a comment that starts a word', () => {
+    expect(splitByQuotesPreserve('echo $# # it\'s "a   b"')).toEqual([
+      { kind: 'code', text: 'echo $# # it\'s "a   b"' },
+    ]);
+  });
+
+  it.each(['$#', '${#x}'])('getQuoteModeAfterLine sees a string opened after %s', (word) => {
+    expect(getQuoteModeAfterLine(`echo ${word} "unclosed`)).toBe('dq');
+    expect(getQuoteModeAfterLine(`echo ${word} 'unclosed`)).toBe('sq');
+  });
+
+  it('getQuoteModeAfterLine still ignores quotes in a comment that starts a word', () => {
+    expect(getQuoteModeAfterLine('echo $# # it\'s a comment')).toBe('code');
+    expect(getQuoteModeAfterLine('echo ok;# it\'s a comment')).toBe('code');
+  });
+});
+
+describe('inline comments in control text', () => {
+  it.each([
+    ['exit 0 # nothing to do', 'exit 0 '],
+    ['echo "a # b" # then', 'echo  '],
+    ['echo $# ${#x} a#b # do', 'echo $# ${#x} a#b '],
+  ])('getCodePartsOnly drops the comment of "%s"', (line, expected) => {
+    expect(getCodePartsOnly(line)).toBe(expected);
+  });
+
+  it.each([
+    'if [[ $x == (#b)(*)=(*) ]]; then',
+    'for f in *(#qN); do',
+    '[[ $x == (*/)#foo ]] &&',
+  ])('getCodePartsOnly keeps the code after a zsh glob flag or operator in "%s"', (line) => {
+    expect(getCodePartsOnly(line)).toBe(line);
+    expect(findCommentStartInLine(line)).toBe(-1);
+  });
+
+  it('getCodePartsOnly keeps a full-line comment', () => {
+    expect(getCodePartsOnly('  # nothing to do')).toBe('  # nothing to do');
+    expect(getCodePartsOnly('end" # then', 'dq')).toBe(' # then');
+  });
+
+  it('findCommentStartInLine returns the position of the comment marker', () => {
+    expect(findCommentStartInLine('exit 0 # nothing to do')).toBe(7);
+    expect(findCommentStartInLine('# full line')).toBe(0);
+    expect(findCommentStartInLine('echo "a # b" \'c # d\' # e')).toBe(21);
+    expect(findCommentStartInLine('end" # then', 'dq')).toBe(5);
+  });
+
+  it('findCommentStartInLine returns -1 when there is no comment', () => {
+    expect(findCommentStartInLine('echo $# ${#x} a#b "c # d"')).toBe(-1);
+    expect(findCommentStartInLine('still # in string', 'dq')).toBe(-1);
+    expect(findCommentStartInLine('echo \\# not a comment')).toBe(-1);
   });
 });
 

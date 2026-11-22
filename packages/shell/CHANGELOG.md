@@ -4,6 +4,18 @@ All notable changes to the `ark-format-shell` package are documented here.
 
 🌍 **Languages:** ![USA Flag](https://flagcdn.com/w20/us.png) **English (this file)** · [![Brazil Flag](https://flagcdn.com/w20/br.png) Português](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/CHANGELOG.pt-BR.md)
 
+## 1.0.16 - 2026-11-21
+
+- Package version bumped from `1.0.15` to `1.0.16`.
+- Fix ([#39](https://github.com/Tooark/vscode-ark-format/issues/39)): `${#var}` at the end of a line, such as `CURSOR=${#BUFFER}`, was read as `{` followed by a comment and opened a block, so the rest of the file gained one extra level.
+- Fix ([#39](https://github.com/Tooark/vscode-ark-format/issues/39)): words that start with a keyword (`end-of-line`, `end=5`, `done=1`, `done-task`, `fi-tool`, `echo foo-do`) opened or closed a block. Keywords are now delimited as shell words (whitespace or `;&|()<>`), and items such as `end \` or `done \` in the middle of a continued command are plain words.
+- Fix: after `$#` or `${#var}`, the rest of the line was treated as a comment. The spaces inside a string that followed were collapsed (`echo $# "a   b"` became `"a b"`) and a multi-line string opened there was not tracked.
+- Fix: `while` with `do` on the next line gained two levels and left the rest of the file shifted. A loop closed on its own line (`while read -r l; do ...; done < file`) opened a block that was never closed.
+- Fix: the text of an inline comment affected indentation. A comment ending in `do`, `then`, `{`, `;;`, `|`, `&&` or `\`, such as `exit 0 # nothing to do`, opened or closed a block or started a line continuation.
+- Example `samples/example.bash` with the issue cases, `while` with `do` on the next line, a one-line loop and keywords in inline comments.
+- New regression tests for the issue script, shell word boundaries, `#` inside a word, `while` loops and inline comments, in the document and range formatters.
+- Details: [notes/shell1.0.16.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.16.md)
+
 ## 1.0.15 - 2026-11-18
 
 - Package version bumped from `1.0.14` to `1.0.15`.

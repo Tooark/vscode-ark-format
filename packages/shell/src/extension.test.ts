@@ -223,4 +223,41 @@ describe('provider de intervalo', () => {
     // Sem edições: a seleção já está no nível correto (baseIndent 0)
     expect(edits).toEqual([]);
   });
+
+  it('não abre bloco em ${#var} no fim da linha no cálculo do contexto (issue #39)', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument('f() {\n  n=${#BUFFER}\necho next\n}', 'echo next');
+    const selection = { start: { line: 2, character: 0 }, end: { line: 2, character: 9 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('  echo next');
+  });
+
+  it('não conta while de uma linha nem palavras-chave em comentários no cálculo do contexto', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument(
+      'f() {\n  while read -r l; do echo "$l"; done < f\n  x=1 # nothing to do\n  while true\n  do\necho next\n  done\n}',
+      'echo next'
+    );
+    const selection = { start: { line: 5, character: 0 }, end: { line: 5, character: 9 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    // f() { +1, `do` após o `while` +1: a seleção fica no nível 2
+    expect(edits.length).toBe(1);
+    expect(edits[0].newText).toBe('    echo next');
+  });
+
+  it('fecha o bloco após um comando continuado cuja última linha é só uma string', () => {
+    const { range } = activateWith({ 'rangeFormatting.reindent': true });
+    const document = makeDocument('f() {\n  docker run \\\n    "$image"\n}\necho next', 'echo next');
+    const selection = { start: { line: 4, character: 0 }, end: { line: 4, character: 9 } };
+
+    const edits = range.provideDocumentRangeFormattingEdits(document, selection, editorOptions, token);
+
+    // Sem edições: o `}` fecha a função mesmo com a continuação pendente (baseIndent 0)
+    expect(edits).toEqual([]);
+  });
 });

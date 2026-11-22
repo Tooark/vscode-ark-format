@@ -152,6 +152,60 @@ describe('ShellRangeFormatter multiline strings and heredocs', () => {
   });
 });
 
+describe('ShellRangeFormatter issue #39', () => {
+  it('rebuilds the indentation around ${#var} and words that start with a keyword', () => {
+    const expected = [
+      'f() {',
+      '  if (( n > ${#buffer} )); then',
+      '    CURSOR=${#BUFFER}',
+      '',
+      '    if [[ -z $POSTDISPLAY ]]; then',
+      '      end=5',
+      '    fi',
+      '  else',
+      '    done=1',
+      '  fi',
+      '',
+      '  for widget in \\',
+      '    vi-forward-word \\',
+      '    end-of-line \\',
+      '    vi-end-of-line',
+      '  do',
+      '    echo $# "a   b"',
+      '  done',
+      '}',
+    ].join('\n');
+
+    const flattened = expected.split('\n').map((line) => line.trimStart()).join('\n');
+
+    expect(formatRange(flattened, { reindent: true, baseIndent: 0 })).toBe(expected);
+    expect(formatRange(expected, { reindent: true, baseIndent: 0 })).toBe(expected);
+  });
+
+  it('handles "do" on the line after "while", one-line loops and keywords in inline comments', () => {
+    const expected = [
+      'f() {',
+      '  while read -r x',
+      '  do',
+      '    while true; do sleep 1; done',
+      '    x=1 # nothing to do',
+      '    y=2 # a | b |',
+      '  done',
+      '}',
+    ].join('\n');
+
+    const flattened = expected.split('\n').map((line) => line.trimStart()).join('\n');
+
+    expect(formatRange(flattened, { reindent: true, baseIndent: 0 })).toBe(expected);
+    expect(formatRange(expected, { reindent: true, baseIndent: 0 })).toBe(expected);
+  });
+
+  it('keeps the content of a string after $# when reindent is false', () => {
+    const input = '  echo   $# "a   b"';
+    expect(formatRange(input, { reindent: false })).toBe('  echo $# "a   b"');
+  });
+});
+
 describe('ShellRangeFormatter.formatRange', () => {
   it('returns edits when formatting changes the selection', () => {
     const formatter = new ShellRangeFormatter(defaultOpts);
