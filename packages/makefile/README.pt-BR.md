@@ -127,7 +127,7 @@ Personalize o formatador no `settings.json`:
 | `maxConsecutiveBlankLines`           | `1`          | Número máximo de linhas em branco consecutivas                                 |
 | `removeLeadingBlankLines`            | `true`       | Remove linhas em branco no início do arquivo                                   |
 | `insertFinalNewline`                 | `true`       | Insere uma nova linha no fim do arquivo                                        |
-| `collapseSpaces`                     | `true`       | Colapsa múltiplos espaços (nunca em recipes, comentários, valores, `$(...)` ou `define`) |
+| `collapseSpaces`                     | `true`       | Colapsa espaços (nunca em recipes, comentários, valores, `$(...)` ou `define`) |
 | `spacing.spaceAroundAssignment`      | `true`       | Adiciona um único espaço em torno dos operadores de atribuição                 |
 | `spacing.spaceAfterTargetColon`      | `true`       | Adiciona um único espaço após `:` em declarações de alvo                       |
 | `spacing.spaceAfterCommentMarker`    | `true`       | Adiciona um espaço entre `#` e o texto do comentário                           |

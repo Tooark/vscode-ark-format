@@ -127,7 +127,7 @@ Customize the formatter in `settings.json`:
 | `maxConsecutiveBlankLines`           | `1`            | Maximum number of consecutive blank lines                                |
 | `removeLeadingBlankLines`            | `true`         | Removes blank lines at the beginning of the file                         |
 | `insertFinalNewline`                 | `true`         | Inserts a new line at the end of the file                                |
-| `collapseSpaces`                     | `true`         | Collapses multiple spaces (never in recipes, comments, values, `$(...)`, `define`) |
+| `collapseSpaces`                     | `true`         | Collapses spaces (not in recipes, comments, values, `$(...)`, `define`)  |
 | `spacing.spaceAroundAssignment`      | `true`         | Adds a single space around assignment operators                          |
 | `spacing.spaceAfterTargetColon`      | `true`         | Adds a single space after `:` in target declarations                     |
 | `spacing.spaceAfterCommentMarker`    | `true`         | Adds a space between `#` and the comment text                            |
