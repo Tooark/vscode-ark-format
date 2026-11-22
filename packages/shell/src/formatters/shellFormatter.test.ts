@@ -340,6 +340,386 @@ describe('ShellFormatter.formatText', () => {
     });
   });
 
+  describe('issue #39: ${#var} at end of line and words that start with a keyword', () => {
+    // Script da issue (zsh), já formatado: deve ser um ponto fixo do formatador.
+    const issueScript = [
+      'function user_sage_vi_forward_word() {',
+      '  if [[ $KEYMAP != (main|viins) ||',
+      '    -z ${_SAGE_CURRENT_SUGGESTION:-} ||',
+      '    -z ${POSTDISPLAY:-} ]] ||',
+      '    (( CURSOR != ${#BUFFER} )); then',
+      '    zle user-sage-original-vi-forward-word -- "$@"',
+      '    return $?',
+      '  fi',
+      '',
+      '  local original_buffer="$BUFFER"',
+      '  local -i original_cursor=$CURSOR',
+      '',
+      '  suggestion_style="${suggestion_style##* }"',
+      '  BUFFER+="$POSTDISPLAY"',
+      '',
+      '  if (( accepted_length > ${#original_buffer} )); then',
+      '',
+      '    POSTDISPLAY="${BUFFER:$(( accepted_length ))}"',
+      '    BUFFER="${BUFFER:0:$(( accepted_length ))}"',
+      '    CURSOR=${#BUFFER}',
+      '',
+      '    if [[ -z $POSTDISPLAY ]]; then',
+      '      _sage_clear_state',
+      '    fi',
+      '  else',
+      '    BUFFER="$original_buffer"',
+      '    CURSOR=$original_cursor',
+      '  fi',
+      '',
+      '  _sage_highlight_apply "${suggestion_style:-fg=245}"',
+      '  zle -R',
+      '  return $movement_status',
+      '}',
+      '',
+      'function user_sage_end_of_line() {',
+      '  user_sage_accept_or_move \\',
+      '    sage-accept user-sage-original-end-of-line "$@"',
+      '}',
+      '',
+      'function user_sage_install_vi_wrapper() {',
+      '  local movement_widget saved_widget wrapper_function',
+      '',
+      '  for movement_widget in \\',
+      '    vi-forward-char \\',
+      '    vi-forward-word \\',
+      '    end-of-line \\',
+      '    vi-end-of-line',
+      '  do',
+      '    saved_widget="user-sage-original-${movement_widget}"',
+      '    wrapper_function="user_sage_${movement_widget//-/_}"',
+      '',
+      '    if (( ! ${+widgets[$saved_widget]} )); then',
+      '      zle -A "$movement_widget" "$saved_widget"',
+      '      zle -N "$movement_widget" "$wrapper_function"',
+      '    fi',
+      '  done',
+      '}',
+      '',
+    ].join('\n');
+
+    it('keeps the script from the issue unchanged', () => {
+      const result = format(issueScript);
+      expect(result).toBe(issueScript);
+      expect(format(result)).toBe(result);
+    });
+
+    it('rebuilds the indentation of the script from the issue', () => {
+      const flattened = issueScript.split('\n').map((line) => line.trimStart()).join('\n');
+      expect(format(flattened)).toBe(issueScript);
+    });
+
+    it.each([
+      'CURSOR=${#BUFFER}',
+      'echo ${#}',
+      'n=${#items[@]}',
+    ])('does not open a block after "%s" at the end of a line', (line) => {
+      const input = ['f() {', `  ${line}`, '  echo ok', '}', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+
+    it('still opens a block after "{" followed by an inline comment', () => {
+      const input = ['f() { # ${#x}', 'echo ok', '}', ''].join('\n');
+      const expected = ['f() { # ${#x}', '  echo ok', '}', ''].join('\n');
+      expect(format(input)).toBe(expected);
+    });
+
+    it.each([
+      'end-of-line',
+      'end=5',
+      'end="$(date +%s)"',
+      'end.sh',
+      'done=1',
+      'done-task --all',
+      'fi-tool',
+      'endif=1',
+      'esac-x',
+      'endsw=1',
+      'else-x',
+      'elif=1',
+    ])('does not close a block on the word "%s"', (line) => {
+      const input = ['f() {', `  ${line}`, '  echo ok', '}', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+
+    it.each([
+      'while-x',
+      'foreach-x',
+      'switch-user root',
+      'case-x in',
+      'echo foo-then',
+      'echo foo-do',
+      'to-do',
+    ])('does not open a block on the word in "%s"', (line) => {
+      const input = ['f() {', `  ${line}`, '  echo ok', '}', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+
+    it('treats keywords as plain words in a line-continuation list', () => {
+      const input = [
+        'for w in \\',
+        'end \\',
+        'done \\',
+        'esac \\',
+        'fi \\',
+        'last',
+        'do',
+        'echo "$w"',
+        'done',
+        'echo end',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'for w in \\',
+        '  end \\',
+        '  done \\',
+        '  esac \\',
+        '  fi \\',
+        '  last',
+        'do',
+        '  echo "$w"',
+        'done',
+        'echo end',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it.each(['# --three', ''])('closes the block after a continued command that ends in "%s"', (lastLine) => {
+      const input = [
+        'for x in a b; do',
+        '  cmd --one \\',
+        '    --two \\',
+        lastLine,
+        'done',
+        'echo after',
+        'if true; then',
+        '  echo ok',
+        'fi',
+        '',
+      ].join('\n');
+
+      // O restante do arquivo não pode ficar deslocado
+      expect(format(input).split('\n').slice(-5)).toEqual(['echo after', 'if true; then', '  echo ok', 'fi', '']);
+    });
+
+    it('still closes blocks on keywords followed by a shell metacharacter', () => {
+      const input = [
+        'f() {',
+        'if[ -f a ];then',
+        'echo a',
+        'fi;',
+        'for x in a b;do',
+        'echo "$x"',
+        'done|sort',
+        'while read -r l; do',
+        'echo "$l"',
+        'done<f',
+        'y=$(for x in a b; do',
+        'echo "$x"',
+        'done)',
+        'for x in a b; do',
+        'echo "$x"',
+        'done &',
+        '} ;',
+        'echo end',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'f() {',
+        '  if [ -f a ]; then',
+        '    echo a',
+        '  fi;',
+        '  for x in a b; do',
+        '    echo "$x"',
+        '  done|sort',
+        '  while read -r l; do',
+        '    echo "$l"',
+        '  done<f',
+        '  y=$(for x in a b; do',
+        '    echo "$x"',
+        '  done)',
+        '  for x in a b; do',
+        '    echo "$x"',
+        '  done &',
+        '} ;',
+        'echo end',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it.each(['$#', '${#x}'])('keeps the content of a string after %s on the same line', (expansion) => {
+      const input = `echo ${expansion} "a   b" 'c   d'\n`;
+      expect(format(input)).toBe(input);
+    });
+
+    it('tracks a multi-line string opened after $# on the same line', () => {
+      const input = [
+        'f() {',
+        '  [ $# -eq 0 ] && echo "Usage:',
+        '  if   then   do"',
+        '  echo   ok',
+        '}',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'f() {',
+        '  [ $# -eq 0 ] && echo "Usage:',
+        '  if   then   do"',
+        '  echo ok',
+        '}',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+  });
+
+  describe('while loops without "do" at the end of the line', () => {
+    it('keeps "do" on the line after "while" at the level of the loop', () => {
+      const input = [
+        'f() {',
+        'while read -r x',
+        'do',
+        'while (( i < 3 ))',
+        '',
+        'do',
+        'echo "$x"',
+        'done',
+        'done < file',
+        '}',
+        'echo end',
+        '',
+      ].join('\n');
+
+      const expected = [
+        'f() {',
+        '  while read -r x',
+        '  do',
+        '    while (( i < 3 ))',
+        '',
+        '    do',
+        '      echo "$x"',
+        '    done',
+        '  done < file',
+        '}',
+        'echo end',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+      expect(format(expected)).toBe(expected);
+    });
+
+    it.each([
+      'while true; do sleep 1; done',
+      'while read -r l; do echo "$l"; done < file',
+      'while read -r l; do echo "$l"; done | sort # do',
+    ])('does not open a block after the one-line loop "%s"', (line) => {
+      const input = ['f() {', `  ${line}`, '  echo ok', '}', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+
+    it('opens a block when the loop body starts on the "while ...; do" line', () => {
+      const input = ['while true; do sleep 1', 'echo ok', 'done', 'echo end', ''].join('\n');
+      const expected = ['while true; do sleep 1', '  echo ok', 'done', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(expected);
+    });
+
+    it('still indents the body of a tcsh while loop', () => {
+      const input = ['while ($i < 5)', 'echo $i', '@ i++', 'end', 'echo end', ''].join('\n');
+      const expected = ['while ($i < 5)', '  echo $i', '  @ i++', 'end', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(expected);
+    });
+  });
+
+  describe('text of an inline comment does not affect indentation', () => {
+    it.each([
+      'exit 0 # nothing to do',
+      'x=1 # and then',
+      'x=1 # {',
+      'x=1 # }',
+      'x=1 # see case x in',
+      'x=1 # | a | b |',
+      'x=1 # a && b &&',
+      'x=1 # path C:\\',
+      'x=1 # it\'s done; fi',
+      'echo "a # b" # nothing to do',
+    ])('keeps the level after "%s"', (line) => {
+      const input = ['f() {', `  ${line}`, '  echo ok', '}', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+
+    it('does not close a case branch on ";;" inside a comment', () => {
+      const input = [
+        'case $x in',
+        '  a)',
+        '    echo a # see ;;',
+        '    echo b',
+        '  ;;',
+        'esac',
+        'echo end',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(input);
+    });
+
+    it('still reads the code before the comment', () => {
+      const input = ['if true;then # then', 'for x in a b;do # do', 'f(){ # {', 'echo ok # }', '}', 'done', 'fi', ''].join('\n');
+
+      const expected = [
+        'if true; then # then',
+        '  for x in a b; do # do',
+        '    f() { # {',
+        '      echo ok # }',
+        '    }',
+        '  done',
+        'fi',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(expected);
+    });
+
+    it('does not read zsh glob flags and operators with "#" as comments', () => {
+      const input = [
+        'f() {',
+        '  if [[ $x == (#b)(*)=(*) ]]; then',
+        '    echo a',
+        '  fi',
+        '  for f in *(#qN); do',
+        '    echo $f',
+        '  done',
+        '  [[ $x == (*/)#foo ]] &&',
+        '    echo b',
+        '  files=(*(#i)readme*) # then',
+        '  echo c',
+        '}',
+        'echo end',
+        '',
+      ].join('\n');
+
+      expect(format(input)).toBe(input);
+    });
+
+    it('keeps a full-line comment inside a continued command from ending the continuation', () => {
+      const input = ['cmd --one \\', '  # note', '  --two', 'echo end', ''].join('\n');
+      expect(format(input)).toBe(input);
+    });
+  });
+
   describe('top-level heredoc detection', () => {
     it('keeps formatting after a heredoc whose delimiter has other characters', () => {
       const input = ['cat <<END-MSG', "  it's literal", 'END-MSG', 'if true;then', 'echo ok', 'fi', ''].join('\n');

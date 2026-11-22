@@ -3,7 +3,7 @@ import { QuoteState, ShellRangeFormatterOptions } from './types';
 import { buildRangeEdits } from '@tooark/ark-format-shared/edits';
 import { normalizeToLf, trimTrailingWhitespace, reduceBlankLines, updateIndentAfterLineWithContinuation } from './utils';
 import { applyShellSpacing, toShellSpacingConfig } from './shellSpacing';
-import { createInitialState, dedentBeforeLine, indentAfterLine, isLineContinuation } from './shellIndent';
+import { continuesOnNextLine, createInitialState, dedentBeforeLine, indentAfterLine } from './shellIndent';
 import { detectHeredocInCode, getCodePartsOnly, getQuoteModeAfterLine } from './shellLex';
 
 /**
@@ -201,7 +201,7 @@ export class ShellRangeFormatter {
     const codeParts = getCodePartsOnly(raw, quoteMode).trim();
 
     // Preserva sinal de continuação no texto de controle mesmo quando ocorre dentro de string multilinha.
-    if (isLineContinuation(raw.trim())) {
+    if (continuesOnNextLine(raw, quoteMode)) {
       return `${codeParts} \\`;
     }
 

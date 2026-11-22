@@ -1,19 +1,49 @@
 import { hasContinuationLine } from '@tooark/ark-format-shared/indent';
-import { isFullLineComment, isShebang } from './shellLex';
-import { IndentState } from './types';
+import { findCommentStartInLine, isFullLineComment, isShebang } from './shellLex';
+import { IndentState, QuoteState } from './types';
+
+// Limites de palavra shell. Uma palavra só termina em espaço ou metacaractere (`;&|()<>`), e não em
+// `-`, `=`, `.` etc. como o `\b` de regex: `end-of-line`, `end=5` e `done-task` são palavras comuns,
+// não as palavras reservadas `end` e `done`.
+const WORD_START = '(?<![^\\s;&|()<>])';
+const WORD_END = '(?![^\\s;&|()<>])';
+// Fim de `if`/`elif`: aceita também `[` colado (`if[ ... ]`), que o espaçamento separa em seguida.
+const IF_WORD_END = '(?![^\\s;&|()<>[])';
+// Fim de linha após uma palavra, com comentário inline opcional. O `#` só inicia um comentário no
+// início de uma palavra, então precisa de espaço antes: `${#var}` no fim da linha não é `{` + comentário.
+const END_AFTER_WORD = '(?:\\s+#.*|\\s*)$';
+// Fim de linha após um metacaractere (`)`, `;;`), onde o comentário pode vir colado.
+const END_AFTER_METACHAR = '\\s*(?:#.*)?$';
 
 // Expressões regulares para identificar padrões de início de blocos e outros elementos que afetam a indentação
-const END_WITH_OPTIONAL_INLINE_COMMENT = '(?:\\s*(?:#.*)?)$';
 const CASE_BRANCH_TERMINATOR_RE = /^(?:;;|;&|;;&)\s*(?:#.*)?$/;
 const CASE_BRANCH_TERMINATOR_INLINE_RE = /(?:;;|;&|;;&)\s*(?:#.*)?$/;
-const CASE_IN_START_RE = new RegExp(`^case\\b.*\\bin${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const THEN_LINE_RE = new RegExp(`\\bthen${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const ELIF_THEN_LINE_RE = new RegExp(`^elif\\b.*;\\s*then${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const DO_LINE_RE = new RegExp(`\\bdo${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const OPEN_BRACE_LINE_RE = new RegExp(`\\{${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const CASE_PATTERN_LINE_RE = new RegExp(`\\)${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const TCSH_CASE_LABEL_RE = new RegExp(`^case\\b.*:${END_WITH_OPTIONAL_INLINE_COMMENT}`);
-const TCSH_DEFAULT_LABEL_RE = new RegExp(`^default:${END_WITH_OPTIONAL_INLINE_COMMENT}`);
+const CASE_IN_START_RE = new RegExp(`^case${WORD_END}.*${WORD_START}in${END_AFTER_WORD}`);
+const THEN_LINE_RE = new RegExp(`${WORD_START}then${END_AFTER_WORD}`);
+const ELIF_THEN_LINE_RE = new RegExp(`^elif${IF_WORD_END}.*;\\s*then${END_AFTER_WORD}`);
+const DO_LINE_RE = new RegExp(`${WORD_START}do${END_AFTER_WORD}`);
+const OPEN_BRACE_LINE_RE = new RegExp(`\\{${END_AFTER_WORD}`);
+const CASE_PATTERN_LINE_RE = new RegExp(`\\)${END_AFTER_METACHAR}`);
+const TCSH_CASE_LABEL_RE = new RegExp(`^case${WORD_END}.*:${END_AFTER_WORD}`);
+const TCSH_DEFAULT_LABEL_RE = new RegExp(`^default:${END_AFTER_WORD}`);
+const TCSH_CASE_LABEL_ONLY_RE = new RegExp(`^case${WORD_END}.*:\\s*$`);
+const TCSH_DEFAULT_LABEL_ONLY_RE = /^default:\s*$/;
+const IF_START_RE = new RegExp(`^(?:if|elif)${IF_WORD_END}`);
+const ELSE_START_RE = new RegExp(`^else${WORD_END}`);
+const ELSE_ELIF_START_RE = new RegExp(`^(?:else${WORD_END}|elif${IF_WORD_END})`);
+const IF_END_START_RE = new RegExp(`^(?:fi|endif)${WORD_END}`);
+const LOOP_END_START_RE = new RegExp(`^(?:done|end)${WORD_END}`);
+const CASE_END_START_RE = new RegExp(`^(?:esac|endsw)${WORD_END}`);
+const SWITCH_START_RE = new RegExp(`^switch${WORD_END}`);
+const FOREACH_START_RE = new RegExp(`^foreach${WORD_END}`);
+const WHILE_START_RE = new RegExp(`^while${WORD_END}`);
+const DO_ONLY_LINE_RE = new RegExp(`^do${END_AFTER_WORD}`);
+const DO_WORD_RE = new RegExp(`${WORD_START}do${WORD_END}`);
+const DONE_WORD_RE = new RegExp(`${WORD_START}done${WORD_END}`);
+const BREAKSW_START_RE = new RegExp(`^breaksw${WORD_END}`);
+const THEN_WORD_RE = new RegExp(`${WORD_START}then${WORD_END}`);
+const FI_WORD_RE = new RegExp(`${WORD_START}fi${WORD_END}`);
+const INLINE_IF_END_RE = new RegExp(`;\\s*(?:fi|endif)${WORD_END}`);
 const CASE_STACK_BY_STATE = new WeakMap<IndentState, boolean[]>();
 
 /**
@@ -56,14 +86,15 @@ function syncCaseFlagsFromStack (st: IndentState, stack: boolean[]): void {
  */
 function opensIfBodyOnNextLine (trimmed: string): boolean {
   // Verifica se a linha começa com `if` ou `elif` e contém `then`, mas não tem `fi` após o `then`.
-  if (!/^(if|elif)\b/.test(trimmed) || !/\bthen\b/.test(trimmed)) {
+  const thenMatch = IF_START_RE.test(trimmed) ? THEN_WORD_RE.exec(trimmed) : null;
+
+  if (!thenMatch) {
     return false;
   }
 
-  const thenIndex = trimmed.indexOf('then');
-  const afterThen = thenIndex >= 0 ? trimmed.slice(thenIndex + 4) : '';
+  const afterThen = trimmed.slice(thenMatch.index + thenMatch[0].length);
 
-  return !/\bfi\b/.test(afterThen);
+  return !FI_WORD_RE.test(afterThen);
 }
 
 /**
@@ -74,7 +105,7 @@ function opensIfBodyOnNextLine (trimmed: string): boolean {
  * @returns `true` se a linha abrir um bloco de corpo de `else` na próxima linha, `false` caso contrário.
  */
 function opensElseBodyOnNextLine (trimmed: string): boolean {
-  return /^else\b/.test(trimmed) && !/\bfi\b/.test(trimmed);
+  return ELSE_START_RE.test(trimmed) && !FI_WORD_RE.test(trimmed);
 }
 
 /**
@@ -86,12 +117,12 @@ function opensElseBodyOnNextLine (trimmed: string): boolean {
  */
 function closesIfBodyInlineOnCurrentLine (trimmed: string): boolean {
   // Linhas que terminam com `fi` ou `endif` não devem ser consideradas como fechamento de bloco inline, pois já são tratadas em dedentBeforeLine.
-  if (/^(fi|endif)\b/.test(trimmed)) {
+  if (IF_END_START_RE.test(trimmed)) {
     return false;
   }
 
   const withoutInlineComment = trimmed.replace(/\s+#.*$/, '');
-  const inlineCloseMatch = /;\s*(fi|endif)\b/.exec(withoutInlineComment);
+  const inlineCloseMatch = INLINE_IF_END_RE.exec(withoutInlineComment);
 
   // Se não encontrar um fechamento inline de `fi` ou `endif`, retorna false.
   if (!inlineCloseMatch) {
@@ -99,14 +130,14 @@ function closesIfBodyInlineOnCurrentLine (trimmed: string): boolean {
   }
 
   // Linhas começando com else/elif já fazem dedent em dedentBeforeLine.
-  if (/^(else|elif)\b/.test(withoutInlineComment)) {
+  if (ELSE_ELIF_START_RE.test(withoutInlineComment)) {
     return false;
   }
 
   const beforeInlineClose = withoutInlineComment.slice(0, inlineCloseMatch.index);
 
   // if/elif completo em uma única linha (abre e fecha na mesma linha) não deve alterar a indentação da próxima linha.
-  if (/^(if|elif)\b/.test(beforeInlineClose) && /\bthen\b/.test(beforeInlineClose)) {
+  if (IF_START_RE.test(beforeInlineClose) && THEN_WORD_RE.test(beforeInlineClose)) {
     return false;
   }
 
@@ -139,6 +170,19 @@ export function isLineContinuation (trimmed: string): boolean {
 }
 
 /**
+ * Função para verificar se uma linha original continua na linha seguinte, desconsiderando o texto
+ * de um comentário: `x=1 # a | b |` e `x=1 # C:\` terminam em `|` e `\`, mas não continuam.
+ * @param raw A linha original (sem trim).
+ * @param quoteMode O estado de aspas vindo da linha anterior.
+ * @returns `true` se o código da linha terminar com continuação, `false` caso contrário.
+ */
+export function continuesOnNextLine (raw: string, quoteMode: QuoteState = 'code'): boolean {
+  const commentStart = findCommentStartInLine(raw, quoteMode);
+
+  return isLineContinuation((commentStart === -1 ? raw : raw.slice(0, commentStart)).trim());
+}
+
+/**
  * Função para ajustar a indentação antes de processar uma linha de código.
  * Esta função verifica se a linha atual é um terminador de bloco (como `fi`, `done`, `esac`, etc.)
  * e, se for, reduz a indentação para a próxima linha.
@@ -158,6 +202,26 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
     return;
   }
 
+  // Primeira linha de código após um `while` sem `do`: se for o `do` (estilo Bash, com o `do` na
+  // linha seguinte), ele fica no nível do `while` e abre o corpo; o nível dado pelo `while` é desfeito.
+  if (st.whileAwaitingDo) {
+    st.whileAwaitingDo = false;
+
+    if (DO_ONLY_LINE_RE.test(trimmed)) {
+      st.indent = Math.max(0, st.indent - 1);
+
+      return;
+    }
+  }
+
+  // Linha no meio de um comando continuado (vem de uma continuação e também continua) é argumento,
+  // e não o fechamento de um bloco: em `for w in \`, itens como `end \` e `done \` são apenas palavras.
+  // A última linha do comando não entra aqui, pois o estado de continuação pode ter ficado pendente
+  // (ex.: após um argumento só com string ou um comentário) e a linha ser um fechamento real.
+  if (st.continuation && isLineContinuation(trimmed)) {
+    return;
+  }
+
   // caso termine com: ;; ; ;& ;;&
   if (caseStack.length > 0 && caseStack[caseStack.length - 1] && (/^(;;?&?|;;&)/.test(trimmed) || CASE_BRANCH_TERMINATOR_RE.test(trimmed))) {
     st.indent = Math.max(0, st.indent - 1);
@@ -168,7 +232,7 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   }
 
   // tcsh switch labels: dedenta o corpo anterior para alinhar novo case/default
-  if (caseStack.length > 0 && caseStack[caseStack.length - 1] && (/^case\b.*:\s*$/.test(trimmed) || /^default:\s*$/.test(trimmed))) {
+  if (caseStack.length > 0 && caseStack[caseStack.length - 1] && (TCSH_CASE_LABEL_ONLY_RE.test(trimmed) || TCSH_DEFAULT_LABEL_ONLY_RE.test(trimmed))) {
     st.indent = Math.max(0, st.indent - 1);
     caseStack[caseStack.length - 1] = false;
     syncCaseFlagsFromStack(st, caseStack);
@@ -177,21 +241,21 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   }
 
   // Blocos de controle
-  if (/^(fi|endif)\b/.test(trimmed)) {
+  if (IF_END_START_RE.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
 
     return;
   }
 
   // Blocos de loop - suporte legado tcsh (foreach/while)
-  if (/^(done)\b/.test(trimmed) || /^(end)\b/.test(trimmed)) {
+  if (LOOP_END_START_RE.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
 
     return;
   }
 
   // Blocos de case
-  if (/^esac\b/.test(trimmed) || /^endsw\b/.test(trimmed)) {
+  if (CASE_END_START_RE.test(trimmed)) {
     // Se estiver dentro de um bloco de case, precisa verificar se está dentro do corpo de um padrão
     if (caseStack.length > 0 && caseStack[caseStack.length - 1]) {
       st.indent = Math.max(0, st.indent - 1);
@@ -209,7 +273,7 @@ export function dedentBeforeLine (trimmed: string, st: IndentState): void {
   }
 
   // Blocos de função
-  if (/^(else|elif)\b/.test(trimmed)) {
+  if (ELSE_ELIF_START_RE.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
 
     return;
@@ -274,7 +338,7 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   }
 
   // Bloco switch (tcsh)
-  if (/^switch\b/.test(trimmed)) {
+  if (SWITCH_START_RE.test(trimmed)) {
     st.indent += 1;
     caseStack.push(false);
     syncCaseFlagsFromStack(st, caseStack);
@@ -290,8 +354,29 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   }
 
   // Blocos de loop - suporte legado tcsh (foreach, while)
-  if (DO_LINE_RE.test(trimmed) || /^foreach\b/.test(trimmed) || /^while\b/.test(trimmed)) {
+  if (DO_LINE_RE.test(trimmed) || FOREACH_START_RE.test(trimmed)) {
     st.indent += 1;
+
+    return;
+  }
+
+  // Laço while sem `do` no fim da linha
+  if (WHILE_START_RE.test(trimmed)) {
+    const doMatch = DO_WORD_RE.exec(trimmed);
+
+    // `while ...; do ...` com corpo na mesma linha (Bash): só abre bloco se o `done` não estiver nela
+    if (doMatch) {
+      if (!DONE_WORD_RE.test(trimmed.slice(doMatch.index + doMatch[0].length))) {
+        st.indent += 1;
+      }
+
+      return;
+    }
+
+    // Sem `do` na linha: `while (expr)` do tcsh, cujo corpo começa na próxima linha, ou `while` do
+    // Bash com o `do` na linha seguinte. Nesse último caso o `do` desfaz este nível (dedentBeforeLine).
+    st.indent += 1;
+    st.whileAwaitingDo = true;
 
     return;
   }
@@ -330,7 +415,7 @@ export function indentAfterLine (trimmed: string, st: IndentState): void {
   }
 
   // Terminador de bloco de label tcsh
-  if (caseStack.length > 0 && caseStack[caseStack.length - 1] && /^breaksw\b/.test(trimmed)) {
+  if (caseStack.length > 0 && caseStack[caseStack.length - 1] && BREAKSW_START_RE.test(trimmed)) {
     st.indent = Math.max(0, st.indent - 1);
     caseStack[caseStack.length - 1] = false;
     syncCaseFlagsFromStack(st, caseStack);

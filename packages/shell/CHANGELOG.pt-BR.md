@@ -4,6 +4,18 @@ Todas as mudanças relevantes do pacote `ark-format-shell` estão documentadas a
 
 🌍 **Idiomas:** [![USA Flag](https://flagcdn.com/w20/us.png) English](https://github.com/Tooark/vscode-ark-format/blob/main/packages/shell/CHANGELOG.md) · ![Brazil Flag](https://flagcdn.com/w20/br.png) **Português (este arquivo)**
 
+## 1.0.16 - 2026-11-21
+
+- Versão do pacote atualizada de `1.0.15` para `1.0.16`.
+- Correção ([#39](https://github.com/Tooark/vscode-ark-format/issues/39)): `${#var}` no fim da linha, como `CURSOR=${#BUFFER}`, era lido como `{` seguido de comentário e abria um bloco, então o restante do arquivo ganhava um nível a mais.
+- Correção ([#39](https://github.com/Tooark/vscode-ark-format/issues/39)): palavras que começam com uma palavra-chave (`end-of-line`, `end=5`, `done=1`, `done-task`, `fi-tool`, `echo foo-do`) abriam ou fechavam um bloco. As palavras-chave passam a ser delimitadas como palavras shell (espaço ou `;&|()<>`), e itens como `end \` ou `done \` no meio de um comando continuado são palavras comuns.
+- Correção: depois de `$#` ou `${#var}`, o restante da linha era tratado como comentário. Os espaços dentro de uma string seguinte eram colapsados (`echo $# "a   b"` virava `"a b"`) e uma string multilinha aberta ali não era rastreada.
+- Correção: `while` com o `do` na linha seguinte ganhava dois níveis e deixava o restante do arquivo deslocado. Um laço fechado na própria linha (`while read -r l; do ...; done < file`) abria um bloco que nunca era fechado.
+- Correção: o texto de um comentário inline afetava a indentação. Um comentário terminado em `do`, `then`, `{`, `;;`, `|`, `&&` ou `\`, como `exit 0 # nothing to do`, abria ou fechava um bloco ou iniciava uma continuação de linha.
+- Exemplo `samples/example.bash` com os casos da issue, `while` com o `do` na linha seguinte, laço de uma linha e palavras-chave em comentários inline.
+- Novos testes de regressão para o script da issue, limites de palavra shell, `#` dentro de uma palavra, laços `while` e comentários inline, nos formatadores de documento e de seleção.
+- Detalhes: [notes/shell1.0.16.md](https://raw.githubusercontent.com/Tooark/vscode-ark-format/main/notes/shell1.0.16.md)
+
 ## 1.0.15 - 2026-11-18
 
 - Versão do pacote atualizada de `1.0.14` para `1.0.15`.

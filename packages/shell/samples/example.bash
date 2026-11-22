@@ -93,3 +93,45 @@ EOF
 printf '%s\n' "$msg"
 }
 greet "Ark"
+
+# Parameter length at the end of a line and words that start with a keyword - issue #39
+# "${#var}" at the end of a line is not "{" plus a comment, and words such as
+# "end-of-line", "end=5" or "done=1" are not the "end" and "done" keywords.
+count_widgets(){
+local name="$1"
+local size=${#name}
+
+local end done
+if [ "$size" -gt 0 ];then
+end=5
+done=1
+echo "$name: $size $end $done"
+fi
+
+for widget in \
+vi-forward-word \
+end-of-line \
+vi-end-of-line
+do
+echo "widget: $widget"
+done
+}
+count_widgets "Ark"
+
+# "$#" is not a comment: the spaces inside the string after it are kept
+echo $# "a   b"
+
+# "while" with "do" on the next line, a one-line loop and keywords in an inline comment
+# The "do" stays at the level of the "while", a loop closed on its own line does not
+# open a block, and the text of a comment ("do", "then", "{", "|") is never read as code.
+countdown(){
+local n=3
+while [ "$n" -gt 0 ]
+do
+echo "n: $n" # nothing else to do
+n=$((n - 1)) # a | b |
+done
+while [ "$n" -lt 2 ]; do n=$((n + 1)); done
+echo "n: $n"
+}
+countdown
